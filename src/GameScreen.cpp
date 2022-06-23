@@ -17,7 +17,9 @@ GameScreen::GameScreen(Urho3D::Context* context) :
 	SharedPtr<Viewport> viewport{ new Viewport(context_, scene_, camera) };
 	SetViewport(0, viewport);
 
-	camera->GetNode()->CreateComponent<FreeFlyController>();
+	auto* cameraController = camera->GetNode()->CreateComponent<FreeFlyController>();
+	cameraController->SetSpeed(2.0f);
+	cameraController->SetAcceleratedSpeed(20.0f);
 
 	// Set the mouse mode to use in the sample
 	SetMouseMode(MM_FREE);
