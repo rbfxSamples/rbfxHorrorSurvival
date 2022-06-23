@@ -3,6 +3,8 @@
 #include <Urho3D/UI/SplashScreen.h>
 #include <Urho3D/Engine/EngineDefs.h>
 
+#include "GameScreen.h"
+
 using namespace Urho3D;
 
 HorrorSurvivalApp::HorrorSurvivalApp(Urho3D::Context* context) :
@@ -19,9 +21,8 @@ void HorrorSurvivalApp::Setup()
 
 void HorrorSurvivalApp::Start()
 {
-	auto* splash = new SplashScreen(context_);
-	splash->SetDefaultFogColor(Color::BLUE);
-	SetState(splash);
+	auto* gameScreen = new GameScreen(context_);
+	SetState(gameScreen);
 }
 
 void HorrorSurvivalApp::Stop()
