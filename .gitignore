@@ -1,0 +1,142 @@
+# Output directories
+/bin/*
+!/bin/**/
+!/bin/*.bat
+!/bin/*.sh
+/bin/*.app/
+/bin/*.app.dSYM/
+/bin/jit/
+/bin/Screenshots/
+/bin/tool/
+/bin/Cache/*
+/bin/StringHashNames.json
+/include/
+/lib*/
+generated/
+/Source/Urho3D/tolua++-prefix/
+/cmake-build*
+captures/
+.cxx/
+.externalNativeBuild/
+
+# Output files
+/Source/**/*.a
+/Source/ThirdParty/Assimp/revision.h
+/Source/ThirdParty/Assimp/contrib/zlib/zconf.h
+/Source/ThirdParty/Assimp/include/assimp/config.h
+/Source/Urho3D/Precompiled.cpp
+/Source/Urho3D/Urho3D.pc
+/Source/Urho3D/Urho3D.pc.msvc
+/Source/Urho3D/Urho3DAll.h
+/Source/Urho3D/librevision.h
+
+# Compiled shaders
+*.vs?
+*.ps?
+
+# Compiled AngelScript
+*.asc
+
+# Compiled Lua script
+*.luc
+
+# Generated documentation
+/Docs/html/
+/Docs/qch/
+
+# Saved sample scenes
+/bin/Data/Scenes/Isometric2D.xml
+/bin/Data/Scenes/Platformer2D.xml
+
+# Eclipse project settings
+/.*project
+/.settings
+
+# KDevelop project settings
+/*.kdev?
+
+# Qt Creator project settings
+/CMakeLists.txt.user
+
+# JetBrains IDE project settings
+.idea
+*.iml
+
+# Code::Blocks project settings
+/*.cbp
+
+# Codelite project settings
+/*.project
+/*.workspace
+
+# Android project settings
+/android/local.properties
+/android/build
+
+# VSCode project settings
+/build/*
+
+# Android output directories
+gradle*
+.gradle
+
+# Visual Studio project settings
+/.vs/
+/CMakeSettings.json
+/out/
+
+# VSCode project settings
+.vscode
+
+# CMake generated build files
+/cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+CPackConfig.cmake
+CPackSourceConfig.cmake
+CTestTestfile.cmake
+/Source/**/*.cmake
+!/Source/ThirdParty/SDL/cmake/*.cmake
+!/Source/ThirdParty/SDL/include/*cmake
+!/Source/ThirdParty/Assimp/cmake-modules/*cmake
+/Docs/**/*.cmake
+
+# Precompiled header files
+*.gch/
+*.pch/
+*.pch.*
+
+# Custom rake tasks
+/.rake/
+.rake_t_cache
+
+# Misc.
+configure*
+*~
+*.swp
+.DS_Store
+*.log
+*.bak
+Thumbs.db
+!.ci
+*.DotSettings
+*.DotSettings.user
+__pycache__
+*.csproj.user
+*venv
+.directory
+.gdbinit
+
+# Doxygen mess from absence of 'dot' dependency
+CMakeDoxyFile.in
+CMakeDoxygenDefaults.cmake
+
+# Packaging
+packaging/nuget/local-repository/
+packaging/nuget/out/
+packaging/nuget/SDK-*
+packaging/nuget/rbfx-*.zip

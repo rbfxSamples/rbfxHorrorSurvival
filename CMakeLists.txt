@@ -1,0 +1,62 @@
+cmake_minimum_required(VERSION 3.15)
+
+# Configure project
+project(HorrorSurvival LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED YES)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
+
+# Configure engine
+#set(URHO3D_STATIC_RUNTIME ON)
+set(BUILD_SHARED_LIBS ON)
+#set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(URHO3D_ENABLE_ALL OFF)
+set(URHO3D_DOCS OFF)
+set(URHO3D_CSHARP OFF)
+set(URHO3D_EXTRAS OFF)
+set(URHO3D_GLOW OFF)
+set(URHO3D_HASH_DEBUG OFF)
+set(URHO3D_IK OFF)
+set(URHO3D_LEGACY_RENDERER OFF)
+set(URHO3D_LOGGING ON)
+set(URHO3D_MONOLITHIC_HEADER OFF)
+set(URHO3D_NAVIGATION ON)
+set(URHO3D_NETWORK OFF)
+set(URHO3D_NO_EDITOR_PLAYER_EXE ON)
+set(URHO3D_PHYSICS ON)
+set(URHO3D_PHYSICS2D OFF)
+set(URHO3D_PLAYER OFF)
+set(URHO3D_PROFILING OFF)
+set(URHO3D_RMLUI OFF)
+set(URHO3D_SYSTEMUI ON)
+set(URHO3D_SAMPLES OFF)
+set(URHO3D_TOOLS OFF)
+set(URHO3D_URHO2D OFF)
+set(URHO3D_WEBP OFF)
+set(URHO3D_URHO2D OFF)
+add_subdirectory(rbfx)
+
+foreach(dir CoreData EditorData)
+    create_symlink(${CMAKE_CURRENT_SOURCE_DIR}/rbfx/bin/${dir} ${CMAKE_CURRENT_SOURCE_DIR}/bin/${dir})
+    # /${dir}/../ trick is used for installing Autoload subdirs.
+endforeach()
+
+# Game executable
+
+file (GLOB_RECURSE SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+
+if(WIN32)
+  set(GUI_TYPE WIN32)
+elseif(APPLE)
+  set(GUI_TYPE MACOSX_BUNDLE)
+endif()
+
+add_executable(HorrorSurvival
+    ${GUI_TYPE}
+    ${SOURCE_FILES}
+)
+target_link_libraries(HorrorSurvival PUBLIC Urho3D)
+set_target_properties(HorrorSurvival PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin/ )
+set_target_properties(HorrorSurvival PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/bin/ )
+set_target_properties(HorrorSurvival PROPERTIES RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_CURRENT_SOURCE_DIR}/bin/ )
+set_target_properties(HorrorSurvival PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINGFO ${CMAKE_CURRENT_SOURCE_DIR}/bin/ )
