@@ -3,7 +3,7 @@
 #include <Urho3D/Core/Object.h>
 #include <Urho3D/Core/Timer.h>
 #include <Urho3D/Scene/Scene.h>
-#include <Urho3D/Container/Vector.h>
+#include <Urho3D/Container/ea::vector.h>
 
 using namespace Urho3D;
 
@@ -69,7 +69,7 @@ public:
 
     void CleanupScene();
 
-    const Vector<MapInfo>& GetAvailableMaps() const;
+    const ea::vector<MapInfo>& GetAvailableMaps() const;
 
     const MapInfo* GetCurrentMapInfo() const;
 
@@ -150,7 +150,7 @@ private:
      */
     ea::hash_map<StringHash, LoadingStep> loadingSteps_;
 
-    Vector<MapInfo> availableMaps_;
+    ea::vector<MapInfo> availableMaps_;
 
     MapInfo* currentMap_;
 };

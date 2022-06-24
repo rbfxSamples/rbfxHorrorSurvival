@@ -157,7 +157,7 @@ void Generator::GenerateTextures()
         Color colors[6];
         Color frame;
     };
-    Vector<TextureColors> textures;
+    ea::vector<TextureColors> textures;
     TextureColors stone;
     stone.singleColor = true;
     stone.colors[0] = Color(0.41,0.41,0.41);

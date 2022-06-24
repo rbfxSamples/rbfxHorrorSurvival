@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Urho3D/Core/Object.h>
-#include <Urho3D/Container/Vector.h>
+#include <Urho3D/Container/ea::vector.h>
 #include <Urho3D/UI/Text.h>
 
 using namespace Urho3D;
@@ -48,7 +48,7 @@ private:
     /**
      * ea::list of all active messages
      */
-    Vector<SharedPtr<UIElement>> messages_;
+    ea::vector<SharedPtr<UIElement>> messages_;
     SharedPtr<ObjectAnimation> notificationAnimation_;
     SharedPtr<ValueAnimation> positionAnimation_;
     SharedPtr<ValueAnimation> opacityAnimation_;

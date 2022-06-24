@@ -1,3 +1,5 @@
+#pragma once
+
 static const unsigned COLLISION_MASK_PLAYER = 1 << 0; //1
 static const unsigned COLLISION_MASK_CHECKPOINT = 1 << 1; //2
 static const unsigned COLLISION_MASK_OBSTACLES = 1 << 2; //4

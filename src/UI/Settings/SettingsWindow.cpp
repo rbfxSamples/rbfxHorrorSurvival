@@ -93,7 +93,7 @@ namespace {
         }
     };
 
-    typedef Vector<Resolution> ResolutionVector;
+    typedef ea::vector<Resolution> ResolutionVector;
 
 // Get number of currently present monitors
     int GetMonitorCount() {
@@ -138,8 +138,8 @@ namespace {
         return resolutions;
     }
 
-    Vector<int> GetFullscreenRefreshRates(int monitor) {
-        Vector<int> rates;
+    ea::vector<int> GetFullscreenRefreshRates(int monitor) {
+        ea::vector<int> rates;
         if (monitor < 0)
             return rates;
 

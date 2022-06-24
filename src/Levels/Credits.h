@@ -59,7 +59,7 @@ namespace Levels {
         /**
          * Credits view content
          */
-        Vector<SharedPtr<UIElement>> credits_;
+        ea::vector<SharedPtr<UIElement>> credits_;
 
         /**
          * Credits base UI view

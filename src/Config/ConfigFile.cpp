@@ -27,7 +27,7 @@ SOFTWARE.
 #include <Urho3D/Core/Context.h>
 #include <Urho3D/IO/File.h>
 #include <Urho3D/Container/Str.h>
-#include <Urho3D/Container/Vector.h>
+#include <Urho3D/Container/ea::vector.h>
 #include <Urho3D/IO/MemoryBuffer.h>
 #include <Urho3D/IO/Log.h>
 
@@ -73,13 +73,13 @@ bool ConfigFile::Save(Serializer& dest) const {
     ea::hash_map<ea::string, ea::string> processedConfig;
 
     // Iterate over all sections, printing out the header followed by the properties.
-    for (Vector<ConfigSection>::ConstIterator itr(configMap_.Begin()); itr != configMap_.End(); ++itr) {
+    for (ea::vector<ConfigSection>::ConstIterator itr(configMap_.Begin()); itr != configMap_.End(); ++itr) {
         if (itr->Begin() == itr->End()) {
             continue;
         }
 
         // Don't print section if there's nothing to print.
-        Vector<ea::string>::ConstIterator section_itr(itr->Begin());
+        ea::vector<ea::string>::ConstIterator section_itr(itr->Begin());
         ea::string header(ParseHeader(*section_itr));
 
 
@@ -124,12 +124,12 @@ bool ConfigFile::Save(Serializer& dest, bool smartSave) const {
     ea::string activeSection;
 
     // Iterate over all sections, printing out the header followed by the properties.
-    for (Vector<ConfigSection>::ConstIterator itr(configMap_.Begin()); itr != configMap_.End(); ++itr) {
+    for (ea::vector<ConfigSection>::ConstIterator itr(configMap_.Begin()); itr != configMap_.End(); ++itr) {
         if (itr->Begin() == itr->End()) {
             continue;
         }
 
-        for (Vector<ea::string>::ConstIterator section_itr(itr->Begin()); section_itr != itr->End(); ++section_itr) {
+        for (ea::vector<ea::string>::ConstIterator section_itr(itr->Begin()); section_itr != itr->End(); ++section_itr) {
             const ea::string line(*section_itr);
 
             if (wroteLine.contains(activeSection + line)) {
@@ -171,7 +171,7 @@ bool ConfigFile::Has(const ea::string& section, const ea::string& parameter) {
 const ea::string ConfigFile::GetString(const ea::string& section, const ea::string& parameter, const ea::string& defaultValue) {
     // Find the correct section.
     ConfigSection* configSection(nullptr);
-    for (Vector<ConfigSection>::Iterator itr(configMap_.Begin()); itr != configMap_.End(); ++itr) {
+    for (ea::vector<ConfigSection>::Iterator itr(configMap_.Begin()); itr != configMap_.End(); ++itr) {
         if (itr->Begin() == itr->End()) {
             continue;
         }
@@ -195,7 +195,7 @@ const ea::string ConfigFile::GetString(const ea::string& section, const ea::stri
         return defaultValue;
     }
 
-    for (Vector<ea::string>::ConstIterator itr(configSection->Begin()); itr != configSection->End(); ++itr) {
+    for (ea::vector<ea::string>::ConstIterator itr(configSection->Begin()); itr != configSection->End(); ++itr) {
         ea::string property;
         ea::string value;
         ParseProperty(*itr, property, value);
@@ -351,7 +351,7 @@ const Matrix4 ConfigFile::GetMatrix4(const ea::string& section, const ea::string
 void ConfigFile::Set(const ea::string& section, const ea::string& parameter, const ea::string& value) {
     // Find the correct section.
     ConfigSection* configSection(nullptr);
-    for (Vector<ConfigSection>::Iterator itr(configMap_.Begin()); itr != configMap_.End(); ++itr) {
+    for (ea::vector<ConfigSection>::Iterator itr(configMap_.Begin()); itr != configMap_.End(); ++itr) {
         if (itr->Begin() == itr->End()) {
             continue;
         }
@@ -394,7 +394,7 @@ void ConfigFile::Set(const ea::string& section, const ea::string& parameter, con
 
     ea::string* line(nullptr);
     unsigned separatorPos(0);
-    for (Vector<ea::string>::Iterator itr(configSection->Begin()); itr != configSection->End(); ++itr) {
+    for (ea::vector<ea::string>::Iterator itr(configSection->Begin()); itr != configSection->End(); ++itr) {
         // Find property separator.
         separatorPos = itr->Find("=");
         if (separatorPos == ea::string::NPOS) {

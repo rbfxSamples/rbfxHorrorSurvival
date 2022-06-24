@@ -369,9 +369,9 @@ void ControllerInput::SetActionState(int action, bool active, int index, float s
     controls_[index].extraData_[StringHash(action)] = strength;
 }
 
-Vector<int> ControllerInput::GetControlIndexes()
+ea::vector<int> ControllerInput::GetControlIndexes()
 {
-    Vector<int> indexes;
+    ea::vector<int> indexes;
     if (!multipleControllerSupport_) {
         indexes.Push(0);
         return indexes;

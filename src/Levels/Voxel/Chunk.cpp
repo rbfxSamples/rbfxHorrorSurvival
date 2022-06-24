@@ -21,7 +21,7 @@
 #include <Urho3D/UI/Font.h>
 #include <Urho3D/Resource/JSONFile.h>
 #include <Urho3D/IO/FileSystem.h>
-#include <Urho3D/Container/Vector.h>
+#include <Urho3D/Container/ea::vector.h>
 #include <Urho3D/Core/Profiler.h>
 #include <Urho3D/Engine/DebugHud.h>
 #include <Urho3D/Audio/AudioDefs.h>

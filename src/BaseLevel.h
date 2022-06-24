@@ -9,81 +9,81 @@ using namespace Urho3D;
 
 class BaseLevel : public Object
 {
-    URHO3D_OBJECT(BaseLevel, Object);
+	URHO3D_OBJECT(BaseLevel, Object);
 public:
-    BaseLevel(Context* context);
+	BaseLevel(Context* context);
 
-    virtual ~BaseLevel();
+	virtual ~BaseLevel();
 
 private:
-    void SubscribeToBaseEvents();
+	void SubscribeToBaseEvents();
 
-    void HandleStart(StringHash eventType, VariantMap& eventData);
+	void HandleStart(StringHash eventType, VariantMap& eventData);
 
 protected:
 
-    /**
-     * Initialize the level
-     */
-    virtual void Init() {};
+	/**
+	 * Initialize the level
+	 */
+	virtual void Init() {};
 
-    /**
-     * Start scene updates
-     */
-    virtual void Run();
+	/**
+	 * Start scene updates
+	 */
+	virtual void Run();
 
-    /**
-     * Pause scene updates
-     */
-    virtual void Pause();
+	/**
+	 * Pause scene updates
+	 */
+	virtual void Pause();
 
-    void SubscribeToEvents();
+	void SubscribeToEvents();
 
-    /**
-     * Handle FOV change for all cameras
-     */
-    void HandleFovChange(StringHash eventType, VariantMap& eventData);
+	/**
+	 * Handle FOV change for all cameras
+	 */
+	void HandleFovChange(StringHash eventType, VariantMap& eventData);
 
-    /**
-     * Get rid of this level
-     */
-    virtual void Dispose();
+	/**
+	 * Get rid of this level
+	 */
+	virtual void Dispose();
 
-    /**
-     * Define rects for splitscreen mode
-     */
-    Vector<IntRect> InitRects(int count);
+	/**
+	 * Define rects for splitscreen mode
+	 */
+	ea::vector<IntRect> InitRects(int count);
 
-    /**
-     * Create viewports and cameras based on controller count
-     */
-    void InitViewports(Vector<int> playerIndexes);
+	/**
+	 * Create viewports and cameras based on controller count
+	 */
+	void InitViewports(ea::vector<int> playerIndexes);
 
-    void CreateSingleCamera(int index = 0, int totalCount = 1, int controllerIndex = 0);
+	void CreateSingleCamera(int index = 0, int totalCount = 1, int controllerIndex = 0);
 
-    void ApplyPostProcessEffects();
+	void ApplyPostProcessEffects();
 
-    /**
-     * Level scene
-     */
-    SharedPtr<Scene> scene_;
+	/**
+	 * Level scene
+	 */
+	SharedPtr<Scene> scene_;
 
-    /**
-     * Data which was passed trough LevelManager
-     */
-    VariantMap data_;
+	/**
+	 * Data which was passed trough LevelManager
+	 */
+	VariantMap data_;
 
-    /**
-     * All available viewports in the scene
-     * mapped against specific controller
-     */
-    ea::hash_map<int, SharedPtr<Viewport>> viewports_;
+	/**
+	 * All available viewports in the scene
+	 * mapped against specific controller
+	 */
+	ea::hash_map<int, SharedPtr<Viewport>> viewports_;
 
-    /**
-     * All available cameras in the scene
-     * mapped against specific controller
-     */
-    ea::hash_map<int, SharedPtr<Node>> cameras_;
+	/**
+	 * All available cameras in the scene
+	 * mapped against specific controller
+	 */
+	ea::hash_map<int, SharedPtr<Node>> cameras_;
 
-    SharedPtr<Zone> defaultZone_;
+	SharedPtr<Zone> defaultZone_;
 };

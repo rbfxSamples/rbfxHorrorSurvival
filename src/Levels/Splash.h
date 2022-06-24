@@ -45,6 +45,6 @@ namespace Levels {
         /**
          * ea::list of all the logos that splash screen should show
          */
-        Vector<ea::string> logos_;
+        ea::vector<ea::string> logos_;
     };
 }

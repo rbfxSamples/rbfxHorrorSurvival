@@ -92,7 +92,7 @@ namespace Urho3D {
         ea::string GetValue() const;
     private:
         int options_count_;
-        Vector<ea::string> strings_;
+        ea::vector<ea::string> strings_;
         int index_;
 
         // Arrow buttons
@@ -160,7 +160,7 @@ namespace Urho3D {
             SharedPtr<Text> text;
             SharedPtr<ListView> page;
         };
-        Vector<Tab> tabs_;
+        ea::vector<Tab> tabs_;
 
         SharedPtr<UIElement> header_;
         SharedPtr<UIElement> body_;

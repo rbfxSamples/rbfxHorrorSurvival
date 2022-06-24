@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Urho3D/Core/Object.h>
-#include <Urho3D/Container/Vector.h>
+#include <Urho3D/Container/ea::vector.h>
 #include <Urho3D/UI/Text.h>
 #include <Urho3D/Resource/Image.h>
 

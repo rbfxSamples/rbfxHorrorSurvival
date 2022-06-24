@@ -434,7 +434,7 @@ void BaseApplication::SetEngineParameter(ea::string parameter, Variant value)
 
 void BaseApplication::LoadTranslationFiles()
 {
-    Vector<ea::string> result;
+    ea::vector<ea::string> result;
     auto* localization = GetSubsystem<Localization>();
 
     // Get all translation files in the Data/Translations folder

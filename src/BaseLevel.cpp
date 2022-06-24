@@ -243,10 +243,10 @@ void BaseLevel::Dispose()
 /**
  * Define rects for splitscreen mode
  */
-Vector<IntRect> BaseLevel::InitRects(int count)
+ea::vector<IntRect> BaseLevel::InitRects(int count)
 {
     auto* graphics = GetSubsystem<Graphics>();
-    Vector<IntRect> rects;
+    ea::vector<IntRect> rects;
     if (count == 1) {
         // whole screen
         rects.Push(IntRect(0, 0, graphics->GetWidth(), graphics->GetHeight()));
@@ -349,7 +349,7 @@ Vector<IntRect> BaseLevel::InitRects(int count)
 /**
  * Create viewports based on controller count
  */
-void BaseLevel::InitViewports(Vector<int> playerIndexes)
+void BaseLevel::InitViewports(ea::vector<int> playerIndexes)
 {
     Renderer* renderer = GetSubsystem<Renderer>();
     if (!renderer) {
@@ -375,7 +375,7 @@ void BaseLevel::CreateSingleCamera(int index, int totalCount, int controllerInde
     if (GetSubsystem<Engine>()->IsHeadless()) {
         return;
     }
-    Vector<IntRect> rects = InitRects(totalCount);
+    ea::vector<IntRect> rects = InitRects(totalCount);
 
     // Create camera and define viewport. We will be doing load / save, so it's convenient to create the camera outside the scene,
     // so that it won't be destroyed and recreated, and we don't have to redefine the viewport on load

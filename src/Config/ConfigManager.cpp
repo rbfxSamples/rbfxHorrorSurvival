@@ -398,7 +398,7 @@ bool ConfigManager::Load(ConfigFile& configFile, bool overwriteExisting) {
     const ConfigMap* map(configFile.GetMap());
 
     SettingsMap* section(nullptr);
-    for (Vector<ConfigSection>::ConstIterator itr(map->Begin()); itr != map->End(); ++itr) {
+    for (ea::vector<ConfigSection>::ConstIterator itr(map->Begin()); itr != map->End(); ++itr) {
         if (itr->Begin() == itr->End()) {
             continue;
         }
@@ -412,7 +412,7 @@ bool ConfigManager::Load(ConfigFile& configFile, bool overwriteExisting) {
 
         const SettingsMap* section(GetSection(header, true));
 
-        for (Vector<ea::string>::ConstIterator section_itr = ++itr->Begin(); section_itr != itr->End(); ++section_itr) {
+        for (ea::vector<ea::string>::ConstIterator section_itr = ++itr->Begin(); section_itr != itr->End(); ++section_itr) {
             const ea::string& line(*section_itr);
 
             ea::string parameter;
@@ -560,7 +560,7 @@ SettingsMap* ConfigManager::GetSection(const ea::string& section, bool create) {
     }
 
     // Split section into submaps.
-    Vector<ea::string> split;
+    ea::vector<ea::string> split;
 
     unsigned splitPos(0);
 
@@ -599,7 +599,7 @@ SettingsMap* ConfigManager::GetSection(const ea::string& section, bool create) {
     }
 
     SettingsMap* currentMap(&map_);
-    for (Vector<ea::string>::ConstIterator itr(split.Begin()); itr != split.End(); ++itr) {
+    for (ea::vector<ea::string>::ConstIterator itr(split.Begin()); itr != split.End(); ++itr) {
         ea::string section(*itr);
 
         // Find section.

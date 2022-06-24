@@ -10,44 +10,44 @@
 using namespace Urho3D;
 
 struct BTService {
-    ea::string name;
+	ea::string name;
 };
 
 struct BTDecorator {
-    ea::string name;
+	ea::string name;
 };
 
 struct BTNode {
-    BTNodeType nodeType;
-    ea::string name;
-    Vector<BTService> services;
-    Vector<BTNode> childNodes;
-    Vector<BTDecorator> decorators;
+	BTNodeType nodeType;
+	ea::string name;
+	ea::vector<BTService> services;
+	ea::vector<BTNode> childNodes;
+	ea::vector<BTDecorator> decorators;
 };
 
 class BehaviourTree : public LogicComponent
 {
-    URHO3D_OBJECT(BehaviourTree, LogicComponent);
+	URHO3D_OBJECT(BehaviourTree, LogicComponent);
 
 public:
-    explicit BehaviourTree(Context* context);
+	explicit BehaviourTree(Context* context);
 
-    virtual ~BehaviourTree();
+	virtual ~BehaviourTree();
 
-    static void RegisterFactory(Context* context);
+	static void RegisterFactory(Context* context);
 
-    void Init(const ea::string& config);
+	void Init(const ea::string& config);
 
-    const Controls& GetControls();
+	const Controls& GetControls();
 
-    void FixedUpdate(float timeStep) override;
+	void FixedUpdate(float timeStep) override;
 
 private:
-    void SubscribeToEvents();
+	void SubscribeToEvents();
 
-    void LoadConfig(const ea::string& config);
+	void LoadConfig(const ea::string& config);
 
-    Controls controls_;
+	Controls controls_;
 
-    BTNode rootNode_;
+	BTNode rootNode_;
 };

@@ -4,7 +4,7 @@
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Engine/DebugHud.h>
 #include <Urho3D/Math/Ray.h>
-#include <Urho3D/Container/Vector.h>
+#include <Urho3D/Container/ea::vector.h>
 #include <Urho3D/Graphics/Octree.h>
 #include <Urho3D/IO/FileSystem.h>
 
@@ -59,7 +59,7 @@ void UpdateChunkState(const WorkItem* item, unsigned threadIndex)
     int requestedFromServerCount = 0;
     int savePerFrame = 0;
 
-    Vector<Chunk*> chunks;
+    ea::vector<Chunk*> chunks;
     for (auto it = world->chunks_.Begin(); it != world->chunks_.End(); ++it) {
         if ((*it).second_) {
             chunks.Push((*it).second_.Get());
@@ -158,7 +158,7 @@ void VoxelWorld::Init()
             return;
         }
         if(GetSubsystem<FileSystem>()->DirExists("World")) {
-            Vector<ea::string> files;
+            ea::vector<ea::string> files;
             GetSubsystem<FileSystem>()->ScanDir(files, "World", "", SCAN_FILES, false);
             for (auto it = files.Begin(); it != files.End(); ++it) {
                 URHO3D_LOGINFO("Deleting file " + (*it));
@@ -254,7 +254,7 @@ void VoxelWorld::LoadChunk(const Vector3& position)
 //    if (!IsChunkLoaded(fixedChunkPosition)) {
 //        AddChunkToQueue(position);
 //    }
-//    Vector<Vector3> positions;
+//    ea::vector<Vector3> positions;
 
 
     //Terrain blocks only

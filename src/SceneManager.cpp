@@ -372,7 +372,7 @@ void SceneManager::CleanupScene()
     }
 }
 
-const Vector<MapInfo>& SceneManager::GetAvailableMaps() const
+const ea::vector<MapInfo>& SceneManager::GetAvailableMaps() const
 {
     return availableMaps_;
 }

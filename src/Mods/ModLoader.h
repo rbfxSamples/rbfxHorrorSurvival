@@ -74,7 +74,7 @@ private:
     /**
      * ea::list of all the loaded mods
      */
-    Vector<SharedPtr<ScriptFile>> asMods_;
+    ea::vector<SharedPtr<ScriptFile>> asMods_;
 
     #ifdef URHO3D_ANGELSCRIPT
     /**
@@ -84,7 +84,7 @@ private:
     #endif
 
     #ifdef URHO3D_LUA
-    Vector<ea::string> luaMods_;
+    ea::vector<ea::string> luaMods_;
     #endif
 };
 #endif

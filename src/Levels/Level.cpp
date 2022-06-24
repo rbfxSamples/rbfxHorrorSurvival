@@ -116,7 +116,7 @@ void Level::Init()
     StartAudio();
 
     auto* controllerInput = GetSubsystem<ControllerInput>();
-    Vector<int> controlIndexes = controllerInput->GetControlIndexes();
+    ea::vector<int> controlIndexes = controllerInput->GetControlIndexes();
     InitViewports(controlIndexes);
 
     // Create the scene content
@@ -389,7 +389,7 @@ void Level::HandleControllerConnected(StringHash eventType, VariantMap& eventDat
     int controllerIndex = eventData[P_INDEX].GetInt();
 
     auto* controllerInput = GetSubsystem<ControllerInput>();
-    Vector<int> controlIndexes = controllerInput->GetControlIndexes();
+    ea::vector<int> controlIndexes = controllerInput->GetControlIndexes();
     InitViewports(controlIndexes);
 
     VariantMap& data = GetEventDataMap();
@@ -416,7 +416,7 @@ void Level::HandleControllerDisconnected(StringHash eventType, VariantMap& event
         players_.Erase(controllerIndex);
     }
     auto* controllerInput = GetSubsystem<ControllerInput>();
-    Vector<int> controlIndexes = controllerInput->GetControlIndexes();
+    ea::vector<int> controlIndexes = controllerInput->GetControlIndexes();
     InitViewports(controlIndexes);
 
     VariantMap& data = GetEventDataMap();
@@ -552,7 +552,7 @@ void Level::HandleWindowClosed(StringHash eventType, VariantMap& eventData)
 void Level::HandleVideoSettingsChanged(StringHash eventType, VariantMap& eventData)
 {
     auto* controllerInput = GetSubsystem<ControllerInput>();
-    Vector<int> controlIndexes = controllerInput->GetControlIndexes();
+    ea::vector<int> controlIndexes = controllerInput->GetControlIndexes();
     InitViewports(controlIndexes);
 }
 

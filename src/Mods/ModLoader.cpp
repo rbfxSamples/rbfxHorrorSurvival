@@ -66,7 +66,7 @@ void ModLoader::Create()
 void ModLoader::LoadASMods()
 {
     #ifdef URHO3D_ANGELSCRIPT
-    Vector<ea::string> result;
+    ea::vector<ea::string> result;
 
     // Scan Data/Mods directory for all *.as files
     GetSubsystem<FileSystem>()->ScanDir(result, GetSubsystem<FileSystem>()->GetProgramDir() + ea::string("Data/Mods"), ea::string("*.as"), SCAN_FILES, false);
@@ -264,7 +264,7 @@ void ModLoader::HandleReload(StringHash eventType, VariantMap& eventData)
 
 void ModLoader::CheckAllMods()
 {
-    Vector<ea::string> result;
+    ea::vector<ea::string> result;
     #ifdef URHO3D_ANGELSCRIPT
     result.Reserve(asMods_.Size());
     for (auto it = asMods_.Begin(); it != asMods_.End(); ++it) {
@@ -317,7 +317,7 @@ void ModLoader::HandleReloadScript(StringHash eventType, VariantMap& eventData)
             }
         }
     } else {
-        Vector<ea::string> result;
+        ea::vector<ea::string> result;
         // Scan Data/Mods directory for all *.as files
         GetSubsystem<FileSystem>()->ScanDir(result, GetSubsystem<FileSystem>()->GetProgramDir() + ea::string("/Data/Mods"), ea::string("*.as"), SCAN_FILES, false);
         VariantMap loadedMods;

@@ -43,10 +43,10 @@ private:
     {
         int command;
         int status;
-        Urho3D::ea::string message;
+        ea::string message;
     };
 
-    Urho3D::Vector<MessageData> messageList_;
+    ea::vector<MessageData> messageList_;
     Urho3D::Mutex               mutexMessageLock_;
 
     bool HasQueueMessage(MessageData& messageData);

@@ -39,7 +39,7 @@ public:
      * 0: mouse/keyboard/first joystick
      * 1 - N: All the additional joysticks or other controllers
      */
-    Vector<int> GetControlIndexes();
+    ea::vector<int> GetControlIndexes();
 
     /**
      * Get mapping against all controls
