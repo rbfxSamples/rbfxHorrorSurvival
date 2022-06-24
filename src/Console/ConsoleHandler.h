@@ -67,7 +67,7 @@ private:
     /**
      * Registered console commands
      */
-    HashMap<ea::string, SingleConsoleCommand> registeredConsoleCommands_;
+    ea::hash_map<ea::string, SingleConsoleCommand> registeredConsoleCommands_;
 
     /**
      * Console handler in the engine

@@ -1,7 +1,7 @@
 #ifdef VOXEL_SUPPORT
 #pragma once
 #include <Urho3D/Core/Object.h>
-#include <Urho3D/Container/List.h>
+#include <Urho3D/Container/ea::list.h>
 #include <Urho3D/Scene/Node.h>
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/Core/Timer.h>
@@ -51,17 +51,17 @@ private:
 
 //    void RaycastFromObservers();
 
-//    List<SharedPtr<Chunk>> chunks_;
-    List<WeakPtr<Node>> observers_;
+//    ea::list<SharedPtr<Chunk>> chunks_;
+    ea::list<WeakPtr<Node>> observers_;
     Scene* scene_;
-    List<Vector3> removeBlocks_;
-    HashMap<ea::string, SharedPtr<Chunk>> chunks_;
+    ea::list<Vector3> removeBlocks_;
+    ea::hash_map<ea::string, SharedPtr<Chunk>> chunks_;
     Mutex mutex_;
     SharedPtr<WorkItem> updateWorkItem_;
     bool reloadAllChunks_{false};
     Timer sunlightTimer_;
     std::queue<ChunkNode> chunkBfsQueue_;
-    HashMap<Vector3, int> chunksToLoad_;
+    ea::hash_map<Vector3, int> chunksToLoad_;
     Timer updateTimer_;
     int visibleDistance_{5};
 };

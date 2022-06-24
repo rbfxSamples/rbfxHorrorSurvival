@@ -119,10 +119,10 @@ void ControllerInput::SaveConfig()
     }
 
     for (auto it = inputHandlers_.Begin(); it != inputHandlers_.End(); ++it) {
-        HashMap<int, int> configMap = (*it).second_->GetConfigMap();
+        ea::hash_map<int, int> configMap = (*it).second_->GetConfigMap();
         int type = (*it).first_;
         ea::string typeName;
-        HashMap<int, ea::string> map;
+        ea::hash_map<int, ea::string> map;
         map[ControllerType::KEYBOARD] = "keyboard";
         map[ControllerType::MOUSE] = "mouse";
         map[ControllerType::JOYSTICK] = "joystick";
@@ -323,7 +323,7 @@ void ControllerInput::DestroyController(int controllerIndex)
     }
 }
 
-HashMap<int, ea::string> ControllerInput::GetControlNames()
+ea::hash_map<int, ea::string> ControllerInput::GetControlNames()
 {
     return controlMapNames_;
 }

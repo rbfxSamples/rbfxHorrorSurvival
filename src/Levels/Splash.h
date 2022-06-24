@@ -43,7 +43,7 @@ namespace Levels {
         int logoIndex_;
 
         /**
-         * List of all the logos that splash screen should show
+         * ea::list of all the logos that splash screen should show
          */
         Vector<ea::string> logos_;
     };

@@ -77,13 +77,13 @@ protected:
      * All available viewports in the scene
      * mapped against specific controller
      */
-    HashMap<int, SharedPtr<Viewport>> viewports_;
+    ea::hash_map<int, SharedPtr<Viewport>> viewports_;
 
     /**
      * All available cameras in the scene
      * mapped against specific controller
      */
-    HashMap<int, SharedPtr<Node>> cameras_;
+    ea::hash_map<int, SharedPtr<Node>> cameras_;
 
     SharedPtr<Zone> defaultZone_;
 };

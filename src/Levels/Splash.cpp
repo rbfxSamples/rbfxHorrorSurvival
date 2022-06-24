@@ -20,7 +20,7 @@ Splash::Splash(Context* context) :
     BaseLevel(context),
     logoIndex_(0)
 {
-    // List of different logos that multiple splash screens will show
+    // ea::list of different logos that multiple splash screens will show
     logos_.Reserve(1);
     logos_.Push("Textures/UrhoIcon.png");
 //    logos_.Push("Textures/Achievements/retro-controller.png");

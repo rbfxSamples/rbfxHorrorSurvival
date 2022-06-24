@@ -146,9 +146,9 @@ private:
     ea::string loadingStatus_;
 
     /**
-     * List of all the loading steps registered in the system
+     * ea::list of all the loading steps registered in the system
      */
-    HashMap<StringHash, LoadingStep> loadingSteps_;
+    ea::hash_map<StringHash, LoadingStep> loadingSteps_;
 
     Vector<MapInfo> availableMaps_;
 

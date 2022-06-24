@@ -47,7 +47,7 @@ public:
     /**
      * Get all action mapping against controls
      */
-    HashMap<int, int> GetConfigMap()
+    ea::hash_map<int, int> GetConfigMap()
     {
         return mappedControlToKey_;
     }
@@ -179,9 +179,9 @@ protected:
     }
 
     // Control against key map
-    HashMap<int, int> mappedControlToKey_;
+    ea::hash_map<int, int> mappedControlToKey_;
     // key against control map
-    HashMap<int, int> mappedKeyToControl_;
+    ea::hash_map<int, int> mappedKeyToControl_;
 
     int activeAction_;
 

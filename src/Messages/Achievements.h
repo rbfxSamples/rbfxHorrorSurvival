@@ -66,7 +66,7 @@ public:
 	/**
 	 * Get all registered achievements
 	 */
-	List<AchievementRule> GetAchievements();
+	ea::list<AchievementRule> GetAchievements();
 
 	/**
 	 * Clear current progress of achievements
@@ -135,13 +135,13 @@ private:
 	/**
 	 * Active achievement list
 	 */
-	List<SharedPtr<SingleAchievement>> activeAchievements_;
+	ea::list<SharedPtr<SingleAchievement>> activeAchievements_;
 
 	/**
 	 * Only 1 achievement is allowed at a time,
 	 * so all additional achievements are added to the queue
 	 */
-	List<VariantMap> achievementQueue_;
+	ea::list<VariantMap> achievementQueue_;
 
 	/**
 	 * Disable achievements from showing, all incoming achievements
@@ -153,15 +153,15 @@ private:
 	/**
 	 * All registered achievements
 	 */
-	HashMap<StringHash, List<AchievementRule>> registeredAchievements_;
+	ea::hash_map<StringHash, ea::list<AchievementRule>> registeredAchievements_;
 
 	/**
 	 * All achievements
 	 */
-	List<AchievementRule> achievements_;
+	ea::list<AchievementRule> achievements_;
 
 	/**
 	 * Current achievement progress
 	 */
-	HashMap<ea::string, int> progress_;
+	ea::hash_map<ea::string, int> progress_;
 };

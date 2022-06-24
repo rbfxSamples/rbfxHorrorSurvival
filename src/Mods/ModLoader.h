@@ -72,7 +72,7 @@ private:
     void CheckAllMods();
 
     /**
-     * List of all the loaded mods
+     * ea::list of all the loaded mods
      */
     Vector<SharedPtr<ScriptFile>> asMods_;
 
@@ -80,7 +80,7 @@ private:
     /**
      * Script location, script object map
      */
-    HashMap<ea::string, SharedPtr<ScriptFile>> asScriptMap_;
+    ea::hash_map<ea::string, SharedPtr<ScriptFile>> asScriptMap_;
     #endif
 
     #ifdef URHO3D_LUA

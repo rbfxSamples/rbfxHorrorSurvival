@@ -44,7 +44,7 @@ public:
     /**
      * Get mapping against all controls
      */
-    HashMap<int, ea::string> GetControlNames();
+    ea::hash_map<int, ea::string> GetControlNames();
 
     /**
      * Retrieve key name for specific action
@@ -213,17 +213,17 @@ private:
     /**
      * Action key to string map
      */
-    HashMap<int, ea::string> controlMapNames_;
+    ea::hash_map<int, ea::string> controlMapNames_;
 
     /**
      * Active controls
      */
-    HashMap<int, Controls> controls_;
+    ea::hash_map<int, Controls> controls_;
 
     /**
      * All input handlers
      */
-    HashMap<int, SharedPtr<BaseInput>> inputHandlers_;
+    ea::hash_map<int, SharedPtr<BaseInput>> inputHandlers_;
 
     /**
      * Multiple controller support

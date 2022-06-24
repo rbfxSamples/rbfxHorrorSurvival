@@ -263,7 +263,7 @@ void Achievements::HandleRegisteredEvent(StringHash eventType, VariantMap& event
     }
 }
 
-List<AchievementRule> Achievements::GetAchievements()
+ea::list<AchievementRule> Achievements::GetAchievements()
 {
     achievements_.Clear();
     for (auto it = registeredAchievements_.Begin(); it != registeredAchievements_.End(); ++it) {

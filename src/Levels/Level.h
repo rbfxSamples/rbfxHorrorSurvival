@@ -66,8 +66,8 @@ namespace Levels {
 
         bool drawDebug_;
 
-        HashMap<int, SharedPtr<Player>> players_;
-        HashMap<Connection*, SharedPtr<Player>> remotePlayers_;
+        ea::hash_map<int, SharedPtr<Player>> players_;
+        ea::hash_map<Connection*, SharedPtr<Player>> remotePlayers_;
 
         SharedPtr<Terrain> terrain_;
     };

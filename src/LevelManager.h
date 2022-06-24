@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Urho3D/Core/Object.h>
-#include <Urho3D/Container/List.h>
+#include <Urho3D/Container/ea::list.h>
 #include <Urho3D/UI/Window.h>
 
 using namespace Urho3D;
@@ -35,7 +35,7 @@ private:
     /**
      * Level queue
      */
-    List<ea::string> level_queue_;
+    ea::list<ea::string> level_queue_;
 
     /**
      * Currently active level

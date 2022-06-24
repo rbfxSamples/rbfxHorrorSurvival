@@ -46,12 +46,12 @@ private:
     void HandleGameEnd(StringHash eventType, VariantMap& eventData);
 
     /**
-     * List of all active messages
+     * ea::list of all active messages
      */
     Vector<SharedPtr<UIElement>> messages_;
     SharedPtr<ObjectAnimation> notificationAnimation_;
     SharedPtr<ValueAnimation> positionAnimation_;
     SharedPtr<ValueAnimation> opacityAnimation_;
-    List<NotificationData> messageQueue_;
+    ea::list<NotificationData> messageQueue_;
     Timer timer_;
 };

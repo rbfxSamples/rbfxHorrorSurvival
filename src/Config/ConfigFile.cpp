@@ -70,7 +70,7 @@ bool ConfigFile::BeginLoad(Deserializer& source) {
 bool ConfigFile::Save(Serializer& dest) const {
     dest.WriteLine("# AUTO-GENERATED");
 
-    HashMap<ea::string, ea::string> processedConfig;
+    ea::hash_map<ea::string, ea::string> processedConfig;
 
     // Iterate over all sections, printing out the header followed by the properties.
     for (Vector<ConfigSection>::ConstIterator itr(configMap_.Begin()); itr != configMap_.End(); ++itr) {
@@ -120,7 +120,7 @@ bool ConfigFile::Save(Serializer& dest, bool smartSave) const {
         return Save(dest);
     }
 
-    HashMap<ea::string, bool> wroteLine;
+    ea::hash_map<ea::string, bool> wroteLine;
     ea::string activeSection;
 
     // Iterate over all sections, printing out the header followed by the properties.

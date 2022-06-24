@@ -30,7 +30,7 @@ SOFTWARE.
 #include <Urho3D/Core/Variant.h>
 #include <Urho3D/Resource/Resource.h>
 
-typedef Urho3D::HashMap<Urho3D::ea::string, Urho3D::Variant> SettingsMap;
+typedef Urho3D::ea::hash_map<Urho3D::ea::string, Urho3D::Variant> SettingsMap;
 
 class State;
 

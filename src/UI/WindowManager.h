@@ -1,6 +1,6 @@
 #pragma once
 #include <Urho3D/Core/Object.h>
-#include <Urho3D/Container/List.h>
+#include <Urho3D/Container/ea::list.h>
 #include "BaseWindow.h"
 
 using namespace Urho3D;
@@ -54,17 +54,17 @@ private:
     void CloseWindow(ea::string windowName);
 
     /**
-     * List of all active windows objects
+     * ea::list of all active windows objects
      */
-    List<SharedPtr<Object>> windowList_;
+    ea::list<SharedPtr<Object>> windowList_;
 
     /**
-     * List of opened windows
+     * ea::list of opened windows
      */
-    List<ea::string> openedWindows_;
+    ea::list<ea::string> openedWindows_;
 
     /**
      * Window list which should be destroyed in the next frame
      */
-    List<ea::string> closeQueue_;
+    ea::list<ea::string> closeQueue_;
 };

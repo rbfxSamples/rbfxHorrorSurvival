@@ -46,7 +46,7 @@ void PackageManager::SubscribeToEvents()
             E_CONSOLE_COMMAND_ADD,
             ConsoleCommandAdd::P_NAME, "package_manager_list",
             ConsoleCommandAdd::P_EVENT, "#package_manager_list",
-            ConsoleCommandAdd::P_DESCRIPTION, "List all available packages",
+            ConsoleCommandAdd::P_DESCRIPTION, "ea::list all available packages",
             ConsoleCommandAdd::P_OVERWRITE, true
     );
     SubscribeToEvent("#package_manager_list", [&](StringHash eventType, VariantMap& eventData) {

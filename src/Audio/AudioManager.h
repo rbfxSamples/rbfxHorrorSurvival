@@ -94,27 +94,27 @@ private:
     /**
      * All sound effects map
      */
-    HashMap<unsigned int, ea::string> soundEffects_;
+    ea::hash_map<unsigned int, ea::string> soundEffects_;
 
     /**
      * All music tracks map
      */
-    HashMap<unsigned int, ea::string> music_;
+    ea::hash_map<unsigned int, ea::string> music_;
 
     /**
      * All active music track nodes
      */
-    HashMap<int, SharedPtr<Node>> musicNodes_;
+    ea::hash_map<int, SharedPtr<Node>> musicNodes_;
 
     /**
      * All ambient sound tracks map
      */
-    HashMap<unsigned int, ea::string> ambientSounds_;
+    ea::hash_map<unsigned int, ea::string> ambientSounds_;
 
     /**
      * All active ambient sound nodes
      */
-    HashMap<int, SharedPtr<Node>> ambientNodes_;
+    ea::hash_map<int, SharedPtr<Node>> ambientNodes_;
 
     /**
      * Allow multiple music tracks to play
@@ -126,5 +126,5 @@ private:
      */
     bool multipleAmbientTracks_{true};
 
-    HashMap<StringHash, Timer> effectsTimer_;
+    ea::hash_map<StringHash, Timer> effectsTimer_;
 };

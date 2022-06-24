@@ -37,7 +37,7 @@ private:
     void HandleHatMove(StringHash eventType, VariantMap& eventData);
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
 
-    HashMap<int, Vector2> axisPosition_;
+    ea::hash_map<int, Vector2> axisPosition_;
 
     bool joystickAsFirstController_;
 

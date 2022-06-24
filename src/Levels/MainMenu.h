@@ -35,7 +35,7 @@ namespace Levels {
 
         SharedPtr<Node> cameraRotateNode_;
         SharedPtr<UIElement> buttonsContainer_;
-        List<SharedPtr<Button>> dynamicButtons_;
+        ea::list<SharedPtr<Button>> dynamicButtons_;
 
         Button* CreateButton(const ea::string& text);
     };

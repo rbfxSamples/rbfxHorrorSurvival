@@ -38,7 +38,7 @@ private:
     void HandleScreenJoystickTouch(StringHash eventType, VariantMap& eventData);
     void HandleScreenJoystickTouchEnd(StringHash eventType, VariantMap& eventData);
 
-    HashMap<int, Vector2> axisPosition_;
+    ea::hash_map<int, Vector2> axisPosition_;
 
     // x - move left/right
     // y - move forward/bacward

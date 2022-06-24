@@ -100,7 +100,7 @@ private:
     WeakPtr<UIBoolOption> multiple_controllers_;
     WeakPtr<UIBoolOption> joystick_as_first_;
 
-    HashMap<ea::string, WeakPtr<UISliderOption>> audio_settings_;
+    ea::hash_map<ea::string, WeakPtr<UISliderOption>> audio_settings_;
 
     /// Mark options currently refreshing so "change" handler won't do any work.
     bool refreshing_{};
@@ -110,5 +110,5 @@ private:
     IntVector2 windowed_resolution_{};
     IntVector2 windowed_position_{};
 
-    HashMap<int, WeakPtr<Text>> control_mappings_;
+    ea::hash_map<int, WeakPtr<Text>> control_mappings_;
 };
