@@ -31,9 +31,9 @@
 #include "../Input/ControllerInput.h"
 #include "Player.h"
 #include "PlayerState.h"
-#include <Urho3D/SystemUI/DebugHud.h>
 #include <Urho3D/Graphics/Light.h>
 #include <Urho3D/Scene/SceneEvents.h>
+#include <Urho3D/SystemUI/DebugHud.h>
 #include <Urho3D/UI/Font.h>
 #include <Urho3D/UI/UI.h>
 
@@ -257,7 +257,7 @@ void Player::RegisterConsoleCommands()
                 auto serverConnection = GetSubsystem<Network>()->GetServerConnection();
                 if (serverConnection)
                 {
-                    serverConnection->SetControls(Controls());
+                    // TODO serverConnection->SetControls(Controls());
                 }
 #endif
             }
@@ -341,7 +341,7 @@ void Player::FindNode(Scene* scene, int id)
     node_ = scene->GetNode(id);
     if (node_)
     {
-        node_->SetInterceptNetworkUpdate("Network Position", true);
+        // TODO node_->SetInterceptNetworkUpdate("Network Position", true);
         node_->GetComponent<PlayerState>()->HideLabel();
         rigidBody_ = node_->GetComponent<RigidBody>();
         SubscribeToEvent(E_INTERCEPTNETWORKUPDATE, URHO3D_HANDLER(Player, HandlePredictPlayerPosition));
@@ -403,7 +403,7 @@ void Player::HandlePhysicsPrestep(StringHash eventType, VariantMap& eventData)
     {
         if (connection_)
         {
-            controls = connection_->GetControls();
+            // TODO controls = connection_->GetControls();
         }
         else if (!IsCameraTargetSet())
         {
@@ -418,8 +418,8 @@ void Player::HandlePhysicsPrestep(StringHash eventType, VariantMap& eventData)
     if (positionUI_)
     {
         Vector3 position = node_->GetWorldPosition();
-        ea::string content = "X:" + ea::to_string(static_cast<int>(position.x_))
-            + " Y:" + ea::to_string(static_cast<int>(position.y_)) + " Z:" + ea::string(static_cast<int>(position.z_));
+        ea::string content = "X:" + ea::to_string(static_cast<int>(position.x_)) + " Y:"
+            + ea::to_string(static_cast<int>(position.y_)) + " Z:" + ea::to_string(static_cast<int>(position.z_));
         positionUI_->SetText(content);
     }
 
@@ -470,11 +470,11 @@ void Player::HandlePhysicsPrestep(StringHash eventType, VariantMap& eventData)
         if (IsCameraTargetSet())
         {
             // We are not following our player node, so we must not control it
-            serverConnection->SetControls(Controls());
+            // TODO serverConnection->SetControls(Controls());
         }
         else
         {
-            serverConnection->SetControls(controls);
+            // TODO serverConnection->SetControls(controls);
         }
         return;
     }
@@ -629,7 +629,7 @@ void Player::HandlePredictPlayerPosition(StringHash eventType, VariantMap& event
     Vector3 position = eventData[P_VALUE].GetVector3();
     //    node_->SetWorldPosition(position);
     //    URHO3D_LOGINFOF("HandlePredictPlayerPosition %s", (position - node->GetPosition()).ToString().c_str());
-    const AttributeInfo& attr = node->GetAttributes()->At(eventData[P_INDEX].GetInt());
+    const AttributeInfo& attr = node->GetAttributes()->at(eventData[P_INDEX].GetInt());
     node->OnSetAttribute(attr, eventData[P_VALUE]);
 }
 

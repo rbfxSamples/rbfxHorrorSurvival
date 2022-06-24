@@ -1,17 +1,17 @@
+#include "PopupMessageWindow.h"
+#include "../../Globals/GUIDefines.h"
+#include "../WindowEvents.h"
 #include <Urho3D/Resource/Localization.h>
-#include <Urho3D/UI/UIEvents.h>
 #include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/UI/Font.h>
 #include <Urho3D/Scene/ObjectAnimation.h>
 #include <Urho3D/Scene/ValueAnimation.h>
-#include "PopupMessageWindow.h"
-#include "../WindowEvents.h"
-#include "../../Globals/GUIDefines.h"
+#include <Urho3D/UI/Font.h>
+#include <Urho3D/UI/UIEvents.h>
 
 using namespace WindowEvents;
 
-PopupMessageWindow::PopupMessageWindow(Context* context) :
-    BaseWindow(context)
+PopupMessageWindow::PopupMessageWindow(Context* context)
+    : BaseWindow(context)
 {
 }
 
@@ -43,10 +43,14 @@ void PopupMessageWindow::Create()
     baseWindow_->GetParent()->SetPriority(baseWindow_->GetParent()->GetPriority() + 1);
 
     Color color = Color::GREEN;
-    if (data_.contains("Type")) {
-        if (data_["Type"].GetString() == "warning") {
+    if (data_.contains("Type"))
+    {
+        if (data_["Type"].GetString() == "warning")
+        {
             color = Color::YELLOW;
-        } else if (data_["Type"].GetString() == "error") {
+        }
+        else if (data_["Type"].GetString() == "error")
+        {
             color = Color::RED;
         }
     }
@@ -68,32 +72,31 @@ void PopupMessageWindow::Create()
 
     okButton_ = CreateButton(localization->Get("OK"), 80, IntVector2(20, 0));
 
-    SubscribeToEvent(okButton_, E_RELEASED, [&](StringHash eventType, VariantMap& eventData) {
-        VariantMap& data = GetEventDataMap();
-        data["Name"] = "PopupMessageWindow";
-        SendEvent(E_CLOSE_WINDOW, data);
+    SubscribeToEvent(okButton_, E_RELEASED,
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            VariantMap& data = GetEventDataMap();
+            data["Name"] = "PopupMessageWindow";
+            SendEvent(E_CLOSE_WINDOW, data);
 
-//        ea::string type;
-//        if (data_["Type"].GetString() == "info") {
-//            type = "warning";
-//        } else if (data_["Type"].GetString() == "warning") {
-//            type = "error";
-//        } else if (data_["Type"].GetString() == "error") {
-//            type = "info";
-//        }
-//        data["Title"] = type;
-//        data["Message"] = "Testing out " + type;
-//        data["Name"] = "PopupMessageWindow";
-//        data["Type"] = type;
-//        data["ClosePrevious"] = true;
-//        SendEvent(MyEvents::E_OPEN_WINDOW, data);
-    });
+            // ea::string type;
+            // if (data_["Type"].GetString() == "info") {
+            //     type = "warning";
+            // } else if (data_["Type"].GetString() == "warning") {
+            //     type = "error";
+            // } else if (data_["Type"].GetString() == "error") {
+            //     type = "info";
+            // }
+            // data["Title"] = type;
+            // data["Message"] = "Testing out " + type;
+            // data["Name"] = "PopupMessageWindow";
+            // data["Type"] = type;
+            // data["ClosePrevious"] = true;
+            // SendEvent(MyEvents::E_OPEN_WINDOW, data);
+        });
 }
 
-void PopupMessageWindow::SubscribeToEvents()
-{
-}
-
+void PopupMessageWindow::SubscribeToEvents() {}
 
 Button* PopupMessageWindow::CreateButton(const ea::string& text, int width, IntVector2 position)
 {
@@ -119,14 +122,14 @@ Button* PopupMessageWindow::CreateButton(const ea::string& text, int width, IntV
 
 Text* PopupMessageWindow::CreateLabel(const ea::string& text, int fontSize)
 {
-    auto *cache = GetSubsystem<ResourceCache>();
+    auto* cache = GetSubsystem<ResourceCache>();
     auto* font = cache->GetResource<Font>(APPLICATION_FONT);
 
     auto* uiElement = baseWindow_->CreateChild<UIElement>();
     uiElement->SetMinHeight(30);
 
     // Create log element to view latest logs from the system
-    auto *label = uiElement->CreateChild<Text>();
+    auto* label = uiElement->CreateChild<Text>();
     label->SetFont(font, fontSize);
     label->SetWordwrap(true);
     label->SetWidth(uiElement->GetWidth());

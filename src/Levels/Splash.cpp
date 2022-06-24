@@ -1,39 +1,34 @@
-#include <Urho3D/UI/UI.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Graphics/Texture2D.h>
+#include "Splash.h"
+#include "../LevelManagerEvents.h"
+#include "../Messages/Achievements.h"
+#include <Urho3D/Core/Context.h>
+#include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Graphics/Graphics.h>
+#include <Urho3D/Graphics/Texture2D.h>
+#include <Urho3D/Input/Input.h>
+#include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Scene/ObjectAnimation.h>
 #include <Urho3D/Scene/ValueAnimation.h>
-#include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/Input/Input.h>
-#include <Urho3D/Core/Context.h>
-#include "Splash.h"
-#include "../Messages/Achievements.h"
-#include "../LevelManagerEvents.h"
+#include <Urho3D/UI/UI.h>
 
 using namespace Levels;
 using namespace LevelManagerEvents;
 
 static int SPLASH_TIME = 3000;
 
-Splash::Splash(Context* context) :
-    BaseLevel(context),
-    logoIndex_(0)
+Splash::Splash(Context* context)
+    : BaseLevel(context)
+    , logoIndex_(0)
 {
     // ea::list of different logos that multiple splash screens will show
     logos_.Reserve(1);
     logos_.push_back("Textures/UrhoIcon.png");
-//    logos_.push_back("Textures/Achievements/retro-controller.png");
+    //    logos_.push_back("Textures/Achievements/retro-controller.png");
 }
 
-Splash::~Splash()
-{
-}
+Splash::~Splash() {}
 
-void Splash::RegisterObject(Context* context)
-{
-    context->RegisterFactory<Splash>();
-}
+void Splash::RegisterObject(Context* context) { context->RegisterFactory<Splash>(); }
 
 void Splash::Init()
 {
@@ -50,10 +45,7 @@ void Splash::Init()
     SubscribeToEvents();
 }
 
-void Splash::CreateScene()
-{
-    return;
-}
+void Splash::CreateScene() { return; }
 
 void Splash::CreateUI()
 {
@@ -81,11 +73,14 @@ void Splash::CreateUI()
 
     // Avoid having too large logos
     // We assume here that the logo image is a regular rectangle
-    if (decalTex->GetWidth() <= 256 && decalTex->GetHeight() <= 256) {
+    if (decalTex->GetWidth() <= 256 && decalTex->GetHeight() <= 256)
+    {
         // Set sprite size & hotspot in its center
         sprite->SetSize(IntVector2(decalTex->GetWidth(), decalTex->GetHeight()));
         sprite->SetHotSpot(IntVector2(decalTex->GetWidth() / 2, decalTex->GetHeight() / 2));
-    } else {
+    }
+    else
+    {
         sprite->SetSize(IntVector2(256, 256));
         sprite->SetHotSpot(IntVector2(128, 128));
     }
@@ -121,18 +116,17 @@ void Splash::CreateUI()
     sprite->SetObjectAnimation(animation);
 }
 
-void Splash::SubscribeToEvents()
-{
-    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Splash, HandleUpdate));
-}
+void Splash::SubscribeToEvents() { SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Splash, HandleUpdate)); }
 
 void Splash::HandleUpdate(StringHash eventType, VariantMap& eventData)
 {
     Input* input = GetSubsystem<Input>();
-    if (input->IsMouseVisible()) {
+    if (input->IsMouseVisible())
+    {
         input->SetMouseVisible(false);
     }
-    if (timer_.GetMSec(false) > SPLASH_TIME) {
+    if (timer_.GetMSec(false) > SPLASH_TIME)
+    {
         HandleEndSplash();
     }
 }
@@ -142,9 +136,12 @@ void Splash::HandleEndSplash()
     UnsubscribeFromEvent(E_UPDATE);
     VariantMap& data = GetEventDataMap();
     logoIndex_++;
-    if (logoIndex_ >= logos_.size()) {
+    if (logoIndex_ >= logos_.size())
+    {
         data["Name"] = "MainMenu";
-    } else {
+    }
+    else
+    {
         // We still have logos to show, inform next Splash screen to use the next logo from the `logos_` vector
         data["Name"] = "Splash";
         data["LogoIndex"] = logoIndex_;

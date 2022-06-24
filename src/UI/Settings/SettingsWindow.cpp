@@ -1,167 +1,188 @@
-#include <Urho3D/Input/Input.h>
-#include <Urho3D/Resource/Localization.h>
-#include <Urho3D/UI/UIEvents.h>
-#include <Urho3D/Graphics/Graphics.h>
-#include <Urho3D/Graphics/Renderer.h>
-#include <Urho3D/Engine/Engine.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/UI/Text.h>
-#include <Urho3D/UI/Font.h>
-#include <Urho3D/UI/UI.h>
-#include <Urho3D/Core/StringUtils.h>
-#include <Urho3D/IO/Log.h>
-#include <Urho3D/Audio/AudioDefs.h>
-#include <Urho3D/Audio/Audio.h>
-#include <Urho3D/Core/ProcessUtils.h>
-#include "../../Input/ControllerInput.h"
-#include "../../Input/ControllerEvents.h"
 #include "SettingsWindow.h"
 #include "../../CustomEvents.h"
+#include "../../Globals/GUIDefines.h"
+#include "../../Input/ControllerEvents.h"
+#include "../../Input/ControllerInput.h"
 #include "../../Messages/Achievements.h"
 #include "../WindowEvents.h"
-#include "../../Globals/GUIDefines.h"
+#include <Urho3D/Audio/Audio.h>
+#include <Urho3D/Audio/AudioDefs.h>
+#include <Urho3D/Core/ProcessUtils.h>
+#include <Urho3D/Core/StringUtils.h>
+#include <Urho3D/Engine/Engine.h>
+#include <Urho3D/Graphics/Graphics.h>
+#include <Urho3D/Graphics/Renderer.h>
+#include <Urho3D/IO/Log.h>
+#include <Urho3D/Input/Input.h>
+#include <Urho3D/Resource/Localization.h>
+#include <Urho3D/Resource/ResourceCache.h>
+#include <Urho3D/UI/Font.h>
+#include <Urho3D/UI/Text.h>
+#include <Urho3D/UI/UI.h>
+#include <Urho3D/UI/UIEvents.h>
 
 using namespace ControllerEvents;
 using namespace WindowEvents;
 using namespace CustomEvents;
 
-namespace {
+namespace
+{
 // RenderWindow modes
-    enum RenderWindowMode {
-        RWM_WINDOWED = 0,
-        RWM_FULLSCREEN_WINDOW,
-        RWM_FULLSCREEN
-    };
+enum RenderWindowMode
+{
+    RWM_WINDOWED = 0,
+    RWM_FULLSCREEN_WINDOW,
+    RWM_FULLSCREEN
+};
 
 // represents a resolution
-    struct Resolution {
-        int width;
-        int height;
-        int refreshrate;
+struct Resolution
+{
+    int width;
+    int height;
+    int refreshrate;
 
-        Resolution()
-                : width(0), height(0), refreshrate(0) {}
+    Resolution()
+        : width(0)
+        , height(0)
+        , refreshrate(0)
+    {
+    }
 
-        Resolution(int w, int h, int refresh = 0)
-                : width(w), height(h), refreshrate(refresh) {}
+    Resolution(int w, int h, int refresh = 0)
+        : width(w)
+        , height(h)
+        , refreshrate(refresh)
+    {
+    }
 
-        Resolution(const Resolution& other)
-                : width(other.width), height(other.height), refreshrate(other.refreshrate) {}
+    Resolution(const Resolution& other)
+        : width(other.width)
+        , height(other.height)
+        , refreshrate(other.refreshrate)
+    {
+    }
 
-        void Set(int w, int h, int r = 0) {
-            width = w;
-            height = h;
-            refreshrate = r;
+    void Set(int w, int h, int r = 0)
+    {
+        width = w;
+        height = h;
+        refreshrate = r;
+    }
+
+    void operator=(const Resolution& rhs)
+    {
+        width = rhs.width;
+        height = rhs.height;
+        refreshrate = rhs.refreshrate;
+    }
+
+    bool operator==(const Resolution& rhs)
+    {
+        return (width == rhs.width) && (height == rhs.height) && (refreshrate == rhs.refreshrate);
+    }
+
+    bool operator>(const Resolution& rhs) const { return ((width * height) > (rhs.width * rhs.height)); }
+
+    bool operator<(const Resolution& rhs) const { return ((width * height) < (rhs.width * rhs.height)); }
+
+    static Resolution FromString(const ea::string& s)
+    {
+        auto tokens = s.split('x');
+        if (tokens.size() > 2)
+        {
+            return Resolution(ToInt(tokens[0], 0), ToInt(tokens[1], 0), ToInt(tokens[2], 0));
         }
-
-        void operator=(const Resolution& rhs) {
-            width = rhs.width;
-            height = rhs.height;
-            refreshrate = rhs.refreshrate;
+        else if (tokens.size() == 2)
+        {
+            auto rate_tokens = tokens[1].split('@');
+            if (rate_tokens.size() > 1)
+                return Resolution(ToInt(tokens[0], 0), ToInt(rate_tokens[0]), ToInt(rate_tokens[1]));
+            return Resolution(ToInt(tokens[0], 0), ToInt(tokens[1], 0));
         }
+        else
+            return Resolution(0, 0, 0);
+    }
 
-        bool operator==(const Resolution& rhs) {
-            return (width == rhs.width) && (height == rhs.height) && (refreshrate == rhs.refreshrate);
-        }
+    ea::string ToString(bool with_rate = false) const
+    {
+        if (!with_rate)
+            return Urho3D::ToString("%dx%d", width, height);
+        else
+            return Urho3D::ToString("%dx%d@%dHz", width, height, refreshrate);
+    }
+};
 
-        bool operator > (const Resolution& rhs) const {
-            return ((width * height) > (rhs.width * rhs.height));
-        }
-
-        bool operator < (const Resolution& rhs) const {
-            return ((width * height) < (rhs.width * rhs.height));
-        }
-
-        static Resolution FromString(const ea::string& s) {
-            auto tokens = s.split('x');
-            if (tokens.size() > 2) {
-                return Resolution(ToInt(tokens[0], 0), ToInt(tokens[1], 0), ToInt(tokens[2], 0));
-            } else if (tokens.size() == 2) {
-                auto rate_tokens = tokens[1].split('@');
-                if (rate_tokens.size() > 1)
-                    return Resolution(ToInt(tokens[0], 0), ToInt(rate_tokens[0]), ToInt(rate_tokens[1]));
-                return Resolution(ToInt(tokens[0], 0), ToInt(tokens[1], 0));
-            } else
-                return Resolution(0, 0, 0);
-        }
-
-        ea::string ToString(bool with_rate = false) const {
-            if (!with_rate)
-                return Urho3D::ToString("%dx%d", width, height);
-            else
-                return Urho3D::ToString("%dx%d@%dHz", width, height, refreshrate);
-        }
-    };
-
-    typedef ea::vector<Resolution> ResolutionVector;
+typedef ea::vector<Resolution> ResolutionVector;
 
 // Get number of currently present monitors
-    int GetMonitorCount() {
-        return SDL_GetNumVideoDisplays();
-    }
+int GetMonitorCount() { return SDL_GetNumVideoDisplays(); }
 
 // Get current desktop resolution
-    Resolution GetDesktopResolution(int monitor) {
-        SDL_DisplayMode mode;
-        if (SDL_GetDesktopDisplayMode(monitor, &mode) == 0) {
-            Resolution res;
-            res.width = mode.w;
-            res.height = mode.h;
-            res.refreshrate = mode.refresh_rate;
-            return res;
-        }
-        return Resolution();
+Resolution GetDesktopResolution(int monitor)
+{
+    SDL_DisplayMode mode;
+    if (SDL_GetDesktopDisplayMode(monitor, &mode) == 0)
+    {
+        Resolution res;
+        res.width = mode.w;
+        res.height = mode.h;
+        res.refreshrate = mode.refresh_rate;
+        return res;
     }
+    return Resolution();
+}
 
-    struct greater {
-        template<class T>
-        bool operator()(T const &a, T const &b) const { return a > b; }
-    };
+struct greater
+{
+    template <class T> bool operator()(T const& a, T const& b) const { return a > b; }
+};
 
 // Get a list of supported fullscreen resolutions
-    ResolutionVector GetFullscreenResolutions(int monitor, int rate) {
-        ResolutionVector resolutions;
-        if (monitor < 0)
-            return resolutions;
-
-        int modes = SDL_GetNumDisplayModes(monitor);
-
-        SDL_DisplayMode mode;
-        for (int i = 0; i < modes; i++) {
-            if (SDL_GetDisplayMode(monitor, i, &mode) != 0)
-                continue;
-            if (rate == -1 || (rate != -1 && mode.refresh_rate == rate))
-                resolutions.push_back(Resolution(mode.w, mode.h, mode.refresh_rate));
-        }
-        // sort resolutions in descending order
-        Sort(resolutions.begin(), resolutions.end(), greater());
+ResolutionVector GetFullscreenResolutions(int monitor, int rate)
+{
+    ResolutionVector resolutions;
+    if (monitor < 0)
         return resolutions;
+
+    int modes = SDL_GetNumDisplayModes(monitor);
+
+    SDL_DisplayMode mode;
+    for (int i = 0; i < modes; i++)
+    {
+        if (SDL_GetDisplayMode(monitor, i, &mode) != 0)
+            continue;
+        if (rate == -1 || (rate != -1 && mode.refresh_rate == rate))
+            resolutions.push_back(Resolution(mode.w, mode.h, mode.refresh_rate));
     }
+    // sort resolutions in descending order
+    Sort(resolutions.begin(), resolutions.end(), greater());
+    return resolutions;
+}
 
-    ea::vector<int> GetFullscreenRefreshRates(int monitor) {
-        ea::vector<int> rates;
-        if (monitor < 0)
-            return rates;
-
-        ResolutionVector modes = GetFullscreenResolutions(monitor, -1);
-        for (auto mode : modes) {
-            if (rates.find(mode.refreshrate) == rates.end())
-                rates.push_back(mode.refreshrate);
-        }
+ea::vector<int> GetFullscreenRefreshRates(int monitor)
+{
+    ea::vector<int> rates;
+    if (monitor < 0)
         return rates;
+
+    ResolutionVector modes = GetFullscreenResolutions(monitor, -1);
+    for (auto mode : modes)
+    {
+        if (rates.find(mode.refreshrate) == rates.end())
+            rates.push_back(mode.refreshrate);
     }
+    return rates;
+}
 
 } // namespace
 
-SettingsWindow::SettingsWindow(Context* context) :
-    BaseWindow(context)
+SettingsWindow::SettingsWindow(Context* context)
+    : BaseWindow(context)
 {
 }
 
-SettingsWindow::~SettingsWindow()
-{
-
-}
+SettingsWindow::~SettingsWindow() {}
 
 void SettingsWindow::Init()
 {
@@ -191,10 +212,7 @@ void SettingsWindow::Create()
     SubscribeToEvent(E_UIOPTION_CHANGED, URHO3D_HANDLER(SettingsWindow, HandleOptionChanged));
 }
 
-void SettingsWindow::SubscribeToEvents()
-{
-}
-
+void SettingsWindow::SubscribeToEvents() {}
 
 void SettingsWindow::InitWindow()
 {
@@ -241,11 +259,13 @@ void SettingsWindow::InitWindow()
     windowTitle->SetStyleAuto();
     buttonClose->SetStyle("CloseButton");
 
-    SubscribeToEvent(buttonClose, E_RELEASED, [&](StringHash eventType, VariantMap& eventData) {
-        VariantMap& data = GetEventDataMap();
-        data["Name"] = "SettingsWindow";
-        SendEvent(E_CLOSE_WINDOW, data);
-    });
+    SubscribeToEvent(buttonClose, E_RELEASED,
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            VariantMap& data = GetEventDataMap();
+            data["Name"] = "SettingsWindow";
+            SendEvent(E_CLOSE_WINDOW, data);
+        });
 
     window_->SetMovable(true);
     window_->SetResizable(true);
@@ -274,12 +294,11 @@ void SettingsWindow::CreateVideoTab()
     auto* localization = GetSubsystem<Localization>();
     auto video_tab = tabs_->AddTab(localization->Get("VIDEO"));
 
-
     opt_fullscreen_ = new UIMultiOption(context_);
     opt_fullscreen_->SetName("OptFullscreen");
     opt_fullscreen_->SetOptionName(localization->Get("DISPLAY_MODE"));
     opt_fullscreen_->SetStyleAuto();
-    opt_fullscreen_->SetTags({ "video" });
+    opt_fullscreen_->SetTags({"video"});
 
     StringVector fullscreen_options;
     fullscreen_options.push_back(localization->Get("WINDOW"));
@@ -291,25 +310,25 @@ void SettingsWindow::CreateVideoTab()
     opt_monitor_->SetName("OptMonitor");
     opt_monitor_->SetOptionName(localization->Get("MONITOR"));
     opt_monitor_->SetStyleAuto();
-    opt_monitor_->SetTags({ "video" });
+    opt_monitor_->SetTags({"video"});
 
     opt_resolution_ = new UIMultiOption(context_);
     opt_resolution_->SetName("OptResolution");
     opt_resolution_->SetOptionName("Resolution");
     opt_resolution_->SetStyleAuto();
-    opt_resolution_->SetTags({ "video" });
+    opt_resolution_->SetTags({"video"});
 
     opt_rate_ = new UIMultiOption(context_);
     opt_rate_->SetName("OptRate");
     opt_rate_->SetOptionName("Refresh Rate");
     opt_rate_->SetStyleAuto();
-    opt_rate_->SetTags({ "video" });
+    opt_rate_->SetTags({"video"});
 
     opt_vsync_ = new UIBoolOption(context_);
     opt_vsync_->SetName("OptVsync");
     opt_vsync_->SetOptionName("V-Sync");
     opt_vsync_->SetStyleAuto();
-    opt_vsync_->SetTags({ "video" });
+    opt_vsync_->SetTags({"video"});
 
     auto elm = new UIElement(context_);
     elm->SetMinSize(0, 32);
@@ -334,13 +353,13 @@ void SettingsWindow::CreateVideoTab()
     opt_resizable_->SetName("OptResizable");
     opt_resizable_->SetOptionName("Resizable Window");
     opt_resizable_->SetStyleAuto();
-    opt_resizable_->SetTags({ "misc-video" });
+    opt_resizable_->SetTags({"misc-video"});
 
     opt_fpslimit_ = new UIMultiOption(context_);
     opt_fpslimit_->SetName("OptFpsLimit");
     opt_fpslimit_->SetOptionName(localization->Get("FPS_LIMIT"));
     opt_fpslimit_->SetStyleAuto();
-    opt_fpslimit_->SetTags({ "misc-video" });
+    opt_fpslimit_->SetTags({"misc-video"});
     {
         StringVector options;
         options.push_back("Custom");
@@ -354,12 +373,15 @@ void SettingsWindow::CreateVideoTab()
         opt_fpslimit_->SetStrings(options);
 
         int currentFps = GetSubsystem<Engine>()->GetMaxFps();
-        if (0 == currentFps) {
+        if (0 == currentFps)
+        {
             opt_fpslimit_->SetOptionIndex(1);
         }
 
-        for (int i = 0; i < options.size(); i++) {
-            if (ToInt(options.at(i)) == currentFps) {
+        for (int i = 0; i < options.size(); i++)
+        {
+            if (ToInt(options.at(i)) == currentFps)
+            {
                 opt_fpslimit_->SetOptionIndex(i);
             }
         }
@@ -397,13 +419,12 @@ void SettingsWindow::CreateGraphicsTab()
     auto* localization = GetSubsystem<Localization>();
     auto graphics_tab = tabs_->AddTab(localization->Get("GRAPHICS"));
 
-
     // graphics tab
     opt_texture_quality_ = new UIMultiOption(context_);
     opt_texture_quality_->SetName("OptTextureQuality");
     opt_texture_quality_->SetOptionName(localization->Get("TEXTURE_QUALITY"));
     opt_texture_quality_->SetStyleAuto();
-    opt_texture_quality_->SetTags({ "graphics" });
+    opt_texture_quality_->SetTags({"graphics"});
 
     StringVector quality_options;
     quality_options.push_back(localization->Get("LOW"));
@@ -415,14 +436,14 @@ void SettingsWindow::CreateGraphicsTab()
     opt_material_quality_->SetName("OptMaterialQuality");
     opt_material_quality_->SetOptionName(localization->Get("MATERIAL_QUALITY"));
     opt_material_quality_->SetStyleAuto();
-    opt_material_quality_->SetTags({ "graphics" });
+    opt_material_quality_->SetTags({"graphics"});
     opt_material_quality_->SetStrings(quality_options);
 
     opt_shadows_ = new UIMultiOption(context_);
     opt_shadows_->SetName("OptShadows");
     opt_shadows_->SetOptionName(localization->Get("SHADOWS"));
     opt_shadows_->SetStyleAuto();
-    opt_shadows_->SetTags({ "graphics" });
+    opt_shadows_->SetTags({"graphics"});
     {
         StringVector options;
         options.push_back(localization->Get("OFF"));
@@ -436,7 +457,7 @@ void SettingsWindow::CreateGraphicsTab()
     opt_shadow_quality_->SetName("OptShadowQuality");
     opt_shadow_quality_->SetOptionName(localization->Get("SHADOW_QUALITY"));
     opt_shadow_quality_->SetStyleAuto();
-    opt_shadow_quality_->SetTags({ "graphics" });
+    opt_shadow_quality_->SetTags({"graphics"});
     {
         StringVector options;
         options.push_back("Simple 16 bit");
@@ -456,38 +477,38 @@ void SettingsWindow::CreateGraphicsTab()
     opt_occlusion_->SetName("OptOcclusion");
     opt_occlusion_->SetOptionName(localization->Get("OCCLUSION"));
     opt_occlusion_->SetStyleAuto();
-    opt_occlusion_->SetTags({ "graphics" });
+    opt_occlusion_->SetTags({"graphics"});
     opt_occlusion_->SetStrings(options_bool);
 
     opt_instancing_ = new UIMultiOption(context_);
     opt_instancing_->SetName("OptInstancing");
     opt_instancing_->SetOptionName(localization->Get("INSTANCING"));
     opt_instancing_->SetStyleAuto();
-    opt_instancing_->SetTags({ "graphics" });
+    opt_instancing_->SetTags({"graphics"});
     opt_instancing_->SetStrings(options_bool);
 
     opt_specular_ = new UIMultiOption(context_);
     opt_specular_->SetName("OptSpecular");
     opt_specular_->SetOptionName(localization->Get("SPECULAR_LIGHTING"));
     opt_specular_->SetStyleAuto();
-    opt_specular_->SetTags({ "graphics" });
+    opt_specular_->SetTags({"graphics"});
     opt_specular_->SetStrings(options_bool);
 
     opt_hdr_ = new UIMultiOption(context_);
     opt_hdr_->SetName("OptHdr");
     opt_hdr_->SetOptionName("HDR");
     opt_hdr_->SetStyleAuto();
-    opt_hdr_->SetTags({ "graphics" });
+    opt_hdr_->SetTags({"graphics"});
     opt_hdr_->SetStrings(options_bool);
 
     opt_ssao_ = new UIMultiOption(context_);
     opt_ssao_->SetName("OptSSAO");
     opt_ssao_->SetOptionName("SSAO");
     opt_ssao_->SetStyleAuto();
-    opt_ssao_->SetTags({ "misc-video" });
+    opt_ssao_->SetTags({"misc-video"});
     opt_ssao_->SetStrings(options_bool);
 
-//    graphics_tab->AddItem(opt_texture_quality_);
+    //    graphics_tab->AddItem(opt_texture_quality_);
     graphics_tab->AddItem(opt_material_quality_);
     graphics_tab->AddItem(opt_shadows_);
     graphics_tab->AddItem(opt_shadow_quality_);
@@ -599,7 +620,8 @@ void SettingsWindow::CreateControllersTab()
 
         ui_joystick = new UIBoolOption(context_);
         ui_joystick->SetOptionName(localization->Get("UI_JOYSTICK"));
-        ui_joystick->SetOptionValue(GetSubsystem<ConfigManager>()->GetBool("joystick", "UIJoystick", GetPlatform() == "Android" || GetPlatform() == "iOS"));
+        ui_joystick->SetOptionValue(GetSubsystem<ConfigManager>()->GetBool(
+            "joystick", "UIJoystick", GetPlatform() == "Android" || GetPlatform() == "iOS"));
         ui_joystick->SetTags({"ui_joystick"});
         ui_joystick->SetStyleAuto();
         controllers_tab->AddItem(ui_joystick);
@@ -649,14 +671,16 @@ void SettingsWindow::CreateControllersTab()
     {
         multiple_controllers_ = new UIBoolOption(context_);
         multiple_controllers_->SetOptionName(localization->Get("MULTIPLE_CONTROLLER_SUPPORT"));
-        multiple_controllers_->SetOptionValue(GetSubsystem<ConfigManager>()->GetBool("joystick", "MultipleControllers", true));
+        multiple_controllers_->SetOptionValue(
+            GetSubsystem<ConfigManager>()->GetBool("joystick", "MultipleControllers", true));
         multiple_controllers_->SetTags({"multiple_controllers"});
         multiple_controllers_->SetStyleAuto();
         controllers_tab->AddItem(multiple_controllers_);
 
         joystick_as_first_ = new UIBoolOption(context_);
         joystick_as_first_->SetOptionName(localization->Get("JOYSTICK_AS_FIRST_CONTROLLER"));
-        joystick_as_first_->SetOptionValue(GetSubsystem<ConfigManager>()->GetBool("joystick", "JoystickAsFirstController", true));
+        joystick_as_first_->SetOptionValue(
+            GetSubsystem<ConfigManager>()->GetBool("joystick", "JoystickAsFirstController", true));
         joystick_as_first_->SetTags({"joystick_as_first"});
         joystick_as_first_->SetStyleAuto();
         controllers_tab->AddItem(joystick_as_first_);
@@ -672,9 +696,10 @@ void SettingsWindow::CreateControlsTab()
     auto names = controllerInput->GetControlNames();
 
     // Loop trough all of the controls
-    for (auto it = names.begin(); it != names.end(); ++it) {
+    for (auto it = names.begin(); it != names.end(); ++it)
+    {
         int actionId = (*it).first;
-        //controllerInput->GetActionKeyName(actionId)
+        // controllerInput->GetActionKeyName(actionId)
         auto control = new UIOption(context_);
 
         control->SetOptionName((*it).second);
@@ -694,44 +719,52 @@ void SettingsWindow::CreateControlsTab()
 
         controls_tab->AddItem(control);
 
-
         // Detect button press events
-        SubscribeToEvent(button, E_RELEASED, [&](StringHash eventType, VariantMap& eventData) {
-            // Start mapping input
-            using namespace Released;
-            Button* button = static_cast<Button*>(eventData[P_ELEMENT].GetPtr());
-            int action = button->GetVar("Action").GetInt();
+        SubscribeToEvent(button, E_RELEASED,
+            [&](StringHash eventType, VariantMap& eventData)
+            {
+                // Start mapping input
+                using namespace Released;
+                Button* button = static_cast<Button*>(eventData[P_ELEMENT].GetPtr());
+                int action = button->GetVar("Action").GetInt();
 
-            using namespace StartInputMapping;
-            VariantMap& data = GetEventDataMap();
-            data[P_CONTROL_ACTION] = action;
-            SendEvent(E_START_INPUT_MAPPING, data);
+                using namespace StartInputMapping;
+                VariantMap& data = GetEventDataMap();
+                data[P_CONTROL_ACTION] = action;
+                SendEvent(E_START_INPUT_MAPPING, data);
 
-            auto buttonLabel = button->GetChildStaticCast<Text>("Label", false);
-            buttonLabel->SetText("...");
+                auto buttonLabel = button->GetChildStaticCast<Text>("Label", false);
+                buttonLabel->SetText("...");
 
-            Input* input = GetSubsystem<Input>();
-            if (input->IsMouseVisible()) {
-                input->SetMouseVisible(false);
-            }
-        });
+                Input* input = GetSubsystem<Input>();
+                if (input->IsMouseVisible())
+                {
+                    input->SetMouseVisible(false);
+                }
+            });
     }
 
-    SubscribeToEvent(E_INPUT_MAPPING_FINISHED, [&](StringHash eventType, VariantMap& eventData) {
-        RefreshControlsTab();
-        Input* input = GetSubsystem<Input>();
-        if (!input->IsMouseVisible()) {
-            input->SetMouseVisible(true);
-        }
-    });
+    SubscribeToEvent(E_INPUT_MAPPING_FINISHED,
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            RefreshControlsTab();
+            Input* input = GetSubsystem<Input>();
+            if (!input->IsMouseVisible())
+            {
+                input->SetMouseVisible(true);
+            }
+        });
 
-    SubscribeToEvent(E_STOP_INPUT_MAPPING, [&](StringHash eventType, VariantMap& eventData) {
-        RefreshControlsTab();
-        Input* input = GetSubsystem<Input>();
-        if (!input->IsMouseVisible()) {
-            input->SetMouseVisible(true);
-        }
-    });
+    SubscribeToEvent(E_STOP_INPUT_MAPPING,
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            RefreshControlsTab();
+            Input* input = GetSubsystem<Input>();
+            if (!input->IsMouseVisible())
+            {
+                input->SetMouseVisible(true);
+            }
+        });
 }
 
 void SettingsWindow::RefreshControlsTab()
@@ -740,9 +773,11 @@ void SettingsWindow::RefreshControlsTab()
     auto names = controllerInput->GetControlNames();
 
     // Loop trough all of the controls and update their labels
-    for (auto it = names.begin(); it != names.end(); ++it) {
+    for (auto it = names.begin(); it != names.end(); ++it)
+    {
         int actionId = (*it).first;
-        if (control_mappings_.contains(actionId) && control_mappings_[actionId]) {
+        if (control_mappings_.contains(actionId) && control_mappings_[actionId])
+        {
             control_mappings_[actionId]->SetText(controllerInput->GetActionKeyName(actionId));
         }
     }
@@ -758,10 +793,11 @@ void SettingsWindow::CreateGameTab()
     language_selection_->SetName("Language");
     language_selection_->SetOptionName(localization->Get("LANGUAGE"));
     language_selection_->SetStyleAuto();
-    language_selection_->SetTags({ "language" });
+    language_selection_->SetTags({"language"});
 
     StringVector languages;
-    for (unsigned int i = 0; i < localization->GetNumLanguages(); i++) {
+    for (unsigned int i = 0; i < localization->GetNumLanguages(); i++)
+    {
         languages.push_back(localization->GetLanguage(i));
     }
     language_selection_->SetStrings(languages);
@@ -772,7 +808,7 @@ void SettingsWindow::CreateGameTab()
     enable_mods_->SetName("Mods");
     enable_mods_->SetOptionName(localization->Get("MODS"));
     enable_mods_->SetStyleAuto();
-    enable_mods_->SetTags({ "mods" });
+    enable_mods_->SetTags({"mods"});
     enable_mods_->SetOptionValue(GetSubsystem<ConfigManager>()->GetBool("game", "LoadMods", true));
     game_tab->AddItem(enable_mods_);
 
@@ -780,7 +816,7 @@ void SettingsWindow::CreateGameTab()
     developer_console_->SetName("DeveloperConsole");
     developer_console_->SetOptionName(localization->Get("DEVELOPER_CONSOLE"));
     developer_console_->SetStyleAuto();
-    developer_console_->SetTags({ "developer_console" });
+    developer_console_->SetTags({"developer_console"});
     developer_console_->SetOptionValue(GetSubsystem<ConfigManager>()->GetBool("game", "DeveloperConsole", true));
     game_tab->AddItem(developer_console_);
 
@@ -804,22 +840,27 @@ void SettingsWindow::CreateGameTab()
     elm->SetStyleAuto();
     game_tab->AddItem(elm);
 
-    SubscribeToEvent(clear_achievements_, E_RELEASED, [&](StringHash eventType, VariantMap& eventData) {
-        GetSubsystem<Achievements>()->ClearAchievementsProgress();
+    SubscribeToEvent(clear_achievements_, E_RELEASED,
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            GetSubsystem<Achievements>()->ClearAchievementsProgress();
 
-        VariantMap& data = GetEventDataMap();
-        data["Message"] = "Achievements cleared!";
-        SendEvent("ShowNotification", data);
-    });
+            VariantMap& data = GetEventDataMap();
+            data["Message"] = "Achievements cleared!";
+            SendEvent("ShowNotification", data);
+        });
 }
 
-void SettingsWindow::FillRates(int monitor) {
+void SettingsWindow::FillRates(int monitor)
+{
     auto rates = GetFullscreenRefreshRates(monitor);
-    for (unsigned i = 0; i < rates.size() / 2; i++) {
+    for (unsigned i = 0; i < rates.size() / 2; i++)
+    {
         Swap(*(rates.begin() + i), *(rates.begin() + rates.size() - 1 - i));
     }
     StringVector res;
-    for (auto r : rates) {
+    for (auto r : rates)
+    {
         res.push_back(ToString("%d", r));
     }
 
@@ -827,13 +868,16 @@ void SettingsWindow::FillRates(int monitor) {
     opt_rate_->SetOptionIndex(res.size() - 1);
 }
 
-void SettingsWindow::FillResolutions(int monitor, int rate) {
+void SettingsWindow::FillResolutions(int monitor, int rate)
+{
     ResolutionVector resolutions = GetFullscreenResolutions(monitor, rate);
-    for (unsigned i = 0; i < resolutions.size() / 2; i++) {
+    for (unsigned i = 0; i < resolutions.size() / 2; i++)
+    {
         Swap(*(resolutions.begin() + i), *(resolutions.begin() + resolutions.size() - 1 - i));
     }
     StringVector res;
-    for (auto r : resolutions) {
+    for (auto r : resolutions)
+    {
         res.push_back((r.ToString(false)));
     }
 
@@ -841,7 +885,8 @@ void SettingsWindow::FillResolutions(int monitor, int rate) {
     opt_resolution_->SetOptionIndex(res.size() - 1);
 }
 
-void SettingsWindow::RefreshVideoOptions() {
+void SettingsWindow::RefreshVideoOptions()
+{
     refreshing_ = true;
 
     Graphics* graphics = context_->GetSubsystem<Graphics>();
@@ -857,7 +902,8 @@ void SettingsWindow::RefreshVideoOptions() {
     int monitor = graphics->GetMonitor();
 
     StringVector monitor_names;
-    for (int i = 0; i < GetMonitorCount(); i++) {
+    for (int i = 0; i < GetMonitorCount(); i++)
+    {
         monitor_names.push_back(SDL_GetDisplayName(i));
     }
 
@@ -871,9 +917,11 @@ void SettingsWindow::RefreshVideoOptions() {
     FillResolutions(monitor, rate);
 
     RenderWindowMode mode = RWM_WINDOWED;
-    if (!graphics->GetFullscreen() && graphics->GetBorderless()) {
+    if (!graphics->GetFullscreen() && graphics->GetBorderless())
+    {
         mode = RWM_FULLSCREEN_WINDOW;
-    } else
+    }
+    else
         mode = RWM_FULLSCREEN;
 
     opt_fullscreen_->SetOptionIndex((int)RWM_WINDOWED);
@@ -882,19 +930,22 @@ void SettingsWindow::RefreshVideoOptions() {
 
     // find the current fullscreen resolution and set the resolution option to it
     auto res_index = -1;
-    if (graphics->GetFullscreen()) {
+    if (graphics->GetFullscreen())
+    {
         int refreshrate = graphics->GetRefreshRate();
-        ResolutionVector resolutions = GetFullscreenResolutions(
-                opt_monitor_->GetOptionIndex(),
-                ToInt(opt_rate_->GetValue()));
+        ResolutionVector resolutions =
+            GetFullscreenResolutions(opt_monitor_->GetOptionIndex(), ToInt(opt_rate_->GetValue()));
         // reverse resolutions to low -> high
-        for (unsigned i = 0; i < resolutions.size() / 2; i++) {
+        for (unsigned i = 0; i < resolutions.size() / 2; i++)
+        {
             Swap(*(resolutions.begin() + i), *(resolutions.begin() + resolutions.size() - 1 - i));
         }
 
         int i = 0;
-        for (auto it = resolutions.begin(); it != resolutions.end(); ++it, ++i) {
-            if (it->width == graphics_size.x_ && it->height == graphics_size.y_ && it->refreshrate == refreshrate) {
+        for (auto it = resolutions.begin(); it != resolutions.end(); ++it, ++i)
+        {
+            if (it->width == graphics_size.x_ && it->height == graphics_size.y_ && it->refreshrate == refreshrate)
+            {
                 res_index = i;
                 break;
             }
@@ -903,7 +954,6 @@ void SettingsWindow::RefreshVideoOptions() {
 
     if (res_index != -1)
         opt_resolution_->SetOptionIndex(res_index);
-
 
     opt_vsync_->SetOptionValue(graphics->GetVSync());
 
@@ -920,33 +970,27 @@ void SettingsWindow::ApplyVideoOptions()
 
     Resolution res;
 
-
     // In fullscreen borderless window, resolution must be 0x0, Urho3D will apply accordingly
     URHO3D_LOGINFOF("fullscreen %d", fullscreen);
-    if (fullscreen == RWM_WINDOWED) {
+    if (fullscreen == RWM_WINDOWED)
+    {
         res = Resolution::FromString(opt_resolution_->GetValue());
-    } if (fullscreen == RWM_FULLSCREEN_WINDOW) {
+    }
+    if (fullscreen == RWM_FULLSCREEN_WINDOW)
+    {
         res = Resolution(0, 0);
-    } else if (fullscreen == RWM_FULLSCREEN) {
+    }
+    else if (fullscreen == RWM_FULLSCREEN)
+    {
         res = Resolution::FromString(opt_resolution_->GetValue());
         res.refreshrate = ToInt(opt_rate_->GetValue());
     }
 
-    graphics->SetMode(
-            res.width,
-            res.height,
-            fullscreen == 2,
-            fullscreen == 1,
-            true,
-            false,
-            !!opt_vsync_->GetOptionValue(),
-            false,
-            0,
-            opt_monitor_->GetOptionIndex(),
-            res.refreshrate
-    );
+    graphics->SetMode(res.width, res.height, fullscreen == 2, fullscreen == 1, true, false,
+        !!opt_vsync_->GetOptionValue(), false, 0, opt_monitor_->GetOptionIndex(), res.refreshrate);
 
-    if (fullscreen == 0) {
+    if (fullscreen == 0)
+    {
         graphics->SetWindowPosition(windowed_position_);
     }
 
@@ -960,7 +1004,6 @@ void SettingsWindow::ApplyVideoOptions()
     GetSubsystem<ConfigManager>()->Set("video", "Monitor", opt_monitor_->GetOptionIndex());
 
     SendEvent(E_VIDEO_SETTINGS_CHANGED);
-
 }
 
 void SettingsWindow::RefreshGraphicsOptions()
@@ -972,9 +1015,11 @@ void SettingsWindow::RefreshGraphicsOptions()
     opt_texture_quality_->SetOptionIndex((int)renderer->GetTextureQuality());
     opt_material_quality_->SetOptionIndex((int)renderer->GetMaterialQuality());
 
-    if (renderer->GetDrawShadows()) {
+    if (renderer->GetDrawShadows())
+    {
         opt_shadows_->SetOptionIndex(renderer->GetShadowMapSize() / 512);
-    } else
+    }
+    else
         opt_shadows_->SetOptionIndex(0);
 
     opt_shadow_quality_->SetOptionIndex((int)renderer->GetShadowQuality());
@@ -1009,25 +1054,23 @@ void SettingsWindow::ApplyGraphicsOptions()
     GetSubsystem<ConfigManager>()->Set("graphics", "DrawShadows", opt_shadows_->GetOptionIndex() != 0);
     GetSubsystem<ConfigManager>()->Set("graphics", "ShadowMapSize", opt_shadows_->GetOptionIndex() * 512);
     GetSubsystem<ConfigManager>()->Set("graphics", "ShadowQuality", opt_shadow_quality_->GetOptionIndex());
-    GetSubsystem<ConfigManager>()->Set("graphics", "MaxOccluderTriangles", opt_occlusion_->GetOptionIndex() > 0 ? 5000 : 0);
+    GetSubsystem<ConfigManager>()->Set(
+        "graphics", "MaxOccluderTriangles", opt_occlusion_->GetOptionIndex() > 0 ? 5000 : 0);
     GetSubsystem<ConfigManager>()->Set("graphics", "DynamicInstancing", opt_instancing_->GetOptionIndex() > 0);
     GetSubsystem<ConfigManager>()->Set("graphics", "SpecularLighting", opt_specular_->GetOptionIndex() > 0);
     GetSubsystem<ConfigManager>()->Set("graphics", "HDRRendering", opt_hdr_->GetOptionIndex() > 0);
 }
 
-void SettingsWindow::HandleTabChanged(StringHash eventType, VariantMap& eventData) {
+void SettingsWindow::HandleTabChanged(StringHash eventType, VariantMap& eventData)
+{
     using namespace UITabChanged;
     int index = eventData[P_INDEX].GetInt();
 
-    switch (index) {
-        case 0:
-            RefreshVideoOptions();
-            break;
-        case 1:
-            RefreshGraphicsOptions();
-            break;
-        default:
-            break;
+    switch (index)
+    {
+    case 0: RefreshVideoOptions(); break;
+    case 1: RefreshGraphicsOptions(); break;
+    default: break;
     }
 }
 
@@ -1040,12 +1083,15 @@ void SettingsWindow::HandleOptionChanged(StringHash eventType, VariantMap& event
     auto option = static_cast<UIOption*>(eventData[P_OPTION].GetPtr());
     auto name = option->GetName();
 
-    if (name == "OptMonitor") {
+    if (name == "OptMonitor")
+    {
         int monitor = opt_monitor_->GetOptionIndex();
         FillRates(monitor);
         int rate = ToInt(opt_rate_->GetValue());
         FillResolutions(monitor, rate);
-    } else if (name == "OptRate") {
+    }
+    else if (name == "OptRate")
+    {
         int rate = ToInt(opt_rate_->GetValue());
         int monitor = opt_monitor_->GetOptionIndex();
         FillResolutions(monitor, rate);
@@ -1055,17 +1101,23 @@ void SettingsWindow::HandleOptionChanged(StringHash eventType, VariantMap& event
     btn_apply_->SetFocusMode(needs_apply_ ? FM_FOCUSABLE : FM_NOTFOCUSABLE);
     btn_apply_->SetEnabled(needs_apply_);
 
-    if (option->HasTag("misc-video")) {
+    if (option->HasTag("misc-video"))
+    {
         auto graphics = GetSubsystem<Graphics>();
         SDL_SetWindowResizable(graphics->GetWindow(), opt_resizable_->GetOptionValue() ? SDL_TRUE : SDL_FALSE);
 
         auto engine = GetSubsystem<Engine>();
         int fps_limit = 0;
-        if (opt_fpslimit_->GetOptionIndex() == 0) {
+        if (opt_fpslimit_->GetOptionIndex() == 0)
+        {
             fps_limit = GetSubsystem<Engine>()->GetMaxFps();
-        } else if (opt_fpslimit_->GetOptionIndex() > 1) {
+        }
+        else if (opt_fpslimit_->GetOptionIndex() > 1)
+        {
             fps_limit = Clamp(ToInt(opt_fpslimit_->GetValue()), 30, 300);
-        } else if (opt_fpslimit_->GetOptionIndex() == 1) {
+        }
+        else if (opt_fpslimit_->GetOptionIndex() == 1)
+        {
             fps_limit = 0;
         }
 
@@ -1078,15 +1130,18 @@ void SettingsWindow::HandleOptionChanged(StringHash eventType, VariantMap& event
         SendEvent("postprocess");
     }
 
-    if (option->HasTag("graphics")) {
+    if (option->HasTag("graphics"))
+    {
         ApplyGraphicsOptions();
     }
 
     // Audio settings
-    if (option->HasTag("audio")) {
+    if (option->HasTag("audio"))
+    {
         ea::string type = option->GetVar("AudioType").GetString();
         URHO3D_LOGINFOF("Audio: %s", type.c_str());
-        if (!type.empty()) {
+        if (!type.empty())
+        {
             GetSubsystem<Audio>()->SetMasterGain(type, audio_settings_[type]->GetValue());
             GetSubsystem<ConfigManager>()->Set("audio", type, audio_settings_[type]->GetValue());
         }
@@ -1094,63 +1149,77 @@ void SettingsWindow::HandleOptionChanged(StringHash eventType, VariantMap& event
 
     // Controller settings
     auto controllerInput = GetSubsystem<ControllerInput>();
-    if (option->HasTag("invert_mouse_x")) {
+    if (option->HasTag("invert_mouse_x"))
+    {
         controllerInput->SetInvertX(invert_mouse_x->GetOptionValue(), ControllerType::MOUSE);
         GetSubsystem<ConfigManager>()->Set("mouse", "InvertX", invert_mouse_x->GetOptionValue());
         VariantMap& data = GetEventDataMap();
         data["Message"] = "Invert mouse X!";
         SendEvent("ShowNotification", data);
     }
-    if (option->HasTag("invert_mouse_y")) {
+    if (option->HasTag("invert_mouse_y"))
+    {
         controllerInput->SetInvertX(invert_mouse_y->GetOptionValue(), ControllerType::MOUSE);
         GetSubsystem<ConfigManager>()->Set("mouse", "InvertY", invert_mouse_y->GetOptionValue());
     }
 
-    if (option->HasTag("invert_joystick_x")) {
+    if (option->HasTag("invert_joystick_x"))
+    {
         controllerInput->SetInvertX(invert_joystic_x->GetOptionValue(), ControllerType::JOYSTICK);
         GetSubsystem<ConfigManager>()->Set("joystick", "InvertX", invert_joystic_x->GetOptionValue());
     }
-    if (option->HasTag("ui_joystick")) {
+    if (option->HasTag("ui_joystick"))
+    {
         GetSubsystem<ConfigManager>()->Set("joystick", "UIJoystick", ui_joystick->GetOptionValue());
-        SendEvent(ControllerEvents::E_UI_JOYSTICK_TOGGLE, ControllerEvents::UIJoystickToggle::P_ENABLED, ui_joystick->GetOptionValue());
+        SendEvent(ControllerEvents::E_UI_JOYSTICK_TOGGLE, ControllerEvents::UIJoystickToggle::P_ENABLED,
+            ui_joystick->GetOptionValue());
     }
-    if (option->HasTag("invert_joystick_y")) {
+    if (option->HasTag("invert_joystick_y"))
+    {
         controllerInput->SetInvertX(invert_joystick_y->GetOptionValue(), ControllerType::JOYSTICK);
         GetSubsystem<ConfigManager>()->Set("joystick", "InvertY", invert_joystick_y->GetOptionValue());
     }
-    if (option->HasTag("multiple_controllers")) {
+    if (option->HasTag("multiple_controllers"))
+    {
         controllerInput->SetMultipleControllerSupport(multiple_controllers_->GetOptionValue());
         GetSubsystem<ConfigManager>()->Set("joystick", "MultipleControllers", multiple_controllers_->GetOptionValue());
     }
 
-    if (option->HasTag("joystick_as_first")) {
+    if (option->HasTag("joystick_as_first"))
+    {
         controllerInput->SetJoystickAsFirstController(joystick_as_first_->GetOptionValue());
-        GetSubsystem<ConfigManager>()->Set("joystick", "JoystickAsFirstController", joystick_as_first_->GetOptionValue());
+        GetSubsystem<ConfigManager>()->Set(
+            "joystick", "JoystickAsFirstController", joystick_as_first_->GetOptionValue());
     }
 
-    if (option->HasTag("mouse_sensitivity")) {
+    if (option->HasTag("mouse_sensitivity"))
+    {
         controllerInput->SetSensitivityX(mouse_sensitivity->GetValue(), ControllerType::MOUSE);
         controllerInput->SetSensitivityY(mouse_sensitivity->GetValue(), ControllerType::MOUSE);
         GetSubsystem<ConfigManager>()->Set("mouse", "Sensitivity", mouse_sensitivity->GetValue());
     }
 
-    if (option->HasTag("joystick_sensitivity_x")) {
+    if (option->HasTag("joystick_sensitivity_x"))
+    {
         controllerInput->SetSensitivityX(joystick_sensitivity_x->GetValue(), ControllerType::JOYSTICK);
         GetSubsystem<ConfigManager>()->Set("joystick", "SensitivityX", joystick_sensitivity_x->GetValue());
     }
 
-    if (option->HasTag("joystick_sensitivity_y")) {
+    if (option->HasTag("joystick_sensitivity_y"))
+    {
         controllerInput->SetSensitivityY(joystick_sensitivity_y->GetValue(), ControllerType::JOYSTICK);
         GetSubsystem<ConfigManager>()->Set("joystick", "SensitivityY", joystick_sensitivity_y->GetValue());
     }
 
-    if (option->HasTag("deadzone")) {
+    if (option->HasTag("deadzone"))
+    {
         controllerInput->SetJoystickDeadzone(deadzone_->GetValue());
         GetSubsystem<ConfigManager>()->Set("joystick", "Deadzone", deadzone_->GetValue());
     }
 
     // Game settings
-    if (option->HasTag("language")) {
+    if (option->HasTag("language"))
+    {
         GetSubsystem<ConfigManager>()->Set("game", "Language", language_selection_->GetValue());
 
         auto* localization = GetSubsystem<Localization>();
@@ -1163,7 +1232,8 @@ void SettingsWindow::HandleOptionChanged(StringHash eventType, VariantMap& event
         SendEvent(E_OPEN_WINDOW, data);
     }
 
-    if (option->HasTag("mods")) {
+    if (option->HasTag("mods"))
+    {
         GetSubsystem<ConfigManager>()->Set("game", "LoadMods", enable_mods_->GetOptionValue());
 
         auto* localization = GetSubsystem<Localization>();
@@ -1176,7 +1246,8 @@ void SettingsWindow::HandleOptionChanged(StringHash eventType, VariantMap& event
         SendEvent(E_OPEN_WINDOW, data);
     }
 
-    if (option->HasTag("developer_console")) {
+    if (option->HasTag("developer_console"))
+    {
         GetSubsystem<ConfigManager>()->Set("game", "DeveloperConsole", developer_console_->GetOptionValue());
     }
 

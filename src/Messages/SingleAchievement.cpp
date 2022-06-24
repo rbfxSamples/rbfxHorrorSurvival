@@ -1,11 +1,11 @@
+#include "../Globals/GUIDefines.h"
+#include "Achievements.h"
 #include <Urho3D/Core/Context.h>
 #include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/UI/UI.h>
-#include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Graphics/Texture2D.h>
+#include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/UI/Font.h>
-#include "Achievements.h"
-#include "../Globals/GUIDefines.h"
+#include <Urho3D/UI/UI.h>
 
 void SingleAchievement::RegisterObject(Context* context)
 {
@@ -13,13 +13,13 @@ void SingleAchievement::RegisterObject(Context* context)
     URHO3D_ATTRIBUTE("Offset", float, offset_, 1, AM_FILE);
 }
 
-SingleAchievement::SingleAchievement(Context* context) :
-        Animatable(context)
+SingleAchievement::SingleAchievement(Context* context)
+    : Animatable(context)
 {
     SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(SingleAchievement, HandlePostUpdate));
 
-    auto *cache = GetSubsystem<ResourceCache>();
-    auto *font = cache->GetResource<Font>(APPLICATION_FONT);
+    auto* cache = GetSubsystem<ResourceCache>();
+    auto* font = cache->GetResource<Font>(APPLICATION_FONT);
 
     baseWindow_ = GetSubsystem<UI>()->GetRoot()->CreateChild<Window>();
     baseWindow_->SetStyleAuto();
@@ -54,15 +54,13 @@ void SingleAchievement::SetImage(ea::string image)
     sprite_->SetTexture(cache->GetResource<Texture2D>(image));
 }
 
-void SingleAchievement::SetMessage(ea::string message) {
+void SingleAchievement::SetMessage(ea::string message)
+{
     message_ = "";
     title_->SetText(message);
 }
 
-ea::string SingleAchievement::GetMessage()
-{
-    return message_;
-}
+ea::string SingleAchievement::GetMessage() { return message_; }
 
 void SingleAchievement::HandlePostUpdate(StringHash eventType, VariantMap& eventData)
 {
@@ -85,10 +83,7 @@ void SingleAchievement::OnAttributeAnimationRemoved()
         UnsubscribeFromEvent(E_POSTUPDATE);
 }
 
-void SingleAchievement::SetVar(StringHash key, const Variant& value)
-{
-    vars_[key] = value;
-}
+void SingleAchievement::SetVar(StringHash key, const Variant& value) { vars_[key] = value; }
 
 const Variant& SingleAchievement::GetVar(const StringHash& key) const
 {

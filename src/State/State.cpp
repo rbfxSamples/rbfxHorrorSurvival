@@ -1,23 +1,24 @@
-#include <Urho3D/Core/Context.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/IO/PackageFile.h>
-#include <Urho3D/IO/FileSystem.h>
-#include <Urho3D/IO/Log.h>
 #include "State.h"
 #include "../Config/ConfigManager.h"
 #include "../Globals/Settings.h"
 #include "StateEvents.h"
+#include <Urho3D/Core/Context.h>
+#include <Urho3D/IO/FileSystem.h>
+#include <Urho3D/IO/Log.h>
+#include <Urho3D/IO/PackageFile.h>
+#include <Urho3D/Resource/ResourceCache.h>
 
 #if defined(__EMSCRIPTEN__)
-#include <emscripten/emscripten.h>
-#include <emscripten/bind.h>
+    #include <emscripten/bind.h>
+    #include <emscripten/emscripten.h>
 #endif
 
-State::State(Context* context) :
-    Object(context)
+State::State(Context* context)
+    : Object(context)
 {
     ea::string directory = GetSubsystem<FileSystem>()->GetUserDocumentsDir() + DOCUMENTS_DIR;
-    if (!GetSubsystem<FileSystem>()->DirExists(directory)) {
+    if (!GetSubsystem<FileSystem>()->DirExists(directory))
+    {
         GetSubsystem<FileSystem>()->CreateDir(directory);
         URHO3D_LOGINFO("Creating savegame directory " + directory);
     }
@@ -26,14 +27,9 @@ State::State(Context* context) :
     SubscribeToEvents();
 }
 
-State::~State()
-{
-}
+State::~State() {}
 
-void State::RegisterObject(Context* context)
-{
-    context->RegisterFactory<State>();
-}
+void State::RegisterObject(Context* context) { context->RegisterFactory<State>(); }
 
 void State::SubscribeToEvents()
 {
@@ -45,7 +41,8 @@ void State::Load()
 {
     JSONFile file(context_);
 #ifndef __EMSCRIPTEN__
-    if (file.LoadFile(fileLocation_)) {
+    if (file.LoadFile(fileLocation_))
+    {
         JSONValue value = file.GetRoot();
         data_ = value.GetVariantMap();
         URHO3D_LOGINFO("Savegame loaded");
@@ -58,9 +55,12 @@ void State::Save()
     JSONFile file(context_);
     file.GetRoot().SetVariantMap(data_);
 #ifndef __EMSCRIPTEN__
-    if (file.SaveFile(fileLocation_)) {
+    if (file.SaveFile(fileLocation_))
+    {
         URHO3D_LOGINFO("Savegame file saved in " + fileLocation_);
-    } else {
+    }
+    else
+    {
         URHO3D_LOGERROR("Failed to save state in " + fileLocation_);
     }
 #else
@@ -89,12 +89,10 @@ void State::SetValue(const ea::string& name, const Variant& value, bool save)
 {
     URHO3D_LOGINFO("Updating state parameter: " + name);
     data_[name] = value;
-    if (save) {
+    if (save)
+    {
         Save();
     }
 }
 
-const Variant& State::GetValue(const ea::string& name)
-{
-    return data_[name];
-}
+const Variant& State::GetValue(const ea::string& name) { return data_[name]; }

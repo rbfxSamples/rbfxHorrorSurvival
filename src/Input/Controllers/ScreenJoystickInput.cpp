@@ -1,32 +1,31 @@
-#include <Urho3D/Input/Input.h>
-#include <Urho3D/IO/Log.h>
-#include <Urho3D/UI/UI.h>
-#include <Urho3D/UI/BorderImage.h>
-#include <Urho3D/UI/UIElement.h>
-#include <Urho3D/UI/UIEvents.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Core/ProcessUtils.h>
 #include "ScreenJoystickInput.h"
-#include "../ControllerInput.h"
-#include "../ControllerEvents.h"
 #include "../../LevelManager.h"
 #include "../ControlDefines.h"
+#include "../ControllerEvents.h"
+#include "../ControllerInput.h"
+#include <Urho3D/Core/ProcessUtils.h>
+#include <Urho3D/IO/Log.h>
+#include <Urho3D/Input/Input.h>
+#include <Urho3D/Resource/ResourceCache.h>
+#include <Urho3D/UI/BorderImage.h>
+#include <Urho3D/UI/UI.h>
+#include <Urho3D/UI/UIElement.h>
+#include <Urho3D/UI/UIEvents.h>
 
-ScreenJoystickInput::ScreenJoystickInput(Context* context) :
-    BaseInput(context)
+ScreenJoystickInput::ScreenJoystickInput(Context* context)
+    : BaseInput(context)
 {
     SetMinSensitivity(2.0f);
 
     Init();
     auto* input = GetSubsystem<Input>();
-    for (int i = 0; i < input->GetNumJoysticks(); i++) {
+    for (int i = 0; i < input->GetNumJoysticks(); i++)
+    {
         axisPosition_[i] = Vector2::ZERO;
     }
 }
 
-ScreenJoystickInput::~ScreenJoystickInput()
-{
-}
+ScreenJoystickInput::~ScreenJoystickInput() {}
 
 void ScreenJoystickInput::Init()
 {
@@ -36,24 +35,32 @@ void ScreenJoystickInput::Init()
 
 void ScreenJoystickInput::SubscribeToEvents()
 {
-    SubscribeToEvent(ControllerEvents::E_UI_JOYSTICK_TOGGLE, [&](StringHash eventType, VariantMap& eventData) {
-        using namespace ControllerEvents::UIJoystickToggle;
-        bool enabled = eventData[P_ENABLED].GetBool();
-        if (enabled && GetSubsystem<LevelManager>()->GetCurrentLevel() == "Level") {
-            Show();
-        } else {
-            Hide();
-        }
-    });
+    SubscribeToEvent(ControllerEvents::E_UI_JOYSTICK_TOGGLE,
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            using namespace ControllerEvents::UIJoystickToggle;
+            bool enabled = eventData[P_ENABLED].GetBool();
+            if (enabled && GetSubsystem<LevelManager>()->GetCurrentLevel() == "Level")
+            {
+                Show();
+            }
+            else
+            {
+                Hide();
+            }
+        });
 }
 
 void ScreenJoystickInput::Show()
 {
-    if (!GetSubsystem<ConfigManager>()->GetBool("joystick", "UIJoystick", GetPlatform() == "Android" || GetPlatform() == "iOS")) {
+    if (!GetSubsystem<ConfigManager>()->GetBool(
+            "joystick", "UIJoystick", GetPlatform() == "Android" || GetPlatform() == "iOS"))
+    {
         return;
     }
 
-    if (screenJoystick_) {
+    if (screenJoystick_)
+    {
         screenJoystick_->Remove();
     }
 
@@ -61,7 +68,7 @@ void ScreenJoystickInput::Show()
     auto cache = GetSubsystem<ResourceCache>();
     auto ui = GetSubsystem<UI>();
     auto style = cache->GetResource<XMLFile>("UI/DefaultStyle.xml");
-    XMLFile *layout = cache->GetResource<XMLFile>("UI/ScreenJoystick.xml");
+    XMLFile* layout = cache->GetResource<XMLFile>("UI/ScreenJoystick.xml");
     screenJoystick_ = ui->LoadLayout(layout, style);
     if (!screenJoystick_)
         return;
@@ -78,8 +85,8 @@ void ScreenJoystickInput::Show()
     settingsButton_ = screenJoystick_->GetChild("Settings", true);
     jumpButton_ = screenJoystick_->GetChild("Jump", true);
     SubscribeToEvent(settingsButton_, E_RELEASED, URHO3D_HANDLER(ScreenJoystickInput, HandleSettings));
-//    SubscribeToEvent(jumpButton_, E_PRESSED, URHO3D_HANDLER(ScreenJoystickInput, HandleJumpPress));
-//    SubscribeToEvent(jumpButton_, E_RELEASED, URHO3D_HANDLER(ScreenJoystickInput, HandleJumpRelease));
+    //    SubscribeToEvent(jumpButton_, E_PRESSED, URHO3D_HANDLER(ScreenJoystickInput, HandleJumpPress));
+    //    SubscribeToEvent(jumpButton_, E_RELEASED, URHO3D_HANDLER(ScreenJoystickInput, HandleJumpRelease));
 
     SubscribeToEvent(E_TOUCHBEGIN, URHO3D_HANDLER(ScreenJoystickInput, HandleScreenJoystickTouch));
     SubscribeToEvent(E_TOUCHEND, URHO3D_HANDLER(ScreenJoystickInput, HandleScreenJoystickTouchEnd));
@@ -92,7 +99,8 @@ void ScreenJoystickInput::Show()
 
 void ScreenJoystickInput::Hide()
 {
-    if (screenJoystick_) {
+    if (screenJoystick_)
+    {
         screenJoystick_->Remove();
     }
 }
@@ -100,7 +108,7 @@ void ScreenJoystickInput::Hide()
 void ScreenJoystickInput::HandleJoystickDrag(StringHash eventType, VariantMap& eventData)
 {
     using namespace DragMove;
-    BorderImage *borderImage = (BorderImage*)eventData[P_ELEMENT].GetVoidPtr();
+    BorderImage* borderImage = (BorderImage*)eventData[P_ELEMENT].GetVoidPtr();
     int X = eventData[P_X].GetInt();
     int Y = eventData[P_Y].GetInt();
 
@@ -111,7 +119,7 @@ void ScreenJoystickInput::HandleJoystickDrag(StringHash eventType, VariantMap& e
     IntVector2 buttonOffset_ = (outerSize - innerSize) / 2;
     float innerRadius_ = innerSize.Length() * maxRadiusScaler;
 
-    const IntVector2 &buttonOffset = buttonOffset_;
+    const IntVector2& buttonOffset = buttonOffset_;
     const Vector2 centerOffset(buttonOffset);
     const float innerRadius = innerRadius_;
 
@@ -151,17 +159,23 @@ void ScreenJoystickInput::HandleJoystickDrag(StringHash eventType, VariantMap& e
     }
 
     auto* controllerInput = GetSubsystem<ControllerInput>();
-    if (Abs(inputValue_.x_) < deadzone_) {
+    if (Abs(inputValue_.x_) < deadzone_)
+    {
         controllerInput->SetActionState(CTRL_LEFT, false);
         controllerInput->SetActionState(CTRL_RIGHT, false);
-    } else {
+    }
+    else
+    {
         controllerInput->SetActionState(CTRL_LEFT, inputValue_.x_ < 0, 0, Abs(inputValue_.x_));
         controllerInput->SetActionState(CTRL_RIGHT, inputValue_.x_ > 0, 0, Abs(inputValue_.x_));
     }
-    if (Abs(inputValue_.y_) < deadzone_) {
+    if (Abs(inputValue_.y_) < deadzone_)
+    {
         controllerInput->SetActionState(CTRL_FORWARD, false);
         controllerInput->SetActionState(CTRL_BACK, false);
-    } else {
+    }
+    else
+    {
         controllerInput->SetActionState(CTRL_FORWARD, inputValue_.y_ < 0, 0, Abs(inputValue_.y_));
         controllerInput->SetActionState(CTRL_BACK, inputValue_.y_ > 0, 0, Abs(inputValue_.y_));
     }
@@ -174,21 +188,21 @@ void ScreenJoystickInput::LoadConfig()
     invertX_ = GetSubsystem<ConfigManager>()->GetBool("joystick", "InvertX", false);
     invertY_ = GetSubsystem<ConfigManager>()->GetBool("joystick", "InvertY", false);
 
-    //TODO put these settings inside controllers tab
+    // TODO put these settings inside controllers tab
     joystickMapping_.x_ = GetSubsystem<ConfigManager>()->GetInt("joystick", "MoveXAxis", 0);
     joystickMapping_.y_ = GetSubsystem<ConfigManager>()->GetInt("joystick", "MoveYAxis", 1);
     joystickMapping_.z_ = GetSubsystem<ConfigManager>()->GetInt("joystick", "RotateXAxis");
     joystickMapping_.w_ = GetSubsystem<ConfigManager>()->GetInt("joystick", "RotateYAxis");
 }
 
-void ScreenJoystickInput::HandleJumpPress(StringHash eventType, VariantMap &eventData)
+void ScreenJoystickInput::HandleJumpPress(StringHash eventType, VariantMap& eventData)
 {
     auto* controllerInput = GetSubsystem<ControllerInput>();
     controllerInput->SetActionState(CTRL_JUMP, true);
     SendEvent("ShowNotification", "Message", "Jumping true");
 }
 
-void ScreenJoystickInput::HandleJumpRelease(StringHash eventType, VariantMap &eventData)
+void ScreenJoystickInput::HandleJumpRelease(StringHash eventType, VariantMap& eventData)
 {
     auto* controllerInput = GetSubsystem<ControllerInput>();
     controllerInput->SetActionState(CTRL_JUMP, false);
@@ -202,7 +216,8 @@ void ScreenJoystickInput::HandleSettings(StringHash eventType, VariantMap& event
 
 void ScreenJoystickInput::HandleScreenJoystickTouch(StringHash eventType, VariantMap& eventData)
 {
-    if (!jumpButton_ || !jumpButton_->IsVisible()) {
+    if (!jumpButton_ || !jumpButton_->IsVisible())
+    {
         return;
     }
 
@@ -211,7 +226,8 @@ void ScreenJoystickInput::HandleScreenJoystickTouch(StringHash eventType, Varian
     position = GetSubsystem<UI>()->ConvertSystemToUI(position);
     auto element = GetSubsystem<UI>()->GetElementAt(position);
 
-    if (element && element == jumpButton_) {
+    if (element && element == jumpButton_)
+    {
         auto* controllerInput = GetSubsystem<ControllerInput>();
         controllerInput->SetActionState(CTRL_JUMP, true);
     }

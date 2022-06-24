@@ -1,18 +1,18 @@
-#include <Urho3D/Core/Context.h>
-#include <Urho3D/Scene/Serializable.h>
-#include <Urho3D/Scene/Node.h>
-#include <Urho3D/IO/Log.h>
-#include <Urho3D/UI/Text3D.h>
-#include <Urho3D/UI/Font.h>
-#include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/Resource/ResourceCache.h>
 #include "PlayerState.h"
-#include "PlayerEvents.h"
 #include "../Globals/GUIDefines.h"
 #include "../Globals/ViewLayers.h"
+#include "PlayerEvents.h"
+#include <Urho3D/Core/Context.h>
+#include <Urho3D/Core/CoreEvents.h>
+#include <Urho3D/IO/Log.h>
+#include <Urho3D/Resource/ResourceCache.h>
+#include <Urho3D/Scene/Node.h>
+#include <Urho3D/Scene/Serializable.h>
+#include <Urho3D/UI/Font.h>
+#include <Urho3D/UI/Text3D.h>
 
-PlayerState::PlayerState(Context* context) :
-        Component(context)
+PlayerState::PlayerState(Context* context)
+    : Component(context)
 {
 }
 
@@ -36,8 +36,9 @@ void PlayerState::OnNodeSet(Node* node)
     SubscribeToEvent(node, PlayerEvents::E_PLAYER_SCORE_ADD, URHO3D_HANDLER(PlayerState, HandlePlayerScoreAdd));
     SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(PlayerState, HandlePostUpdate));
 
-    if (node) {
-        auto *cache = GetSubsystem<ResourceCache>();
+    if (node)
+    {
+        auto* cache = GetSubsystem<ResourceCache>();
         label_ = node->GetParent()->CreateChild("Label", LOCAL);
 
         auto text3D = label_->CreateComponent<Text3D>();
@@ -46,23 +47,21 @@ void PlayerState::OnNodeSet(Node* node)
         text3D->SetViewMask(VIEW_MASK_GUI);
         text3D->SetAlignment(HA_CENTER, VA_BOTTOM);
         text3D->SetFaceCameraMode(FaceCameraMode::FC_LOOKAT_Y);
-//    text3D->SetViewMask(~(1 << _controllerId));
+        //    text3D->SetViewMask(~(1 << _controllerId));
 
-//    if (!SHOW_LABELS) {
-//        label_->SetEnabled(false);
-//    }
+        //    if (!SHOW_LABELS) {
+        //        label_->SetEnabled(false);
+        //    }
     }
 }
 
-int PlayerState::GetScore() const
-{
-    return score_;
-}
+int PlayerState::GetScore() const { return score_; }
 
 void PlayerState::SetScore(int value)
 {
     score_ = value;
-    if (score_ < 0) {
+    if (score_ < 0)
+    {
         score_ = 0;
     }
     OnScoreChanged();
@@ -71,16 +70,20 @@ void PlayerState::SetScore(int value)
 void PlayerState::AddScore(int value)
 {
     score_ += value;
-    if (score_ < 0) {
+    if (score_ < 0)
+    {
         score_ = 0;
     }
 
     VariantMap notificationData;
-    if (value < 0) {
+    if (value < 0)
+    {
         notificationData["Status"] = "Error";
-        notificationData["Message"] = name_ + " lost " + ea::string(-value) + " points";
-    } else {
-        notificationData["Message"] = name_ + " got " + ea::string(value) + " points";
+        notificationData["Message"] = name_ + " lost " + ea::to_string(-value) + " points";
+    }
+    else
+    {
+        notificationData["Message"] = name_ + " got " + ea::to_string(value) + " points";
     }
     SendEvent("ShowNotification", notificationData);
 
@@ -97,55 +100,50 @@ void PlayerState::HandlePlayerScoreAdd(StringHash eventType, VariantMap& eventDa
 
 void PlayerState::OnScoreChanged()
 {
-    if (playerId_ >= 0) {
+    if (playerId_ >= 0)
+    {
         VariantMap players = GetGlobalVar("Players").GetVariantMap();
-        VariantMap playerData = players[ea::string(GetPlayerID())].GetVariantMap();
+        VariantMap playerData = players[ea::to_string(GetPlayerID())].GetVariantMap();
         playerData["Score"] = score_;
         playerData["ID"] = GetPlayerID();
         playerData["Name"] = GetPlayerName();
-        players[ea::string(GetPlayerID())] = playerData;
+        players[ea::to_string(GetPlayerID())] = playerData;
         SetGlobalVar("Players", players);
         SendEvent(PlayerEvents::E_PLAYER_SCORES_UPDATED);
     }
-    MarkNetworkUpdate();
+    // TODO MarkNetworkUpdate();
 }
 
-void PlayerState::SetPlayerID(int id)
-{
-    playerId_ = id;
-}
+void PlayerState::SetPlayerID(int id) { playerId_ = id; }
 
-int PlayerState::GetPlayerID() const
-{
-    return playerId_;
-}
+int PlayerState::GetPlayerID() const { return playerId_; }
 
 void PlayerState::SetPlayerName(const ea::string& name)
 {
     name_ = name;
     OnScoreChanged();
-    MarkNetworkUpdate();
+    // TODO MarkNetworkUpdate();
 
-    if (label_) {
+    if (label_)
+    {
         label_->GetComponent<Text3D>()->SetText(name);
     }
 }
 
-const ea::string& PlayerState::GetPlayerName() const
-{
-    return name_;
-}
+const ea::string& PlayerState::GetPlayerName() const { return name_; }
 
 void PlayerState::HandlePostUpdate(StringHash eventType, VariantMap& eventData)
 {
-    if (label_) {
+    if (label_)
+    {
         label_->SetPosition(node_->GetPosition() + Vector3::UP * 0.2);
     }
 }
 
 void PlayerState::HideLabel()
 {
-    if (label_) {
+    if (label_)
+    {
         label_->SetEnabled(false);
     }
 }
