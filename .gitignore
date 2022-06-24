@@ -32,7 +32,7 @@ captures/
 
 # Compiled shaders
 *.vs?
-*.ps?
+#*.ps?
 
 # Compiled AngelScript
 *.asc
