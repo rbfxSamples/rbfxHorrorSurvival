@@ -331,7 +331,7 @@ void Level::RegisterConsoleCommands()
     );
     SubscribeToEvent("#debug_geometry", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() > 1) {
+        if (params.size() > 1) {
             URHO3D_LOGERROR("This command doesn't take any arguments!");
             return;
         }
@@ -348,7 +348,7 @@ void Level::RegisterConsoleCommands()
     );
     SubscribeToEvent("#seed", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 2) {
+        if (params.size() != 2) {
             URHO3D_LOGERROR("Seed parameter is required!");
             return;
         }
@@ -636,7 +636,7 @@ bool Level::RaycastFromCamera(Camera* camera, float maxDistance, Vector3& hitPos
     PODVector<RayQueryResult> results;
     RayOctreeQuery query(results, cameraRay, RAY_TRIANGLE, maxDistance, DRAWABLE_GEOMETRY, VIEW_MASK_CHUNK);
     scene_->GetComponent<Octree>()->RaycastSingle(query);
-    if (results.Size()) {
+    if (results.size()) {
         RayQueryResult& result = results[0];
         hitPos = result.position_;
         hitNormal = result.normal_;

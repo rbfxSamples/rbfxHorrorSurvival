@@ -51,14 +51,14 @@ void ChunkMesh::RegisterObject(Context* context)
 void ChunkMesh::WriteToVertexBuffer()
 {
     unsigned elementMask = MASK_POSITION | MASK_NORMAL | MASK_COLOR | MASK_TEXCOORD1;
-    vb_->SetSize(vertices_.Size(), elementMask, false);
+    vb_->SetSize(vertices_.size(), elementMask, false);
     vb_->SetShadowed(true);
 
     if (!vertices_.Empty()) {
-        unsigned char *dest = (unsigned char *) vb_->Lock(0, vertices_.Size(), true);
+        unsigned char *dest = (unsigned char *) vb_->Lock(0, vertices_.size(), true);
 
         if (dest) {
-            for (auto i = 0; i < vertices_.Size(); ++i) {
+            for (auto i = 0; i < vertices_.size(); ++i) {
                 if (elementMask & MASK_POSITION) {
                     *((Vector3 *) dest) = vertices_[i].position_;
                     dest += sizeof(Vector3);
@@ -112,7 +112,7 @@ void ChunkMesh::AddIndice(short index)
 void ChunkMesh::WriteToIndexBuffer()
 {
     ib_->SetShadowed(true);
-    ib_->SetSize(indices_.Size(), false);
+    ib_->SetSize(indices_.size(), false);
     if (!indices_.Empty()) {
         ib_->SetData(indices_.Buffer());
     }
@@ -131,7 +131,7 @@ SharedPtr<IndexBuffer> ChunkMesh::GetIndexBuffer(Context* context) {
 
 unsigned ChunkMesh::GetVertexCount()
 {
-    return vertices_.Size();
+    return vertices_.size();
 }
 
 void ChunkMesh::Clear()
@@ -146,7 +146,7 @@ SharedPtr<Geometry> ChunkMesh::GetGeometry()
     WriteToIndexBuffer();
     geometry_->SetVertexBuffer(0, vb_);
     geometry_->SetIndexBuffer(ib_);
-    geometry_->SetDrawRange(TRIANGLE_LIST, 0, indices_.Size(), 0, vertices_.Size());
+    geometry_->SetDrawRange(TRIANGLE_LIST, 0, indices_.size(), 0, vertices_.size());
 
     return geometry_;
 }

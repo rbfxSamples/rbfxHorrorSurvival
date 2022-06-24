@@ -96,7 +96,7 @@ void AudioManager::HandleConsolePlaySound(StringHash eventType, VariantMap& even
 {
     URHO3D_LOGINFO("Handle console play sound");
     StringVector params = eventData["Parameters"].GetStringVector();
-    if (params.Size() == 2) {
+    if (params.size() == 2) {
         PlaySound(params[1], SOUND_EFFECT);
     }
 

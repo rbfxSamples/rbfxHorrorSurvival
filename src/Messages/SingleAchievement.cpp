@@ -75,7 +75,7 @@ void SingleAchievement::HandlePostUpdate(StringHash eventType, VariantMap& event
 
 void SingleAchievement::OnAttributeAnimationAdded()
 {
-    if (attributeAnimationInfos_.Size() == 1)
+    if (attributeAnimationInfos_.size() == 1)
         SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(SingleAchievement, HandlePostUpdate));
 }
 

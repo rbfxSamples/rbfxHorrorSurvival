@@ -69,11 +69,11 @@ void Notifications::HandleNewNotification(StringHash eventType, VariantMap& even
     data.color = color;
 
     if (timer_.GetMSec(false) < NOTIFICATION_OVERLAP_TIME) {
-        if (messageQueue_.Size() >= 10) {
+        if (messageQueue_.size() >= 10) {
             return;
         }
         messageQueue_.Push(data);
-        URHO3D_LOGINFOF("Too many notification request, pushing notification on queue. Queue size %d", messageQueue_.Size());
+        URHO3D_LOGINFOF("Too many notification request, pushing notification on queue. Queue size %d", messageQueue_.size());
         return;
     }
     CreateNewNotification(data);

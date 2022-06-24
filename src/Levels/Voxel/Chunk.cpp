@@ -87,7 +87,7 @@ void Chunk::Init(Scene* scene, const Vector3& position)
     );
     SubscribeToEvent("#chunk_rerender", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 1) {
+        if (params.size() != 1) {
             URHO3D_LOGERROR("Thi command doesn't have any arguments!");
             return;
         }

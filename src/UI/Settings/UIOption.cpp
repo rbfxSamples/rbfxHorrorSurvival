@@ -249,7 +249,7 @@ namespace Urho3D {
     }
 
     void UIMultiOption::UpdateValue() {
-        if (!strings_.Empty() && index_ >= 0 && index_ < (int)strings_.Size()) {
+        if (!strings_.Empty() && index_ >= 0 && index_ < (int)strings_.size()) {
             if (lbl_value_)
                 lbl_value_->SetText(strings_[index_]);
             MarkDirty();
@@ -276,21 +276,21 @@ namespace Urho3D {
 
     void UIMultiOption::SetStrings(const StringVector& strings) {
         strings_ = strings;
-        options_count_ = strings_.Size();
+        options_count_ = strings_.size();
         UpdateValue();
     }
 
     void UIMultiOption::SetOptionsAttr(const VariantVector& options) {
         unsigned index = 0;
-        options_count_ = index < options.Size() ? options[index++].GetUInt() : 0;
+        options_count_ = index < options.size() ? options[index++].GetUInt() : 0;
 
         // Prevent negative value being assigned from the editor
         if (options_count_ > M_MAX_INT)
             options_count_ = 0;
 
-        strings_.Resize(options_count_);
+        strings_.resize(options_count_);
 
-        for (auto it = strings_.Begin(); it != strings_.End() && index < options.Size(); ++it) {
+        for (auto it = strings_.Begin(); it != strings_.End() && index < options.size(); ++it) {
             *it = options[index++].GetString();
         }
         UpdateValue();
@@ -310,7 +310,7 @@ namespace Urho3D {
     ea::string UIMultiOption::GetValue() const {
         if (strings_.Empty())
             return "";
-        if (index_ >= 0 && index_ < (int)strings_.Size())
+        if (index_ >= 0 && index_ < (int)strings_.size())
             return strings_[index_];
         return "";
     }
@@ -484,33 +484,33 @@ namespace Urho3D {
 
     void UITabPanel::SetTabsAttribute(const VariantVector& strings) {
         unsigned index = 0;
-        tab_count_ = index < strings.Size() ? strings[index++].GetUInt() : 0;
+        tab_count_ = index < strings.size() ? strings[index++].GetUInt() : 0;
 
         // Prevent negative value being assigned from the editor
         if (tab_count_ > M_MAX_INT)
             tab_count_ = 0;
 
-        tab_names_.Resize(tab_count_);
+        tab_names_.resize(tab_count_);
 
-        for (auto it = tab_names_.Begin(); it != tab_names_.End() && index < strings.Size(); ++it) {
+        for (auto it = tab_names_.Begin(); it != tab_names_.End() && index < strings.size(); ++it) {
             *it = strings[index++].GetString();
         }
 
         // Update tabs
-        int tab_diff = tab_count_ - tabs_.Size();
+        int tab_diff = tab_count_ - tabs_.size();
 
         if (tab_diff > 0) {
             for (int i = 0; i < tab_diff; ++i) {
-                if (0 == AddTab(tab_names_[tabs_.Size()]))
+                if (0 == AddTab(tab_names_[tabs_.size()]))
                     break;
             }
         } else if (tab_diff < 0) {
             for (int i = tab_diff; i < 0; i++) {
-                RemoveTab(tabs_.Size() - 1);
+                RemoveTab(tabs_.size() - 1);
             }
         }
 
-        for (int i = 0; i < (int)tabs_.Size(); i++) {
+        for (int i = 0; i < (int)tabs_.size(); i++) {
             tabs_[i].name = tab_names_[i];
             tabs_[i].text->SetText(tab_names_[i]);
             tabs_[i].page->SetName(tab_names_[i]);
@@ -531,7 +531,7 @@ namespace Urho3D {
     }
 
     ListView* UITabPanel::AddTab(const ea::string& name) {
-        int tab_index = tabs_.Size();
+        int tab_index = tabs_.size();
         bool enabled = current_tab_ == tab_index;
 
         Tab tab;
@@ -566,7 +566,7 @@ namespace Urho3D {
 
         tabs_.Push(tab);
 
-        if (tabs_.Size() == 1) {
+        if (tabs_.size() == 1) {
             tab.button->SetStyle("TransparentButton");
         }
 
@@ -588,7 +588,7 @@ namespace Urho3D {
     }
 
     void UITabPanel::RemoveTab(int index) {
-        if (index < 0 || index >= (int)tabs_.Size())
+        if (index < 0 || index >= (int)tabs_.size())
             return;
 
         auto tab = tabs_[index];
@@ -597,7 +597,7 @@ namespace Urho3D {
         tab.page->Remove();
 
         tabs_.Erase(index, 1);
-        tab_count_ = tabs_.Size();
+        tab_count_ = tabs_.size();
     }
 
     void UITabPanel::RemoveAllTabs() {
@@ -610,15 +610,15 @@ namespace Urho3D {
     }
 
     UIElement* UITabPanel::GetTab(int index) const {
-        if (index < 0 || index >= (int)tab_count_ || index >= (int)tabs_.Size())
+        if (index < 0 || index >= (int)tab_count_ || index >= (int)tabs_.size())
             return 0;
 
         return tabs_[index].page;
     }
 
     void UITabPanel::SetCurrentTab(int tab) {
-        if (tab >= (int)tabs_.Size())
-            tab = tabs_.Size();
+        if (tab >= (int)tabs_.size())
+            tab = tabs_.size();
 
         if (tab < 0)
             tab = 0;
@@ -627,13 +627,13 @@ namespace Urho3D {
         current_tab_ = tab;
 
         // hide all tabs first
-        for (int i = 0; i < (int)tabs_.Size(); ++i) {
+        for (int i = 0; i < (int)tabs_.size(); ++i) {
             tabs_[i].page->SetVisible(false);
             tabs_[i].button->SetStyle("TabButton");
         }
 
         // show only the current tab
-        for (int i = 0; i < (int)tabs_.Size(); ++i) {
+        for (int i = 0; i < (int)tabs_.size(); ++i) {
             tabs_[i].page->SetVisible(tab == i);
             if (tab == i) {
                 tabs_[i].button->SetStyle("TransparentButton");

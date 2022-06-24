@@ -102,7 +102,7 @@ void Player::RegisterConsoleCommands()
     );
     SubscribeToEvent("#movement_speed", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 2) {
+        if (params.size() != 2) {
             URHO3D_LOGERROR("Invalid number of arguments!");
             return;
         }
@@ -118,7 +118,7 @@ void Player::RegisterConsoleCommands()
     );
     SubscribeToEvent("#camera_distance", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 2) {
+        if (params.size() != 2) {
             URHO3D_LOGERROR("Invalid number of arguments!");
             return;
         }
@@ -134,7 +134,7 @@ void Player::RegisterConsoleCommands()
     );
     SubscribeToEvent("#jump_force", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 2) {
+        if (params.size() != 2) {
             URHO3D_LOGERROR("Invalid number of arguments!");
             return;
         }
@@ -150,7 +150,7 @@ void Player::RegisterConsoleCommands()
     );
     SubscribeToEvent("#noclip", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 1) {
+        if (params.size() != 1) {
             URHO3D_LOGERROR("This command doesn't have any arguments!");
             return;
         }

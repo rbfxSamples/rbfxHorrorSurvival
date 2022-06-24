@@ -142,7 +142,7 @@ void Splash::HandleEndSplash()
     UnsubscribeFromEvent(E_UPDATE);
     VariantMap& data = GetEventDataMap();
     logoIndex_++;
-    if (logoIndex_ >= logos_.Size()) {
+    if (logoIndex_ >= logos_.size()) {
         data["Name"] = "MainMenu";
     } else {
         // We still have logos to show, inform next Splash screen to use the next logo from the `logos_` vector

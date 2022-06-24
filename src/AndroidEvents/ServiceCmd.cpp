@@ -132,7 +132,6 @@ ServiceCmd::ServiceCmd(Urho3D::Context* context)
 
 ServiceCmd::~ServiceCmd()
 {
-
 }
 
 void ServiceCmd::SendCmdMessage(int cmd, int param)
@@ -144,8 +143,8 @@ void ServiceCmd::ReceiveCmdMessage(int cmd, int status, const char* message)
 {
     Urho3D::MutexLock lock(mutexMessageLock_);
 
-    messageList_.Resize(messageList_.Size() + 1);
-    MessageData &messageData = messageList_[messageList_.Size() - 1];
+    messageList_.resize(messageList_.size() + 1);
+    MessageData &messageData = messageList_[messageList_.size() - 1];
 
     messageData.command  = cmd;
     messageData.status   = status;
@@ -158,7 +157,7 @@ bool ServiceCmd::HasQueueMessage(MessageData& messageData)
 
     bool hasData = false;
 
-    if (messageList_.Size())
+    if (messageList_.size())
     {
         messageData = messageList_[0];
         hasData = true;
@@ -171,7 +170,7 @@ void ServiceCmd::PopFrontQueue()
 {
     Urho3D::MutexLock lock(mutexMessageLock_);
 
-    if (messageList_.Size())
+    if (messageList_.size())
     {
         messageList_.Erase(0);
     }

@@ -44,7 +44,7 @@ void BaseLevel::SubscribeToBaseEvents()
     SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "gamma", ConsoleCommandAdd::P_EVENT, "gamma", ConsoleCommandAdd::P_DESCRIPTION, "Change gamma", ConsoleCommandAdd::P_OVERWRITE, true);
     SubscribeToEvent("gamma", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() == 2) {
+        if (params.size() == 2) {
             float value = ToFloat(params[1]);
             GetSubsystem<ConfigManager>()->Set("postprocess", "Gamma", value);
             GetSubsystem<ConfigManager>()->Save(true);
@@ -58,10 +58,10 @@ void BaseLevel::SubscribeToBaseEvents()
     SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "clip", ConsoleCommandAdd::P_EVENT, "clip", ConsoleCommandAdd::P_DESCRIPTION, "Change camera far/near clip", ConsoleCommandAdd::P_OVERWRITE, true);
     SubscribeToEvent("clip", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() == 3) {
+        if (params.size() == 3) {
             float near = ToFloat(params[1]);
             float far = ToFloat(params[2]);
-            for (int i = 0; i < cameras_.Size(); i++) {
+            for (int i = 0; i < cameras_.size(); i++) {
                 cameras_[i]->GetComponent<Camera>()->SetNearClip(near);
                 cameras_[i]->GetComponent<Camera>()->SetFarClip(far);
                 URHO3D_LOGINFOF("Updating camera %d, near=%f, far=%f", i, near, far);
@@ -158,7 +158,7 @@ void BaseLevel::SubscribeToEvents()
             return;
         }
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() < 4) {
+        if (params.size() < 4) {
             URHO3D_LOGERROR("ambient_light expects 3 float values: r g b ");
             return;
         }
@@ -182,7 +182,7 @@ void BaseLevel::SubscribeToEvents()
             return;
         }
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() < 3) {
+        if (params.size() < 3) {
             URHO3D_LOGERROR("fog expects 2 parameters: fog_start fog_end ");
             return;
         }
@@ -198,10 +198,10 @@ void BaseLevel::HandleFovChange(StringHash eventType, VariantMap& eventData)
 {
     StringVector params = eventData["Parameters"].GetStringVector();
 
-    if (params.Size() == 1) {
+    if (params.size() == 1) {
         URHO3D_LOGINFOF("Current fov value: %f", GetGlobalVar("CameraFov").GetFloat());
     }
-    else if (params.Size() == 2) {
+    else if (params.size() == 2) {
         float previousValue = GetGlobalVar("CameraFov").GetFloat();
         float value = ToFloat(params.At(1));
         if (value < 60) {
@@ -355,7 +355,7 @@ void BaseLevel::InitViewports(ea::vector<int> playerIndexes)
     if (!renderer) {
         return;
     }
-    renderer->SetNumViewports(playerIndexes.Size());
+    renderer->SetNumViewports(playerIndexes.size());
     viewports_.Clear();
     cameras_.Clear();
 
@@ -363,8 +363,8 @@ void BaseLevel::InitViewports(ea::vector<int> playerIndexes)
         return;
     }
 
-    for (unsigned int i = 0; i < playerIndexes.Size(); i++) {
-        CreateSingleCamera(i, playerIndexes.Size(), playerIndexes.At(i));
+    for (unsigned int i = 0; i < playerIndexes.size(); i++) {
+        CreateSingleCamera(i, playerIndexes.size(), playerIndexes.At(i));
     }
 
     ApplyPostProcessEffects();

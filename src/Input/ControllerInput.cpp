@@ -59,7 +59,7 @@ void ControllerInput::Init()
     controls_[0] = Controls();
 
     if (GetSubsystem<DebugHud>()) {
-        GetSubsystem<DebugHud>()->SetAppStats("Controls", controls_.Size());
+        GetSubsystem<DebugHud>()->SetAppStats("Controls", controls_.size());
     }
 }
 
@@ -246,7 +246,7 @@ void ControllerInput::RegisterConsoleCommands()
 void ControllerInput::HandleStartInputListeningConsole(StringHash eventType, VariantMap& eventData)
 {
     StringVector parameters = eventData["Parameters"].GetStringVector();
-    if (parameters.Size() == 2) {
+    if (parameters.size() == 2) {
         using namespace StartInputMapping;
         VariantMap& data = GetEventDataMap();
         data[P_CONTROL_ACTION] = parameters[1];
@@ -299,7 +299,7 @@ void ControllerInput::CreateController(int controllerIndex)
     SendEvent(E_CONTROLLER_ADDED, data);
 
     if (GetSubsystem<DebugHud>()) {
-        GetSubsystem<DebugHud>()->SetAppStats("Controls", controls_.Size());
+        GetSubsystem<DebugHud>()->SetAppStats("Controls", controls_.size());
     }
 }
 
@@ -319,7 +319,7 @@ void ControllerInput::DestroyController(int controllerIndex)
         SendEvent(E_CONTROLLER_REMOVED, data);
     }
     if (GetSubsystem<DebugHud>()) {
-        GetSubsystem<DebugHud>()->SetAppStats("Controls", controls_.Size());
+        GetSubsystem<DebugHud>()->SetAppStats("Controls", controls_.size());
     }
 }
 

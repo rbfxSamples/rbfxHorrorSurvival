@@ -51,7 +51,7 @@ void PackageManager::SubscribeToEvents()
     );
     SubscribeToEvent("#package_manager_list", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 2) {
+        if (params.size() != 2) {
             URHO3D_LOGERROR("You must provide url");
             return;
         }

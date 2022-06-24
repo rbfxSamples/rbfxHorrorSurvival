@@ -166,8 +166,8 @@ void Achievements::LoadAchievementList()
 
     JSONValue value = configFile->GetRoot();
     if (value.IsArray()) {
-        URHO3D_LOGINFOF("Loading achievements config: %u", value.Size());
-        for (int i = 0; i < value.Size(); i++) {
+        URHO3D_LOGINFOF("Loading achievements config: %u", value.size());
+        for (int i = 0; i < value.size(); i++) {
             JSONValue mapInfo = value[i];
             if (mapInfo.contains("Event")
                 && mapInfo["Event"].IsString()
@@ -397,7 +397,7 @@ int Achievements::CountAchievements()
 {
     int count = 0;
     for (auto it = registeredAchievements_.Begin(); it != registeredAchievements_.End(); ++it) {
-        count += (*it).second_.Size();
+        count += (*it).second_.size();
     }
     return count;
 }

@@ -39,7 +39,7 @@ currentLevel_("NONE")
     SubscribeToEvent("ChangeLevelConsole", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
 
-        if (params.Size() != 2) {
+        if (params.size() != 2) {
             URHO3D_LOGERROR("Invalid number of parameters!");
         } else {
             VariantMap& data = GetEventDataMap();
@@ -69,7 +69,7 @@ void LevelManager::RegisterObject(Context* context)
 void LevelManager::HandleSetLevelQueue(StringHash eventType, VariantMap& eventData)
 {
     // Busy now
-    if (level_queue_.Size() == 0) {
+    if (level_queue_.size() == 0) {
         // Init fade status
         fade_status_ = 0;
     }
@@ -223,7 +223,7 @@ void LevelManager::HandleUpdate(StringHash eventType, VariantMap& eventData)
         // Release all unused resources
         GetSubsystem<ResourceCache>()->ReleaseAllResources(false);
 
-        if (level_queue_.Size()) {
+        if (level_queue_.size()) {
             // Subscribe HandleUpdate() function for processing update events
             SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(LevelManager, HandleUpdate));
 

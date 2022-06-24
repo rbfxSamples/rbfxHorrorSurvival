@@ -40,7 +40,7 @@ void NewGameSettingsWindow::Init()
 void NewGameSettingsWindow::Create()
 {
     auto maps = GetSubsystem<SceneManager>()->GetAvailableMaps();
-    if (maps.Size() == 1) {
+    if (maps.size() == 1) {
         // TODO: only one map available, automatically start it
         auto it = maps.Begin();
         VariantMap& data = GetEventDataMap();

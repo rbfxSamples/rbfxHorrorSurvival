@@ -43,7 +43,7 @@ void UpdateChunkState(const WorkItem* item, unsigned threadIndex)
         world->GetSubsystem<TreeGenerator>()->Process();
     }
     if (world->GetSubsystem<DebugHud>()) {
-        world->GetSubsystem<DebugHud>()->SetAppStats("Chunks Loaded", world->chunks_.Size());
+        world->GetSubsystem<DebugHud>()->SetAppStats("Chunks Loaded", world->chunks_.size());
     }
 
     int counter = 0;
@@ -135,7 +135,7 @@ void VoxelWorld::Init()
     );
     SubscribeToEvent("#chunk_visible_distance", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 2) {
+        if (params.size() != 2) {
             URHO3D_LOGERROR("radius parameter is required!");
             return;
         }
@@ -153,7 +153,7 @@ void VoxelWorld::Init()
     );
     SubscribeToEvent("#world_reset", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 1) {
+        if (params.size() != 1) {
             URHO3D_LOGERROR("This command doesn't have any arguments!");
             return;
         }
@@ -176,7 +176,7 @@ void VoxelWorld::Init()
     );
     SubscribeToEvent("#sunlight", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 2) {
+        if (params.size() != 2) {
             URHO3D_LOGERROR("Thi command requires exactly 1 argument!");
             return;
         }

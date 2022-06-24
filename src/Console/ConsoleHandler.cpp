@@ -77,7 +77,7 @@ void ConsoleHandler::SubscribeToEvents()
     SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "map", ConsoleCommandAdd::P_EVENT, "#map", ConsoleCommandAdd::P_DESCRIPTION, "Change the map");
     SubscribeToEvent("#map", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 2) {
+        if (params.size() != 2) {
             URHO3D_LOGERROR("Invalid number of params!");
             return;
         }
@@ -90,7 +90,7 @@ void ConsoleHandler::SubscribeToEvents()
     SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "opacity", ConsoleCommandAdd::P_EVENT, "#opacity", ConsoleCommandAdd::P_DESCRIPTION, "Change the console opacity");
     SubscribeToEvent("#opacity", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 2) {
+        if (params.size() != 2) {
             URHO3D_LOGERROR("Invalid number of params!");
             return;
         }
@@ -196,7 +196,7 @@ void ConsoleHandler::HandleConsoleGlobalVariableChange(StringVector params)
     const Variant value = GetSubsystem<Engine>()->GetGlobalVar(params[0]);
 
     // Only show variable
-    if (params.Size() == 1 && !value.IsEmpty()) {
+    if (params.size() == 1 && !value.IsEmpty()) {
         ea::string stringValue;
         if (value.GetType() == VAR_STRING) {
             stringValue = value.GetString();
@@ -218,7 +218,7 @@ void ConsoleHandler::HandleConsoleGlobalVariableChange(StringVector params)
     }
 
     // Read console input parameters and change global variable
-    if (params.Size() == 2) {
+    if (params.size() == 2) {
         ea::string oldValue;
         ea::string newValue;
         if (value.GetType() == VAR_STRING) {

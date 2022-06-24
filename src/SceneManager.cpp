@@ -144,7 +144,7 @@ void SceneManager::HandleUpdate(StringHash eventType, VariantMap& eventData)
     }
 
     float completed = 1;
-    targetProgress_ = (float)completed / ( (float) loadingSteps_.Size() + 1.0f );
+    targetProgress_ = (float)completed / ( (float) loadingSteps_.size() + 1.0f );
     for (auto it = loadingSteps_.Begin(); it != loadingSteps_.End(); ++it) {
         if ((*it).second_.finished) {
             completed++;
@@ -153,7 +153,7 @@ void SceneManager::HandleUpdate(StringHash eventType, VariantMap& eventData)
             (*it).second_.finished = true;
             (*it).second_.ack      = true;
         }
-        targetProgress_ = (float)completed / ( (float) loadingSteps_.Size() + 1.0f );
+        targetProgress_ = (float)completed / ( (float) loadingSteps_.size() + 1.0f );
 
         if (!(*it).second_.map.Empty() && (*it).second_.map != activeScene_->GetFileName()) {
             (*it).second_.finished = true;
@@ -205,7 +205,7 @@ void SceneManager::HandleUpdate(StringHash eventType, VariantMap& eventData)
                 (*it).second_.ackTimer.Reset();
             }
             completed += (*it).second_.progress;
-            targetProgress_ = (float)completed / ( (float) loadingSteps_.Size() + 1.0f );
+            targetProgress_ = (float)completed / ( (float) loadingSteps_.size() + 1.0f );
             return;
         }
 
@@ -266,7 +266,7 @@ void SceneManager::HandleRegisterLoadingStep(StringHash eventType, VariantMap& e
     loadingSteps_[step.event] = step;
 
     if (GetSubsystem<DebugHud>()) {
-        GetSubsystem<DebugHud>()->SetAppStats("Loading steps", loadingSteps_.Size());
+        GetSubsystem<DebugHud>()->SetAppStats("Loading steps", loadingSteps_.size());
     }
 }
 

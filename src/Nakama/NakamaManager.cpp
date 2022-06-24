@@ -49,7 +49,7 @@ void NakamaManager::Init()
     SubscribeToEvent("#nakama_login", [&](StringHash eventType, VariantMap& eventData) {
         URHO3D_LOGINFO("Authenticating with nakama");
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 3) {
+        if (params.size() != 3) {
             URHO3D_LOGERROR("You must provide email and password");
             return;
         }
@@ -66,7 +66,7 @@ void NakamaManager::Init()
     SubscribeToEvent("#nakama_command", [&](StringHash eventType, VariantMap& eventData) {
         URHO3D_LOGINFO("Requesting nakama command");
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 2) {
+        if (params.size() != 2) {
             URHO3D_LOGERROR("You must provide RPC command");
             return;
         }
@@ -114,7 +114,7 @@ void NakamaManager::Init()
     SubscribeToEvent("#nakama_register", [&](StringHash eventType, VariantMap& eventData) {
         URHO3D_LOGINFO("Authenticating with nakama");
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 4) {
+        if (params.size() != 4) {
             URHO3D_LOGERROR("You must provide email, password and username");
             return;
         }
@@ -130,7 +130,7 @@ void NakamaManager::Init()
     );
     SubscribeToEvent("#nakama_read", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 2) {
+        if (params.size() != 2) {
             URHO3D_LOGERROR("You must specify the key name");
             return;
         }
@@ -181,7 +181,7 @@ void NakamaManager::Init()
     );
     SubscribeToEvent("#nakama_create_match", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 1) {
+        if (params.size() != 1) {
             URHO3D_LOGERROR("This command doesn't take any arguments!");
             return;
         }
@@ -197,7 +197,7 @@ void NakamaManager::Init()
     );
     SubscribeToEvent("#nakama_join_match", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 2) {
+        if (params.size() != 2) {
             URHO3D_LOGERROR("You must specify match id");
             return;
         }
@@ -213,7 +213,7 @@ void NakamaManager::Init()
     );
     SubscribeToEvent("#nakama_matchmaker", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 1) {
+        if (params.size() != 1) {
             URHO3D_LOGERROR("You must specify match id");
             return;
         }
@@ -249,7 +249,7 @@ void NakamaManager::Init()
     );
     SubscribeToEvent("#nakama_send_match_data", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 2) {
+        if (params.size() != 2) {
             URHO3D_LOGERROR("You must specify match data opcode");
             return;
         }
@@ -269,13 +269,13 @@ void NakamaManager::Init()
     );
     SubscribeToEvent("#nakama_send_message", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() == 1) {
+        if (params.size() == 1) {
             URHO3D_LOGERROR("You have to specify a message you want to send!");
             return;
         }
         if (rtClient_) {
             ea::string message;
-            for (int i = 1; i < params.Size(); i++) {
+            for (int i = 1; i < params.size(); i++) {
                 if (!message.Empty()) {
                     message += " ";
                 }
@@ -294,7 +294,7 @@ void NakamaManager::Init()
     );
     SubscribeToEvent("#nakama_leave_match", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() != 1) {
+        if (params.size() != 1) {
             URHO3D_LOGERROR("This command doesn't take any arguments!");
             return;
         }
@@ -492,7 +492,7 @@ void NakamaManager::SendChatMessage(const ea::string& message)
 void NakamaManager::SendData(int msgID, const VectorBuffer& data)
 {
     if (rtClient_) {
-        NBytes content(reinterpret_cast<char const*>(data.GetBuffer().Buffer()), data.GetBuffer().Size());
+        NBytes content(reinterpret_cast<char const*>(data.GetBuffer().Buffer()), data.GetBuffer().size());
         rtClient_->sendMatchData(matchId_.CString(), msgID, content);
     }
 }

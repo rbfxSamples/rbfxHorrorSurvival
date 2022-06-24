@@ -142,7 +142,7 @@ namespace Urho3D {
 		void SetCurrentTab(int tab);
 		int GetCurrentTab() const { return current_tab_; }
 
-		unsigned GetTabCount() const { return tabs_.Size(); }
+		unsigned GetTabCount() const { return tabs_.size(); }
 
 		ListView* AddTab(const ea::string& name);
 		void RemoveTab(const ea::string& name);

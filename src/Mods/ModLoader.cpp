@@ -71,16 +71,16 @@ void ModLoader::LoadASMods()
     // Scan Data/Mods directory for all *.as files
     GetSubsystem<FileSystem>()->ScanDir(result, GetSubsystem<FileSystem>()->GetProgramDir() + ea::string("Data/Mods"), ea::string("*.as"), SCAN_FILES, false);
 
-    URHO3D_LOGINFO("Total AS mods found: " + ea::string(result.Size()));
+    URHO3D_LOGINFO("Total AS mods found: " + ea::string(result.size()));
 
     auto packageFiles = GetSubsystem<ResourceCache>()->GetPackageFiles();
     if (GetSubsystem<DebugHud>()) {
-        GetSubsystem<DebugHud>()->SetAppStats("Package files", packageFiles.Size());
+        GetSubsystem<DebugHud>()->SetAppStats("Package files", packageFiles.size());
     }
     for (auto it = packageFiles.Begin(); it != packageFiles.End(); ++it) {
         auto files = (*it)->GetEntryNames();
         for (auto it2 = files.Begin(); it2 != files.End(); ++it2) {
-            if ((*it2).StartsWith("Mods/") && (*it2).EndsWith(".as") && (*it2).Split('/')  .Size() == 2) {
+            if ((*it2).StartsWith("Mods/") && (*it2).EndsWith(".as") && (*it2).Split('/')  .size() == 2) {
                 result.Push((*it2).Split('/').At(1));
             }
         }
@@ -103,7 +103,7 @@ void ModLoader::LoadASMods()
     }
 
     if (GetSubsystem<DebugHud>()) {
-        GetSubsystem<DebugHud>()->SetAppStats("Total AS mods loaded", asMods_.Size());
+        GetSubsystem<DebugHud>()->SetAppStats("Total AS mods loaded", asMods_.size());
     }
     #endif
 }
@@ -115,13 +115,13 @@ void ModLoader::LoadLuaMods()
 
     // Scan Data/Mods directory for all *.as files
     GetSubsystem<FileSystem>()->ScanDir(luaMods_, GetSubsystem<FileSystem>()->GetProgramDir() + ea::string("Data/Mods"), ea::string("*.lua"), SCAN_FILES, false);
-    URHO3D_LOGINFO("Total LUA mods found: " + ea::string(luaMods_.Size()));
+    URHO3D_LOGINFO("Total LUA mods found: " + ea::string(luaMods_.size()));
 
     auto packageFiles = GetSubsystem<ResourceCache>()->GetPackageFiles();
     for (auto it = packageFiles.Begin(); it != packageFiles.End(); ++it) {
         auto files = (*it)->GetEntryNames();
         for (auto it2 = files.Begin(); it2 != files.End(); ++it2) {
-            if ((*it2).StartsWith("Mods/") && (*it2).EndsWith(".lua") && (*it2).Split('/')  .Size() == 2) {
+            if ((*it2).StartsWith("Mods/") && (*it2).EndsWith(".lua") && (*it2).Split('/')  .size() == 2) {
                 luaMods_.Push((*it2).Split('/').At(1));
             }
         }
@@ -141,7 +141,7 @@ void ModLoader::LoadLuaMods()
     }
 
     if (GetSubsystem<DebugHud>()) {
-        GetSubsystem<DebugHud>()->SetAppStats("Total LUA mods loaded", luaMods_.Size());
+        GetSubsystem<DebugHud>()->SetAppStats("Total LUA mods loaded", luaMods_.size());
     }
     #endif
 }
@@ -196,7 +196,7 @@ void ModLoader::SubscribeConsoleCommands()
     SubscribeToEvent("#mod_test", [&](StringHash eventType, VariantMap& eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
 
-        if (params.Size() >= 2) {
+        if (params.size() >= 2) {
             auto cache = GetSubsystem<ResourceCache>();
             auto file = cache->GetFile(params[1]);
             if (file) {
@@ -215,7 +215,7 @@ void ModLoader::SubscribeConsoleCommands()
 //                URHO3D_LOGINFOF("Creating new manual resource %s", filename.CString());
 //            }
 //            ea::string data;
-//            for (int i = 2; i < params.Size(); i++) {
+//            for (int i = 2; i < params.size(); i++) {
 //                data += " " + params[i];
 //            }
 //            std::string content = data.CString();
@@ -266,7 +266,7 @@ void ModLoader::CheckAllMods()
 {
     ea::vector<ea::string> result;
     #ifdef URHO3D_ANGELSCRIPT
-    result.Reserve(asMods_.Size());
+    result.Reserve(asMods_.size());
     for (auto it = asMods_.Begin(); it != asMods_.End(); ++it) {
         result.Push((*it)->GetName());
     }

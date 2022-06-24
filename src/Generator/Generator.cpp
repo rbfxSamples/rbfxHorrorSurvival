@@ -57,7 +57,7 @@ void Generator::SubscribeToEvents()
     );
     SubscribeToEvent("#generate_map", [&](StringHash eventType, VariantMap &eventData) {
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() < 4) {
+        if (params.size() < 4) {
             URHO3D_LOGERROR("generate_map expects 3 parameters: frequency(0.1 - 64.0), octaves(1 - 16), seed");
             return;
         }
@@ -111,13 +111,13 @@ void Generator::SubscribeToEvents()
         int size = 2;
         Color color(0.1, 0.1, 0.1, 1.0);
         StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.Size() > 1) {
+        if (params.size() > 1) {
             color.r_ = ToFloat(params[1]);
             color.g_ = color.r_;
             color.b_ = color.r_;
             size = ToInt(params[1]);
         }
-        if (params.Size() > 2) {
+        if (params.size() > 2) {
             color.a_ = ToFloat(params[2]);
         }
 //        image->SetPixel(0, 0, color);
@@ -211,9 +211,9 @@ void Generator::GenerateTextures()
     water.frame = Color(0.54,0.86,0.88, 0.7);
     textures.Push(water);
 
-    combined->SetSize(32 * 6, 32 * textures.Size(), 4);
+    combined->SetSize(32 * 6, 32 * textures.size(), 4);
     int border = 1;
-    for (int t = 0; t < textures.Size(); t++) {
+    for (int t = 0; t < textures.size(); t++) {
         for (int i = 0; i < 6; i++) {
             for (int x = 0; x < 32; x++) {
                 for (int y = 0; y < 32; y++) {

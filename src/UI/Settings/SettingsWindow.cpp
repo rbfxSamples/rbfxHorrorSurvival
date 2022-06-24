@@ -74,11 +74,11 @@ namespace {
 
         static Resolution FromString(const ea::string& s) {
             auto tokens = s.Split('x');
-            if (tokens.Size() > 2) {
+            if (tokens.size() > 2) {
                 return Resolution(ToInt(tokens[0], 0), ToInt(tokens[1], 0), ToInt(tokens[2], 0));
-            } else if (tokens.Size() == 2) {
+            } else if (tokens.size() == 2) {
                 auto rate_tokens = tokens[1].Split('@');
-                if (rate_tokens.Size() > 1)
+                if (rate_tokens.size() > 1)
                     return Resolution(ToInt(tokens[0], 0), ToInt(rate_tokens[0]), ToInt(rate_tokens[1]));
                 return Resolution(ToInt(tokens[0], 0), ToInt(tokens[1], 0));
             } else
@@ -358,7 +358,7 @@ void SettingsWindow::CreateVideoTab()
             opt_fpslimit_->SetOptionIndex(1);
         }
 
-        for (int i = 0; i < options.Size(); i++) {
+        for (int i = 0; i < options.size(); i++) {
             if (ToInt(options.At(i)) == currentFps) {
                 opt_fpslimit_->SetOptionIndex(i);
             }
@@ -815,8 +815,8 @@ void SettingsWindow::CreateGameTab()
 
 void SettingsWindow::FillRates(int monitor) {
     auto rates = GetFullscreenRefreshRates(monitor);
-    for (unsigned i = 0; i < rates.Size() / 2; i++) {
-        Swap(*(rates.Begin() + i), *(rates.Begin() + rates.Size() - 1 - i));
+    for (unsigned i = 0; i < rates.size() / 2; i++) {
+        Swap(*(rates.Begin() + i), *(rates.Begin() + rates.size() - 1 - i));
     }
     StringVector res;
     for (auto r : rates) {
@@ -824,13 +824,13 @@ void SettingsWindow::FillRates(int monitor) {
     }
 
     opt_rate_->SetStrings(res);
-    opt_rate_->SetOptionIndex(res.Size() - 1);
+    opt_rate_->SetOptionIndex(res.size() - 1);
 }
 
 void SettingsWindow::FillResolutions(int monitor, int rate) {
     ResolutionVector resolutions = GetFullscreenResolutions(monitor, rate);
-    for (unsigned i = 0; i < resolutions.Size() / 2; i++) {
-        Swap(*(resolutions.Begin() + i), *(resolutions.Begin() + resolutions.Size() - 1 - i));
+    for (unsigned i = 0; i < resolutions.size() / 2; i++) {
+        Swap(*(resolutions.Begin() + i), *(resolutions.Begin() + resolutions.size() - 1 - i));
     }
     StringVector res;
     for (auto r : resolutions) {
@@ -838,7 +838,7 @@ void SettingsWindow::FillResolutions(int monitor, int rate) {
     }
 
     opt_resolution_->SetStrings(res);
-    opt_resolution_->SetOptionIndex(res.Size() - 1);
+    opt_resolution_->SetOptionIndex(res.size() - 1);
 }
 
 void SettingsWindow::RefreshVideoOptions() {
@@ -888,8 +888,8 @@ void SettingsWindow::RefreshVideoOptions() {
                 opt_monitor_->GetOptionIndex(),
                 ToInt(opt_rate_->GetValue()));
         // reverse resolutions to low -> high
-        for (unsigned i = 0; i < resolutions.Size() / 2; i++) {
-            Swap(*(resolutions.Begin() + i), *(resolutions.Begin() + resolutions.Size() - 1 - i));
+        for (unsigned i = 0; i < resolutions.size() / 2; i++) {
+            Swap(*(resolutions.Begin() + i), *(resolutions.Begin() + resolutions.size() - 1 - i));
         }
 
         int i = 0;

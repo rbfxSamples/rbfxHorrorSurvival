@@ -445,7 +445,7 @@ void BaseApplication::LoadTranslationFiles()
     for (auto it = packageFiles.Begin(); it != packageFiles.End(); ++it) {
         auto files = (*it)->GetEntryNames();
         for (auto it2 = files.Begin(); it2 != files.End(); ++it2) {
-            if ((*it2).StartsWith("Translations/") && (*it2).EndsWith(".json") && (*it2).Split('/')  .Size() == 2) {
+            if ((*it2).StartsWith("Translations/") && (*it2).EndsWith(".json") && (*it2).Split('/')  .size() == 2) {
                 result.Push((*it2).Split('/').At(1));
             }
         }
