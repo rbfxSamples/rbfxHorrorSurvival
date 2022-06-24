@@ -7,49 +7,49 @@
 #if defined(__ANDROID__)
 #include <jni.h>
 extern "C" {
-    JNIEXPORT void JNICALL
-    Java_org_libsdl_app_SDLActivity_SendServiceCommand(JNIEnv *env, jobject, jint cmd, jint status, jstring message);
+	JNIEXPORT void JNICALL
+		Java_org_libsdl_app_SDLActivity_SendServiceCommand(JNIEnv* env, jobject, jint cmd, jint status, jstring message);
 }
 #endif
 
 namespace Urho3D
 {
-class Controls;
+	class Controls;
 }
 
 class ServiceCmd : public Urho3D::Object
 {
-    URHO3D_OBJECT(ServiceCmd, Object);
+	URHO3D_OBJECT(ServiceCmd, Object);
 public:
-    ServiceCmd(Urho3D::Context* context);
-    ~ServiceCmd();
+	ServiceCmd(Urho3D::Context* context);
+	~ServiceCmd();
 
-    void SendCmdMessage(int cmd, int param);
+	void SendCmdMessage(int cmd, int param);
 
-    void ReceiveCmdMessage(int cmd, int status, const char* message);
+	void ReceiveCmdMessage(int cmd, int status, const char* message);
 
-    static ServiceCmd* instance;
+	static ServiceCmd* instance;
 
-    void Test();
+	void Test();
 
-    void Init();
+	void Init();
 
 protected:
-    void ProcessMessageQueue();
-    void HandleUpdate(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
+	void ProcessMessageQueue();
+	void HandleUpdate(Urho3D::StringHash eventType, Urho3D::VariantMap& eventData);
 
 private:
-    struct MessageData
-    {
-        int command;
-        int status;
-        ea::string message;
-    };
+	struct MessageData
+	{
+		int command;
+		int status;
+		ea::string message;
+	};
 
-    ea::vector<MessageData> messageList_;
-    Urho3D::Mutex               mutexMessageLock_;
+	ea::vector<MessageData> messageList_;
+	Urho3D::Mutex               mutexMessageLock_;
 
-    bool HasQueueMessage(MessageData& messageData);
-    void PopFrontQueue();
-    void SendResponseMsg(const MessageData &msg);
+	bool HasQueueMessage(MessageData& messageData);
+	void PopFrontQueue();
+	void SendResponseMsg(const MessageData& msg);
 };

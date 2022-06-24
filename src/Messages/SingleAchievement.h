@@ -9,79 +9,79 @@ using namespace Urho3D;
 
 class SingleAchievement : public Animatable
 {
-URHO3D_OBJECT(SingleAchievement, Animatable);
+	URHO3D_OBJECT(SingleAchievement, Animatable);
 public:
-    SingleAchievement(Context* context);
+	SingleAchievement(Context* context);
 
-    virtual ~SingleAchievement();
+	virtual ~SingleAchievement();
 
-    static void RegisterObject(Context* context);
+	static void RegisterObject(Context* context);
 
-    /**
-     * Set achievement image
-     */
-    void SetImage(ea::string image);
+	/**
+	 * Set achievement image
+	 */
+	void SetImage(ea::string image);
 
-    /**
-     * Set achievement message
-     */
-    void SetMessage(ea::string message);
+	/**
+	 * Set achievement message
+	 */
+	void SetMessage(ea::string message);
 
-    /**
-     * Get achievement message
-     */
-    ea::string GetMessage();
+	/**
+	 * Get achievement message
+	 */
+	ea::string GetMessage();
 
-    /**
-     * Set object variable
-     */
-    void SetVar(StringHash key, const Variant& value);
+	/**
+	 * Set object variable
+	 */
+	void SetVar(StringHash key, const Variant& value);
 
-    /**
-     * Get object variable
-     */
-    const Variant& GetVar(const StringHash& key) const;
+	/**
+	 * Get object variable
+	 */
+	const Variant& GetVar(const StringHash& key) const;
 
 private:
-    void HandlePostUpdate(StringHash eventType, VariantMap& eventData);
-    /**
-     * Handle attribute animation added.
-     */
-    void OnAttributeAnimationAdded() override;
+	void HandlePostUpdate(StringHash eventType, VariantMap& eventData);
+	/**
+	 * Handle attribute animation added.
+	 */
+	void OnAttributeAnimationAdded() override;
 
-    /**
-     * Handle attribute animation removed.
-     */
-    void OnAttributeAnimationRemoved() override;
+	/**
+	 * Handle attribute animation removed.
+	 */
+	void OnAttributeAnimationRemoved() override;
 
-    /**
-     * X position on the screen
-     * Animated over time
-     */
-    float offset_;
+	/**
+	 * X position on the screen
+	 * Animated over time
+	 */
+	float offset_;
 
-    /**
-     * Achievement title
-     */
-    ea::string message_;
+	/**
+	 * Achievement title
+	 */
+	ea::string message_;
 
-    /**
-     * Object variables
-     */
-    VariantMap vars_;
+	/**
+	 * Object variables
+	 */
+	VariantMap vars_;
 
-    /**
-     * Achievement item window
-     */
-    SharedPtr<Window> baseWindow_;
+	/**
+	 * Achievement item window
+	 */
+	SharedPtr<Window> baseWindow_;
 
-    /**
-     * Achievement item image
-     */
-    SharedPtr<Sprite> sprite_;
+	/**
+	 * Achievement item image
+	 */
+	SharedPtr<Sprite> sprite_;
 
-    /**
-     * Achievement item text
-     */
-    SharedPtr<Text> title_;
+	/**
+	 * Achievement item text
+	 */
+	SharedPtr<Text> title_;
 };

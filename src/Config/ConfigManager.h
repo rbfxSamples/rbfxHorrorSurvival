@@ -57,7 +57,7 @@ public:
 
     // Get value
     const Urho3D::Variant Get(const ea::string& section, const ea::string& parameter, const Urho3D::Variant& defaultValue = Urho3D::Variant::EMPTY);
-    const ea::string GetString(const ea::string& section, const ea::string& parameter, const ea::string& defaultValue = ea::string::EMPTY);
+    const ea::string GetString(const ea::string& section, const ea::string& parameter, const ea::string& defaultValue = "");
     const int GetInt(const ea::string& section, const ea::string& parameter, const int defaultValue = 0);
     const int GetUInt(const ea::string& section, const ea::string& parameter, const unsigned defaultValue = 0);
     const bool GetBool(const ea::string& section, const ea::string& parameter, const bool defaultValue = false);

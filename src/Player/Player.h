@@ -12,111 +12,111 @@ using namespace Urho3D;
 
 class Player : public Object
 {
-    URHO3D_OBJECT(Player, Object);
+	URHO3D_OBJECT(Player, Object);
 
 public:
-    explicit Player(Context* context);
-    virtual ~Player();
+	explicit Player(Context* context);
+	virtual ~Player();
 
-    static void RegisterObject(Context* context);
+	static void RegisterObject(Context* context);
 
-    /**
-     * Create player controlled node
-     */
-    void CreateNode(Scene* scene, int controllerId, Terrain* terrain, int type = 0);
+	/**
+	 * Create player controlled node
+	 */
+	void CreateNode(Scene* scene, int controllerId, Terrain* terrain, int type = 0);
 
-    void FindNode(Scene* scene, int id);
+	void FindNode(Scene* scene, int id);
 
-    /**
-     * Set controller ID to know which controller is controlling this player
-     */
-    void SetControllerId(unsigned int id);
+	/**
+	 * Set controller ID to know which controller is controlling this player
+	 */
+	void SetControllerId(unsigned int id);
 
-    int GetControllerId() { return controllerId_; }
+	int GetControllerId() { return controllerId_; }
 
-    void SetName(const ea::string& name);
+	void SetName(const ea::string& name);
 
-    /**
-     * Get created player node
-     */
-    SharedPtr<Node> GetNode();
+	/**
+	 * Get created player node
+	 */
+	SharedPtr<Node> GetNode();
 
-    /**
-     * Set if this instance can be controleld with the user input
-     */
-    void SetControllable(bool value);
+	/**
+	 * Set if this instance can be controleld with the user input
+	 */
+	void SetControllable(bool value);
 
-    void SetClientConnection(Connection* connection);
+	void SetClientConnection(Connection* connection);
 
-    void SetCameraTarget(Node* target);
-    Node* GetCameraTarget();
+	void SetCameraTarget(Node* target);
+	Node* GetCameraTarget();
 
-    void SetCameraDistance(float distance);
-    float GetCameraDistance();
+	void SetCameraDistance(float distance);
+	float GetCameraDistance();
 
-    void SetSpawnPoint(Vector3 position);
-    const Vector3& GetSpawnPoint() { return spawnPoint_; };
+	void SetSpawnPoint(Vector3 position);
+	const Vector3& GetSpawnPoint() { return spawnPoint_; };
 
-    void ResetPosition();
+	void ResetPosition();
 
-    int GetSelectedItem();
+	int GetSelectedItem();
 
-    void SetScale(float scale);
-    float GetScale();
+	void SetScale(float scale);
+	float GetScale();
 private:
 
-    bool IsCameraTargetSet();
-    void HandlePhysicsPrestep(StringHash eventType, VariantMap& eventData);
-    void HandleMappedControlPressed(StringHash eventType, VariantMap& eventData);
-    void RegisterConsoleCommands();
+	bool IsCameraTargetSet();
+	void HandlePhysicsPrestep(StringHash eventType, VariantMap& eventData);
+	void HandleMappedControlPressed(StringHash eventType, VariantMap& eventData);
+	void RegisterConsoleCommands();
 
-    /**
-     * Detect when player is on the ground or not
-     */
-    void HandleNodeCollision(StringHash eventType, VariantMap& eventData);
+	/**
+	 * Detect when player is on the ground or not
+	 */
+	void HandleNodeCollision(StringHash eventType, VariantMap& eventData);
 
-    void HandleUpdate(StringHash eventType, VariantMap& eventData);
+	void HandleUpdate(StringHash eventType, VariantMap& eventData);
 
-    void HandlePredictPlayerPosition(StringHash eventType, VariantMap& eventData);
+	void HandlePredictPlayerPosition(StringHash eventType, VariantMap& eventData);
 
-    RigidBody* rigidBody_;
-    SharedPtr<Node> node_;
+	RigidBody* rigidBody_;
+	SharedPtr<Node> node_;
 
-    WeakPtr<Node> cameraTarget_;
-    float cameraDistance_{0.0f};
-    float cameraTargetDistance_{0.0f};
-    float scaleFactor_ = {1.0f};
-    
-    /**
-     * Controller ID
-     */
-    int controllerId_;
+	WeakPtr<Node> cameraTarget_;
+	float cameraDistance_{ 0.0f };
+	float cameraTargetDistance_{ 0.0f };
+	float scaleFactor_ = { 1.0f };
 
-    /**
-     * Player controlers
-     */
-    Controls controls_;
+	/**
+	 * Controller ID
+	 */
+	int controllerId_;
 
-    /**
-     * Is the player on the ground
-     */
-    bool onGround_;
+	/**
+	 * Player controlers
+	 */
+	Controls controls_;
 
-    Terrain* terrain_{nullptr};
+	/**
+	 * Is the player on the ground
+	 */
+	bool onGround_;
 
-    Connection* connection_{nullptr};
+	Terrain* terrain_{ nullptr };
 
-    bool isControlled_{false};
+	Connection* connection_{ nullptr };
 
-    Vector3 spawnPoint_;
+	bool isControlled_{ false };
 
-    bool noclip_{false};
+	Vector3 spawnPoint_;
 
-    int selectedItem_{1};
-    SharedPtr<Text> selectedItemUI_;
-    SharedPtr<Text> positionUI_;
+	bool noclip_{ false };
 
-    int type_{0};
+	int selectedItem_{ 1 };
+	SharedPtr<Text> selectedItemUI_;
+	SharedPtr<Text> positionUI_;
 
-    Vector3 cameraInertia_{0, 0, 0};
+	int type_{ 0 };
+
+	Vector3 cameraInertia_{ 0, 0, 0 };
 };

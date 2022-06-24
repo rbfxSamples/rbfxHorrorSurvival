@@ -1,3 +1,5 @@
+#pragma once
+
 static const unsigned CTRL_FORWARD = 1 << 0; //1
 static const unsigned CTRL_BACK = 1 << 2; //2
 static const unsigned CTRL_LEFT = 1 << 3; //4

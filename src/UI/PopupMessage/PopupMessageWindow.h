@@ -7,26 +7,26 @@
 
 class PopupMessageWindow : public BaseWindow
 {
-    URHO3D_OBJECT(PopupMessageWindow, BaseWindow);
+	URHO3D_OBJECT(PopupMessageWindow, BaseWindow);
 
 public:
-    PopupMessageWindow(Context* context);
+	PopupMessageWindow(Context* context);
 
-    virtual ~PopupMessageWindow();
+	virtual ~PopupMessageWindow();
 
-    virtual void Init() override;
+	virtual void Init() override;
 
 protected:
 
-    virtual void Create() override;
+	virtual void Create() override;
 
 private:
 
-    void SubscribeToEvents();
+	void SubscribeToEvents();
 
-    SharedPtr<Button> okButton_;
-    SharedPtr<Window> baseWindow_;
+	SharedPtr<Button> okButton_;
+	SharedPtr<Window> baseWindow_;
 
-    Button* CreateButton(const ea::string& text, int width, IntVector2 position);
-    Text* CreateLabel(const ea::string& text, int fontSize);
+	Button* CreateButton(const ea::string& text, int width, IntVector2 position);
+	Text* CreateLabel(const ea::string& text, int fontSize);
 };

@@ -5,67 +5,67 @@
 
 namespace Levels {
 
-    class Credits : public BaseLevel
-    {
-        URHO3D_OBJECT(Credits, BaseLevel);
+	class Credits : public BaseLevel
+	{
+		URHO3D_OBJECT(Credits, BaseLevel);
 
-    public:
-        Credits(Context* context);
-        virtual ~Credits();
-        static void RegisterObject(Context* context);
+	public:
+		Credits(Context* context);
+		virtual ~Credits();
+		static void RegisterObject(Context* context);
 
-    protected:
-        void Init () override;
+	protected:
+		void Init() override;
 
-    private:
+	private:
 
-        void CreateScene();
+		void CreateScene();
 
-        /**
-         * Create the actual Credits content
-         */
-        void CreateUI();
+		/**
+		 * Create the actual Credits content
+		 */
+		void CreateUI();
 
 
-        void SubscribeToEvents();
+		void SubscribeToEvents();
 
-        /**
-         * End credits
-         */
-        void HandleEndCredits(bool forced = false);
+		/**
+		 * End credits
+		 */
+		void HandleEndCredits(bool forced = false);
 
-        UIElement* CreateEmptyLine(int height);
+		UIElement* CreateEmptyLine(int height);
 
-        /**
-         * Create single text line
-         */
-        void CreateSingleLine(ea::string content, int fontSize);
+		/**
+		 * Create single text line
+		 */
+		void CreateSingleLine(ea::string content, int fontSize);
 
-        /**
-         * Create single image line
-         */
-        void CreateImageLine(const ea::string& image, int size);
+		/**
+		 * Create single image line
+		 */
+		void CreateImageLine(const ea::string& image, int size);
 
-        /**
-         * Handle credits scrolling
-         */
-        void HandleUpdate(StringHash eventType, VariantMap& eventData);
+		/**
+		 * Handle credits scrolling
+		 */
+		void HandleUpdate(StringHash eventType, VariantMap& eventData);
 
-        /**
-         * Credits window lifetime timer
-         */
-        Timer timer_;
+		/**
+		 * Credits window lifetime timer
+		 */
+		Timer timer_;
 
-        /**
-         * Credits view content
-         */
-        ea::vector<SharedPtr<UIElement>> credits_;
+		/**
+		 * Credits view content
+		 */
+		ea::vector<SharedPtr<UIElement>> credits_;
 
-        /**
-         * Credits base UI view
-         */
-        SharedPtr<UIElement> creditsBase_;
+		/**
+		 * Credits base UI view
+		 */
+		SharedPtr<UIElement> creditsBase_;
 
-        float offset_;
-    };
+		float offset_;
+	};
 }

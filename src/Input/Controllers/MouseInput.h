@@ -5,28 +5,28 @@
 
 class MouseInput : public BaseInput
 {
-    URHO3D_OBJECT(MouseInput, BaseInput);
+	URHO3D_OBJECT(MouseInput, BaseInput);
 
 public:
-    MouseInput(Context* context);
+	MouseInput(Context* context);
 
-    virtual ~MouseInput();
-    virtual ea::string GetActionKeyName(int action) override;
+	virtual ~MouseInput();
+	virtual ea::string GetActionKeyName(int action) override;
 
-    /**
-     * Load mouse config from config.cfg file [mouse] block
-     */
-    virtual void LoadConfig() override;
+	/**
+	 * Load mouse config from config.cfg file [mouse] block
+	 */
+	virtual void LoadConfig() override;
 
 protected:
-    virtual void Init();
+	virtual void Init();
 
 private:
-    void SubscribeToEvents();
+	void SubscribeToEvents();
 
-    void HandleKeyDown(StringHash eventType, VariantMap& eventData);
-    void HandleKeyUp(StringHash eventType, VariantMap& eventData);
-    void HandleMouseMove(StringHash eventType, VariantMap& eventData);
-    void HandleUpdate(StringHash eventType, VariantMap& eventData);
-    void HandleTouchUI(StringHash eventType, VariantMap& eventData);
+	void HandleKeyDown(StringHash eventType, VariantMap& eventData);
+	void HandleKeyUp(StringHash eventType, VariantMap& eventData);
+	void HandleMouseMove(StringHash eventType, VariantMap& eventData);
+	void HandleUpdate(StringHash eventType, VariantMap& eventData);
+	void HandleTouchUI(StringHash eventType, VariantMap& eventData);
 };

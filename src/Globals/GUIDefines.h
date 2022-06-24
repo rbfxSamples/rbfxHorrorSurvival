@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Urho3D/Container/Str.h>
 
 using namespace Urho3D;

@@ -9,66 +9,66 @@
 #include "../Player/Player.h"
 
 namespace Levels {
-    class Level : public BaseLevel
-    {
-        URHO3D_OBJECT(Level, BaseLevel);
+	class Level : public BaseLevel
+	{
+		URHO3D_OBJECT(Level, BaseLevel);
 
-    public:
-        Level(Context* context);
+	public:
+		Level(Context* context);
 
-        virtual ~Level();
-        void HandlePhysicsPrestep(StringHash eventType, VariantMap& eventData);
-        void HandlePostUpdate(StringHash eventType, VariantMap& eventData);
-        void HandlePostRenderUpdate(StringHash eventType, VariantMap& eventData);
-        static void RegisterObject(Context* context);
+		virtual ~Level();
+		void HandlePhysicsPrestep(StringHash eventType, VariantMap& eventData);
+		void HandlePostUpdate(StringHash eventType, VariantMap& eventData);
+		void HandlePostRenderUpdate(StringHash eventType, VariantMap& eventData);
+		static void RegisterObject(Context* context);
 
-    protected:
-        virtual void Init () override;
+	protected:
+		virtual void Init() override;
 
-    private:
-        void CreateScene();
+	private:
+		void CreateScene();
 
-        void CreateUI();
+		void CreateUI();
 
-        void SubscribeToEvents();
-        void UnsubscribeToEvents();
-        void RegisterConsoleCommands();
-        void StartAudio();
-        void StopAllAudio();
+		void SubscribeToEvents();
+		void UnsubscribeToEvents();
+		void RegisterConsoleCommands();
+		void StartAudio();
+		void StopAllAudio();
 
 #ifdef VOXEL_SUPPORT
-        void CreateVoxelWorld();
+		void CreateVoxelWorld();
 #endif
 
-        void HandleKeyDown(StringHash eventType, VariantMap& eventData);
-        void HandleKeyUp(StringHash eventType, VariantMap& eventData);
-        void HandleWindowClosed(StringHash eventType, VariantMap& eventData);
-        void HandleBeforeLevelDestroy(StringHash eventType, VariantMap& eventData);
-        void HandleControllerConnected(StringHash eventType, VariantMap& eventData);
-        void HandleControllerDisconnected(StringHash eventType, VariantMap& eventData);
+		void HandleKeyDown(StringHash eventType, VariantMap& eventData);
+		void HandleKeyUp(StringHash eventType, VariantMap& eventData);
+		void HandleWindowClosed(StringHash eventType, VariantMap& eventData);
+		void HandleBeforeLevelDestroy(StringHash eventType, VariantMap& eventData);
+		void HandleControllerConnected(StringHash eventType, VariantMap& eventData);
+		void HandleControllerDisconnected(StringHash eventType, VariantMap& eventData);
 
-        void HandleVideoSettingsChanged(StringHash eventType, VariantMap& eventData);
-        void HandlePlayerTargetChanged(StringHash eventType, VariantMap& eventData);
-        void HandleClientConnected(StringHash eventType, VariantMap& eventData);
-        void HandleClientDisconnected(StringHash eventType, VariantMap& eventData);
-        void HandleServerConnected(StringHash eventType, VariantMap& eventData);
-        void HandleServerDisconnected(StringHash eventType, VariantMap& eventData);
-        void HandleMappedControlPressed(StringHash eventType, VariantMap& eventData);
+		void HandleVideoSettingsChanged(StringHash eventType, VariantMap& eventData);
+		void HandlePlayerTargetChanged(StringHash eventType, VariantMap& eventData);
+		void HandleClientConnected(StringHash eventType, VariantMap& eventData);
+		void HandleClientDisconnected(StringHash eventType, VariantMap& eventData);
+		void HandleServerConnected(StringHash eventType, VariantMap& eventData);
+		void HandleServerDisconnected(StringHash eventType, VariantMap& eventData);
+		void HandleMappedControlPressed(StringHash eventType, VariantMap& eventData);
 
-        bool RaycastFromCamera(Camera* camera, float maxDistance, Vector3& hitPos, Vector3& hitNormal, Drawable*& hitDrawable);
+		bool RaycastFromCamera(Camera* camera, float maxDistance, Vector3& hitPos, Vector3& hitNormal, Drawable*& hitDrawable);
 
-        void ShowPauseMenu();
-        void PauseMenuHidden();
+		void ShowPauseMenu();
+		void PauseMenuHidden();
 
-        SharedPtr<Player> CreatePlayer(int controllerId, bool controllable, const ea::string& name = ea::string::EMPTY, int nodeID = -1);
+		SharedPtr<Player> CreatePlayer(int controllerId, bool controllable, const ea::string& name = ea::string::EMPTY, int nodeID = -1);
 
-        bool showScoreboard_;
+		bool showScoreboard_;
 
-        bool drawDebug_;
+		bool drawDebug_;
 
-        ea::hash_map<int, SharedPtr<Player>> players_;
-        ea::hash_map<Connection*, SharedPtr<Player>> remotePlayers_;
+		ea::hash_map<int, SharedPtr<Player>> players_;
+		ea::hash_map<Connection*, SharedPtr<Player>> remotePlayers_;
 
-        SharedPtr<Terrain> terrain_;
-    };
+		SharedPtr<Terrain> terrain_;
+	};
 }

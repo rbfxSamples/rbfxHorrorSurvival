@@ -14,22 +14,22 @@ using namespace Urho3D;
 
 class PackageManager : public Object
 {
-    URHO3D_OBJECT(PackageManager, Object);
+	URHO3D_OBJECT(PackageManager, Object);
 
 public:
-    PackageManager(Context* context);
-    virtual ~PackageManager();
-    static void RegisterObject(Context* context);
+	PackageManager(Context* context);
+	virtual ~PackageManager();
+	static void RegisterObject(Context* context);
 
-    void Init();
+	void Init();
 
 private:
-    void SubscribeToEvents();
-    void HandleUpdate(StringHash eventType, VariantMap& eventData);
+	void SubscribeToEvents();
+	void HandleUpdate(StringHash eventType, VariantMap& eventData);
 #if !defined(__EMSCRIPTEN__)
-    SharedPtr<HttpRequest> httpRequest_;
+	SharedPtr<HttpRequest> httpRequest_;
 #endif
-    ea::string data_;
+	ea::string data_;
 };
 
 #endif
