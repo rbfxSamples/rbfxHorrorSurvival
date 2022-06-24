@@ -99,7 +99,7 @@ bool ConfigFile::Save(Serializer& dest) const {
 
             ParseProperty(line, property, value);
 
-            if (processedConfig.Contains(property)) {
+            if (processedConfig.contains(property)) {
                 continue;
             }
             processedConfig[property] = value;
@@ -132,7 +132,7 @@ bool ConfigFile::Save(Serializer& dest, bool smartSave) const {
         for (Vector<ea::string>::ConstIterator section_itr(itr->Begin()); section_itr != itr->End(); ++section_itr) {
             const ea::string line(*section_itr);
 
-            if (wroteLine.Contains(activeSection + line)) {
+            if (wroteLine.contains(activeSection + line)) {
                 continue;
             }
 

@@ -110,7 +110,7 @@ void Chunk::Load()
             for (int y = 0; y < SIZE_Y; y++) {
                 for (int z = 0; z < SIZE_Z; z++) {
                     ea::string key = ea::string(x) + "_" + ea::string(y) + "_" + ea::string(z);
-                    if (root.Contains(key)) {
+                    if (root.contains(key)) {
                         SetVoxel(x, y, z, static_cast<BlockType>(root[key].GetInt()));
                     }
                 }

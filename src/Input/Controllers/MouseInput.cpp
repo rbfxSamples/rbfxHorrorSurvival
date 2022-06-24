@@ -48,7 +48,7 @@ void MouseInput::HandleKeyDown(StringHash eventType, VariantMap& eventData)
         return;
     }
 
-    if (mappedKeyToControl_.Contains(key)) {
+    if (mappedKeyToControl_.contains(key)) {
         auto* controllerInput = GetSubsystem<ControllerInput>();
         controllerInput->SetActionState(mappedKeyToControl_[key], true);
     }
@@ -63,7 +63,7 @@ void MouseInput::HandleKeyUp(StringHash eventType, VariantMap& eventData)
         return;
     }
 
-    if (mappedKeyToControl_.Contains(key)) {
+    if (mappedKeyToControl_.contains(key)) {
         auto* controllerInput = GetSubsystem<ControllerInput>();
         controllerInput->SetActionState(mappedKeyToControl_[key], false);
     }
@@ -87,7 +87,7 @@ void MouseInput::HandleMouseMove(StringHash eventType, VariantMap& eventData)
 
 ea::string MouseInput::GetActionKeyName(int action)
 {
-    if (mappedControlToKey_.Contains(action)) {
+    if (mappedControlToKey_.contains(action)) {
         auto* input = GetSubsystem<Input>();
         int key = mappedControlToKey_[action];
         if (key == MOUSEB_LEFT) {

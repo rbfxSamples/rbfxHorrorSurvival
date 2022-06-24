@@ -104,7 +104,7 @@ void BaseLevel::HandleStart(StringHash eventType, VariantMap& eventData)
         defaultZone_->SetFogStart(50.0f);
         defaultZone_->SetFogEnd(300.0f);
 
-        if (data_.Contains("Commands")) {
+        if (data_.contains("Commands")) {
             URHO3D_LOGINFO("Calling map commands");
             StringVector commands = data_["Commands"].GetStringVector();
             for (auto it = commands.Begin(); it != commands.End(); ++it) {

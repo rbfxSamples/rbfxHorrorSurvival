@@ -71,7 +71,7 @@ void JoystickInput::HandleKeyDown(StringHash eventType, VariantMap& eventData)
         return;
     }
 
-    if (mappedKeyToControl_.Contains(key)) {
+    if (mappedKeyToControl_.contains(key)) {
         auto* controllerInput = GetSubsystem<ControllerInput>();
         controllerInput->SetActionState(mappedKeyToControl_[key], true, joystick);
     }
@@ -96,7 +96,7 @@ void JoystickInput::HandleKeyUp(StringHash eventType, VariantMap& eventData)
         return;
     }
 
-    if (mappedKeyToControl_.Contains(key)) {
+    if (mappedKeyToControl_.contains(key)) {
         auto* controllerInput = GetSubsystem<ControllerInput>();
         controllerInput->SetActionState(mappedKeyToControl_[key], false, joystick);
     }
@@ -216,7 +216,7 @@ void JoystickInput::HandleUpdate(StringHash eventType, VariantMap& eventData)
 
 ea::string JoystickInput::GetActionKeyName(int action)
 {
-    if (mappedControlToKey_.Contains(action)) {
+    if (mappedControlToKey_.contains(action)) {
         auto* input = GetSubsystem<Input>();
         return "Joy_" + ea::string(mappedControlToKey_[action]);
     }

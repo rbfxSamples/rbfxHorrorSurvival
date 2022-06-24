@@ -64,7 +64,7 @@ void AudioManager::HandlePlaySound(StringHash eventType, VariantMap& eventData)
 {
     using namespace PlaySound;
     int index = -1;
-    if (eventData.Contains(P_INDEX)) {
+    if (eventData.contains(P_INDEX)) {
         index = eventData[P_INDEX].GetInt();
     }
     ea::string type = eventData[P_TYPE].GetString();
@@ -109,7 +109,7 @@ void AudioManager::PlaySound(ea::string filename, ea::string type, int index)
 {
     //URHO3D_LOGINFO("Playing sound: " + filename + " [" + type + "]");
     StringHash filenameHash(filename);
-    if (type == SOUND_EFFECT && effectsTimer_.Contains(filenameHash) && effectsTimer_[filename].GetMSec(false) < 10) {
+    if (type == SOUND_EFFECT && effectsTimer_.contains(filenameHash) && effectsTimer_[filename].GetMSec(false) < 10) {
         // Safeguard to disable same sound effect overlapping
         return;
     }

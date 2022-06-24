@@ -62,7 +62,7 @@ void Loading::Init()
     SetGlobalVar("PACKET_LIMIT", 10000);
 #if !defined(__EMSCRIPTEN__)
     GetSubsystem<Network>()->RegisterRemoteEvent(E_REMOTE_CLIENT_ID);
-    if (data_.Contains("StartServer") && data_["StartServer"].GetBool()) {
+    if (data_.contains("StartServer") && data_["StartServer"].GetBool()) {
         SendEvent(E_REGISTER_LOADING_STEP,
                   RegisterLoadingStep::P_NAME, "Starting server",
                   RegisterLoadingStep::P_REMOVE_ON_FINISH, true,
@@ -78,7 +78,7 @@ void Loading::Init()
     }
 #endif
 
-    if (data_.Contains("ConnectServer") && !data_["ConnectServer"].GetString().Empty()) {
+    if (data_.contains("ConnectServer") && !data_["ConnectServer"].GetString().Empty()) {
         StringVector dependsOn;
         dependsOn.Push("ConnectServer");
         SendEvent(E_REGISTER_LOADING_STEP,
@@ -125,7 +125,7 @@ void Loading::Init()
         UpdateStatusMesage();
     });
 
-    if (data_.Contains("Map")) {
+    if (data_.contains("Map")) {
         GetSubsystem<SceneManager>()->LoadScene(data_["Map"].GetString());
     } else {
         GetSubsystem<SceneManager>()->LoadScene("Scenes/Flat.xml");

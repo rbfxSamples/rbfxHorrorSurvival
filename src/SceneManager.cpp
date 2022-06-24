@@ -254,7 +254,7 @@ void SceneManager::HandleRegisterLoadingStep(StringHash eventType, VariantMap& e
     step.autoRemove = false;
     step.dependsOn = eventData[P_DEPENDS_ON].GetStringVector();
 
-    if (eventData.Contains(P_REMOVE_ON_FINISH) && eventData[P_REMOVE_ON_FINISH].GetBool()) {
+    if (eventData.contains(P_REMOVE_ON_FINISH) && eventData[P_REMOVE_ON_FINISH].GetBool()) {
         step.autoRemove = true;
     }
     if (step.name.Empty() || step.event.Empty()) {
@@ -306,7 +306,7 @@ void SceneManager::HandleSkipLoadingStep(StringHash eventType, VariantMap& event
 {
     using namespace LoadingStepSkip;
     ea::string event = eventData[P_EVENT].GetString();
-    if (loadingSteps_.Contains(event)) {
+    if (loadingSteps_.contains(event)) {
         loadingSteps_[event].finished = true;
     }
 }
@@ -353,7 +353,7 @@ bool SceneManager::CanLoadingStepRun(LoadingStep& loadingStep)
     if (!loadingStep.dependsOn.Empty()) {
         for (auto it = loadingStep.dependsOn.Begin(); it != loadingStep.dependsOn.End(); ++it) {
             ea::string eventName = (*it);
-            if (loadingSteps_.Contains(eventName) && !loadingSteps_[eventName].finished) {
+            if (loadingSteps_.contains(eventName) && !loadingSteps_[eventName].finished) {
                 return false;
             }
         }

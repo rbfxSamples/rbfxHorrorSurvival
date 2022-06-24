@@ -68,7 +68,7 @@ void WindowManager::HandleOpenWindow(StringHash eventType, VariantMap& eventData
                 BaseWindow* window = (*it)->Cast<BaseWindow>();
                 //TODO bring this window to the front
 
-                if (eventData.Contains(P_CLOSE_PREVIOUS)) {
+                if (eventData.contains(P_CLOSE_PREVIOUS)) {
                     if (eventData[P_CLOSE_PREVIOUS].GetBool()) {
                         CloseWindow(windowName);
                     } else {

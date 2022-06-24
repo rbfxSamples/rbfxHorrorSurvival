@@ -126,12 +126,12 @@ void Level::Init()
     CreateUI();
 
 #ifdef VOXEL_SUPPORT
-    if (data_.Contains("Map") && data_["Map"].GetString() == "Scenes/Voxel.xml") {
+    if (data_.contains("Map") && data_["Map"].GetString() == "Scenes/Voxel.xml") {
         CreateVoxelWorld();
     }
 #endif
 
-    if (data_.Contains("Map") && data_["Map"].GetString() == "Scenes/Terrain.xml") {
+    if (data_.contains("Map") && data_["Map"].GetString() == "Scenes/Terrain.xml") {
         auto cache = GetSubsystem<ResourceCache>();
         Node *terrainNode = scene_->CreateChild("Terrain");
         terrainNode->SetPosition(Vector3(0.0f, -0.0f, 0.0f));
@@ -161,7 +161,7 @@ void Level::Init()
     if (!GetSubsystem<Engine>()->IsHeadless()) {
         for (auto it = controlIndexes.Begin(); it != controlIndexes.End(); ++it) {
             using namespace RemoteClientId;
-            if (data_.Contains(P_NODE_ID) && data_.Contains(P_PLAYER_ID)) {
+            if (data_.contains(P_NODE_ID) && data_.contains(P_PLAYER_ID)) {
                 // We are the client, we have to lookup the node on the received scene
                 players_[(*it)] = CreatePlayer((*it), true, "", data_[P_NODE_ID].GetInt());
             } else {
@@ -396,7 +396,7 @@ void Level::HandleControllerConnected(StringHash eventType, VariantMap& eventDat
     data["Message"]  = "New controller connected!";
     SendEvent("ShowNotification", data);
 
-    if (!players_.Contains(controllerIndex)) {
+    if (!players_.contains(controllerIndex)) {
         players_[controllerIndex] = CreatePlayer(controllerIndex, true, "Player " + ea::string(controllerIndex + 1));
     }
 }
@@ -608,13 +608,13 @@ void Level::HandlePlayerTargetChanged(StringHash eventType, VariantMap& eventDat
     int playerId = eventData[P_ID].GetInt();
     Node* targetNode = nullptr;
     float cameraDistance = 0.0f;
-    if (eventData.Contains(P_NODE)) {
+    if (eventData.contains(P_NODE)) {
         targetNode = static_cast<Node*>(eventData[P_NODE].GetPtr());
     }
-    if (eventData.Contains(P_DISTANCE)) {
+    if (eventData.contains(P_DISTANCE)) {
         cameraDistance = eventData[P_DISTANCE].GetFloat();
     }
-    if (players_.Contains(playerId)) {
+    if (players_.contains(playerId)) {
         players_[playerId]->SetCameraTarget(targetNode);
         players_[playerId]->SetCameraDistance(cameraDistance);
     }
@@ -653,7 +653,7 @@ void Level::HandleMappedControlPressed(StringHash eventType, VariantMap& eventDa
     int action = eventData[P_ACTION].GetInt();
     if (action == CTRL_ACTION) {
         int controllerId = eventData[P_CONTROLLER].GetInt();
-        if (cameras_.Contains(controllerId)) {
+        if (cameras_.contains(controllerId)) {
             Camera* camera = cameras_[controllerId]->GetComponent<Camera>();
             Vector3 hitPosition;
             Vector3 hitNormal;
@@ -674,7 +674,7 @@ void Level::HandleMappedControlPressed(StringHash eventType, VariantMap& eventDa
         }
     } else if (action == CTRL_SECONDARY || action == CTRL_DETECT) {
         int controllerId = eventData[P_CONTROLLER].GetInt();
-        if (cameras_.Contains(controllerId)) {
+        if (cameras_.contains(controllerId)) {
             Camera* camera = cameras_[controllerId]->GetComponent<Camera>();
             Vector3 hitPosition;
             Vector3 hitNormal;

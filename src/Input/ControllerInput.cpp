@@ -130,7 +130,7 @@ void ControllerInput::SaveConfig()
         for (auto it2 = configMap.Begin(); it2 != configMap.End(); ++it2) {
             int controlCode = (*it2).first_;
              int keyCode = (*it2).second_;
-             if (controlMapNames_.Contains(controlCode) && !controlMapNames_[controlCode].Empty()) {
+             if (controlMapNames_.contains(controlCode) && !controlMapNames_[controlCode].Empty()) {
                 ea::string controlName = controlMapNames_[controlCode];
                 controlName.Replace(" ", "_");
                 ea::string value = ea::string(keyCode);
@@ -262,7 +262,7 @@ Controls ControllerInput::GetControls(int index)
     if (!multipleControllerSupport_) {
         index = 0;
     }
-    if (!controls_.Contains(index)) {
+    if (!controls_.contains(index)) {
         return Controls();
     }
     return controls_[index];

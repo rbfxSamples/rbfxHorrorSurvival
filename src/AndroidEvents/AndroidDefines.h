@@ -1,3 +1,5 @@
+#pragma once
+
 static const int ANDROID_AD_INITIALIZED = 10;
 
 static const int ANDROID_AD_LOAD_INTERSTITIAL = 20;

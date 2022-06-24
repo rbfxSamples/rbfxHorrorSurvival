@@ -110,14 +110,14 @@ void MainMenu::CreateUI()
         input->SetMouseVisible(true);
     }
 
-    if (data_.Contains("Message")) {
+    if (data_.contains("Message")) {
         auto* localization = GetSubsystem<Localization>();
 
         VariantMap& data = GetEventDataMap();
         data["Title"] = localization->Get("WARNING");
         data["Message"] = data_["Message"].GetString();
         data["Name"] = "PopupMessageWindow";
-        data["Type"] = data_.Contains("Type") ? data_["Type"].GetString() : "warning";
+        data["Type"] = data_.contains("Type") ? data_["Type"].GetString() : "warning";
         data["ClosePrevious"] = true;
         SendEvent(E_OPEN_WINDOW, data);
     }

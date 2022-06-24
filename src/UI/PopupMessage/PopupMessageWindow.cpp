@@ -43,7 +43,7 @@ void PopupMessageWindow::Create()
     baseWindow_->GetParent()->SetPriority(baseWindow_->GetParent()->GetPriority() + 1);
 
     Color color = Color::GREEN;
-    if (data_.Contains("Type")) {
+    if (data_.contains("Type")) {
         if (data_["Type"].GetString() == "warning") {
             color = Color::YELLOW;
         } else if (data_["Type"].GetString() == "error") {

@@ -169,13 +169,13 @@ void Achievements::LoadAchievementList()
         URHO3D_LOGINFOF("Loading achievements config: %u", value.Size());
         for (int i = 0; i < value.Size(); i++) {
             JSONValue mapInfo = value[i];
-            if (mapInfo.Contains("Event")
+            if (mapInfo.contains("Event")
                 && mapInfo["Event"].IsString()
-                && mapInfo.Contains("Image")
+                && mapInfo.contains("Image")
                 && mapInfo["Image"].IsString()
-                && mapInfo.Contains("Message")
+                && mapInfo.contains("Message")
                 && mapInfo["Message"].IsString()
-                && mapInfo.Contains("Threshold")
+                && mapInfo.contains("Threshold")
                 && mapInfo["Threshold"].IsNumber()) {
 
                 ea::string eventName = mapInfo["Event"].GetString();
@@ -185,7 +185,7 @@ void Achievements::LoadAchievementList()
                 ea::string parameterName;
                 Variant parameterValue;
 
-                if (mapInfo.Contains("ParameterName") && mapInfo["ParameterName"].IsString() && mapInfo.Contains("Value")) {
+                if (mapInfo.contains("ParameterName") && mapInfo["ParameterName"].IsString() && mapInfo.contains("Value")) {
                     parameterName = mapInfo["ParameterName"].GetString();
                     switch (mapInfo["Value"].GetValueType()) {
                     case JSONValueType::JSON_BOOL:
@@ -222,7 +222,7 @@ void Achievements::LoadAchievementList()
 void Achievements::HandleRegisteredEvent(StringHash eventType, VariantMap& eventData)
 {
     bool processed = false;
-    if (registeredAchievements_.Contains(eventType)) {
+    if (registeredAchievements_.contains(eventType)) {
         for (auto it = registeredAchievements_[eventType].Begin(); it != registeredAchievements_[eventType].End(); ++it) {
             if ((*it).deepCheck) {
                 // check if the event contains specified parameter and same value
@@ -353,7 +353,7 @@ void Achievements::AddAchievement(ea::string message,
 
     // Check current achievement saved progress
     StringHash id = rule.eventName + rule.message;
-    if (progress_.Contains(id.ToString())) {
+    if (progress_.contains(id.ToString())) {
         rule.current = progress_[id.ToString()];
 
         // Check if achievement was already unlocked
@@ -377,10 +377,10 @@ void Achievements::AddAchievement(ea::string message,
 void Achievements::HandleAddAchievement(StringHash eventType, VariantMap& eventData)
 {
     using namespace AddAchievement;
-    if (eventData.Contains(P_EVENT)
-        && eventData.Contains(P_MESSAGE)
-        && eventData.Contains(P_IMAGE)
-        && eventData.Contains(P_THRESHOLD)) {
+    if (eventData.contains(P_EVENT)
+        && eventData.contains(P_MESSAGE)
+        && eventData.contains(P_IMAGE)
+        && eventData.contains(P_THRESHOLD)) {
         AddAchievement(eventData[P_MESSAGE].GetString(),
             eventData[P_EVENT].GetString(),
             eventData[P_IMAGE].GetString(),

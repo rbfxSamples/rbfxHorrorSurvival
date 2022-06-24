@@ -129,7 +129,7 @@ void ConsoleHandler::HandleConsoleCommandAdd(StringHash eventType, VariantMap& e
     ea::string eventToCall = eventData[P_EVENT].GetString();
     ea::string description = eventData[P_DESCRIPTION].GetString();
     bool overwrite = eventData[P_OVERWRITE].GetBool();
-    if (registeredConsoleCommands_.Contains(command) && !overwrite) {
+    if (registeredConsoleCommands_.contains(command) && !overwrite) {
         URHO3D_LOGWARNINGF("Console command '%s' already registered! Skipping console command registration!", command.CString());
         return;
     }
@@ -162,7 +162,7 @@ void ConsoleHandler::ParseCommand(ea::string input)
     }
     StringVector params = input.Split(' ', false);
     ea::string command = params[0];
-    if (registeredConsoleCommands_.Contains(command)) {
+    if (registeredConsoleCommands_.contains(command)) {
         VariantMap data;
         data["Parameters"] = params;
 

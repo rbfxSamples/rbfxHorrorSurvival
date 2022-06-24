@@ -392,7 +392,7 @@ void Player::HandlePhysicsPrestep(StringHash eventType, VariantMap& eventData)
     if (controls.IsDown(CTRL_FORWARD)) {
         static StringHash forward(CTRL_FORWARD);
         float strength = 1.0f;
-        if (controls.extraData_.Contains(forward)) {
+        if (controls.extraData_.contains(forward)) {
             strength = controls.extraData_[forward].GetFloat();
         }
         rigidBody_->ApplyTorque(rotation * Vector3::RIGHT * movementSpeed * strength);
@@ -403,7 +403,7 @@ void Player::HandlePhysicsPrestep(StringHash eventType, VariantMap& eventData)
     if (controls.IsDown(CTRL_BACK)) {
         static StringHash backward(CTRL_BACK);
         float strength = 1.0f;
-        if (controls.extraData_.Contains(backward)) {
+        if (controls.extraData_.contains(backward)) {
             strength = controls.extraData_[backward].GetFloat();
         }
         rigidBody_->ApplyTorque(rotation * Vector3::LEFT * movementSpeed * strength);
@@ -414,7 +414,7 @@ void Player::HandlePhysicsPrestep(StringHash eventType, VariantMap& eventData)
     if (controls.IsDown(CTRL_LEFT)) {
         static StringHash left(CTRL_LEFT);
         float strength = 1.0f;
-        if (controls.extraData_.Contains(left)) {
+        if (controls.extraData_.contains(left)) {
             strength = controls.extraData_[left].GetFloat();
         }
         rigidBody_->ApplyTorque(rotation * Vector3::FORWARD * movementSpeed * strength);
@@ -425,7 +425,7 @@ void Player::HandlePhysicsPrestep(StringHash eventType, VariantMap& eventData)
     if (controls.IsDown(CTRL_RIGHT)) {
         static StringHash right(CTRL_RIGHT);
         float strength = 1.0f;
-        if (controls.extraData_.Contains(right)) {
+        if (controls.extraData_.contains(right)) {
             strength = controls.extraData_[right].GetFloat();
         }
         rigidBody_->ApplyTorque(rotation * Vector3::BACK * movementSpeed * strength);

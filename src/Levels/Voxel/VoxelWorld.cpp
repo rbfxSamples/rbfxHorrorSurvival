@@ -242,7 +242,7 @@ Vector3 VoxelWorld::GetNodeToChunkPosition(Node* node)
 bool VoxelWorld::IsChunkLoaded(const Vector3& position)
 {
     ea::string id = GetChunkIdentificator(position);
-    if (chunks_.Contains(id) && chunks_[id]) {
+    if (chunks_.contains(id) && chunks_[id]) {
         return true;
     }
     return false;
@@ -428,7 +428,7 @@ VoxelBlock* VoxelWorld::GetBlockAt(Vector3 position)
 {
     Vector3 chunkPosition = GetWorldToChunkPosition(position);
     ea::string id = GetChunkIdentificator(chunkPosition);
-    if (chunks_.Contains(id) && chunks_[id]) {
+    if (chunks_.contains(id) && chunks_[id]) {
         Vector3 blockPosition = position - chunkPosition;
         return chunks_[id]->GetBlockAt(IntVector3(blockPosition.x_, blockPosition.y_, blockPosition.z_));
     }
@@ -548,7 +548,7 @@ void VoxelWorld::AddChunkToQueue(Vector3 position, int distance)
     Vector3 fixedPosition = GetWorldToChunkPosition(position);
     ea::string id = GetChunkIdentificator(fixedPosition);
     ChunkNode node(position, distance);
-    if (!chunksToLoad_.Contains(fixedPosition)) {
+    if (!chunksToLoad_.contains(fixedPosition)) {
         chunksToLoad_[fixedPosition] = distance;
         chunkBfsQueue_.emplace(node);
     }

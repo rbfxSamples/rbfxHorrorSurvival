@@ -742,7 +742,7 @@ void SettingsWindow::RefreshControlsTab()
     // Loop trough all of the controls and update their labels
     for (auto it = names.Begin(); it != names.End(); ++it) {
         int actionId = (*it).first_;
-        if (control_mappings_.Contains(actionId) && control_mappings_[actionId]) {
+        if (control_mappings_.contains(actionId) && control_mappings_[actionId]) {
             control_mappings_[actionId]->SetText(controllerInput->GetActionKeyName(actionId));
         }
     }

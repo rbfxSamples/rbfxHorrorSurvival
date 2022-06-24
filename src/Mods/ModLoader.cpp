@@ -290,12 +290,12 @@ void ModLoader::HandleReloadScript(StringHash eventType, VariantMap& eventData)
 
     using namespace FileChanged;
     ea::string filename = eventData[P_RESOURCENAME].GetString();
-    if (!filename.Contains(".as") && !filename.Contains(".lua")) {
+    if (!filename.contains(".as") && !filename.contains(".lua")) {
         // We don't care about resources other than .as and .lua
         return;
     }
 
-    if (asScriptMap_.Contains(filename)) {
+    if (asScriptMap_.contains(filename)) {
         URHO3D_LOGINFO("Reloading mod " + filename);
         if (asScriptMap_[filename]->GetFunction("void Stop()")) {
             asScriptMap_[filename]->Execute("void Stop()");
@@ -339,7 +339,7 @@ void ModLoader::HandleReloadScript(StringHash eventType, VariantMap& eventData)
             }
         }
         for (auto it = asScriptMap_.Begin(); it != asScriptMap_.End(); ++it) {
-            if (!loadedMods.Contains((*it).first_)) {
+            if (!loadedMods.contains((*it).first_)) {
                 if (asScriptMap_[(*it).first_]->GetFunction("void Stop()")) {
                     asScriptMap_[(*it).first_]->Execute("void Stop()");
                 }

@@ -47,7 +47,7 @@ void KeyboardInput::HandleKeyDown(StringHash eventType, VariantMap& eventData)
         return;
     }
 
-    if (mappedKeyToControl_.Contains(key)) {
+    if (mappedKeyToControl_.contains(key)) {
         auto* controllerInput = GetSubsystem<ControllerInput>();
         controllerInput->SetActionState(mappedKeyToControl_[key], true);
     }
@@ -62,7 +62,7 @@ void KeyboardInput::HandleKeyUp(StringHash eventType, VariantMap& eventData)
         return;
     }
 
-    if (mappedKeyToControl_.Contains(key)) {
+    if (mappedKeyToControl_.contains(key)) {
         auto* controllerInput = GetSubsystem<ControllerInput>();
         controllerInput->SetActionState(mappedKeyToControl_[key], false);
     }
@@ -70,10 +70,10 @@ void KeyboardInput::HandleKeyUp(StringHash eventType, VariantMap& eventData)
 
 ea::string KeyboardInput::GetActionKeyName(int action)
 {
-    if (mappedControlToKey_.Contains(action)) {
+    if (mappedControlToKey_.contains(action)) {
         auto* input = GetSubsystem<Input>();
         return input->GetKeyName(static_cast<Key>(mappedControlToKey_[action]));
     }
 
-    return ea::string::EMPTY;
+    return "";
 }
