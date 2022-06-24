@@ -35,7 +35,7 @@ Achievements::Achievements(Context* context) :
 
 Achievements::~Achievements()
 {
-    activeAchievements_.Clear();
+    activeAchievements_.clear();
 }
 
 void Achievements::SetShowAchievements(bool show)
@@ -133,7 +133,7 @@ void Achievements::HandleUpdate(StringHash eventType, VariantMap& eventData)
     float timeStep = eventData[P_TIMESTEP].GetFloat();
     for (auto it = activeAchievements_.begin(); it != activeAchievements_.end(); ++it) {
         if (!(*it)) {
-            activeAchievements_.Erase(it);
+            activeAchievements_.erase(it);
 
             if (!achievementQueue_.empty() && showAchievements_) {
                 HandleNewAchievement("", achievementQueue_.Front());
@@ -145,7 +145,7 @@ void Achievements::HandleUpdate(StringHash eventType, VariantMap& eventData)
         float lifetime = (*it)->GetVar("Lifetime").GetFloat();
         if (lifetime <= 0) {
             // (*it)->Remove();
-            activeAchievements_.Erase(it);
+            activeAchievements_.erase(it);
 
             if (!achievementQueue_.empty() && showAchievements_) {
                 HandleNewAchievement("", achievementQueue_.Front());
@@ -265,7 +265,7 @@ void Achievements::HandleRegisteredEvent(StringHash eventType, VariantMap& event
 
 ea::list<AchievementRule> Achievements::GetAchievements()
 {
-    achievements_.Clear();
+    achievements_.clear();
     for (auto it = registeredAchievements_.begin(); it != registeredAchievements_.end(); ++it) {
         for (auto it2 = (*it).second.begin(); it2 != (*it).second.end(); ++it2) {
             achievements_.push_back((*it2));

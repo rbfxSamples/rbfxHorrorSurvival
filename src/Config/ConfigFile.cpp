@@ -51,14 +51,14 @@ bool ConfigFile::BeginLoad(Deserializer& source) {
     }
 
     configMap_.push_back(ConfigSection());
-    ConfigSection* configSection(&configMap_.Back());
+    ConfigSection* configSection(&configMap_.back());
     while (!source.IsEof()) {
         ea::string line(source.ReadLine());
 
         // Parse headers.
         if (line.StartsWith("[") && line.EndsWith("]")) {
             configMap_.push_back(ConfigSection());
-            configSection = &configMap_.Back();
+            configSection = &configMap_.back();
         }
 
         configSection->Push(line);
@@ -84,7 +84,7 @@ bool ConfigFile::Save(Serializer& dest) const {
 
 
         // Don't print header if it's empty.
-        if (header != ea::string::EMPTY) {
+        if (header != "") {
             dest.WriteLine("");
             dest.WriteLine("[" + header + "]");
         }
@@ -104,7 +104,7 @@ bool ConfigFile::Save(Serializer& dest) const {
             }
             processedConfig[property] = value;
 
-            if (property != ea::string::EMPTY && value != ea::string::EMPTY) {
+            if (property != "" && value != "") {
                 dest.WriteLine(property + "=" + value);
             }
         }
@@ -165,7 +165,7 @@ bool ConfigFile::FromString(const ea::string& source) {
 }
 
 bool ConfigFile::Has(const ea::string& section, const ea::string& parameter) {
-    return GetString(section, parameter) != ea::string::EMPTY;
+    return GetString(section, parameter) != "";
 }
 
 const ea::string ConfigFile::GetString(const ea::string& section, const ea::string& parameter, const ea::string& defaultValue) {
@@ -200,7 +200,7 @@ const ea::string ConfigFile::GetString(const ea::string& section, const ea::stri
         ea::string value;
         ParseProperty(*itr, property, value);
 
-        if (property == ea::string::EMPTY || value == ea::string::EMPTY) {
+        if (property == "" || value == "") {
             continue;
         }
 
@@ -221,7 +221,7 @@ const ea::string ConfigFile::GetString(const ea::string& section, const ea::stri
 const int ConfigFile::GetInt(const ea::string& section, const ea::string& parameter, const int defaultValue) {
     ea::string property(GetString(section, parameter));
 
-    if (property == ea::string::EMPTY) {
+    if (property == "") {
         return defaultValue;
     }
 
@@ -231,7 +231,7 @@ const int ConfigFile::GetInt(const ea::string& section, const ea::string& parame
 const bool ConfigFile::GetBool(const ea::string& section, const ea::string& parameter, const bool defaultValue) {
     ea::string property(GetString(section, parameter));
 
-    if (property == ea::string::EMPTY) {
+    if (property == "") {
         return defaultValue;
     }
 
@@ -241,7 +241,7 @@ const bool ConfigFile::GetBool(const ea::string& section, const ea::string& para
 const float ConfigFile::GetFloat(const ea::string& section, const ea::string& parameter, const float defaultValue) {
     ea::string property(GetString(section, parameter));
 
-    if (property == ea::string::EMPTY) {
+    if (property == "") {
         return defaultValue;
     }
 
@@ -251,7 +251,7 @@ const float ConfigFile::GetFloat(const ea::string& section, const ea::string& pa
 const Vector2 ConfigFile::GetVector2(const ea::string& section, const ea::string& parameter, const Vector2& defaultValue) {
     ea::string property(GetString(section, parameter));
 
-    if (property == ea::string::EMPTY) {
+    if (property == "") {
         return defaultValue;
     }
 
@@ -261,7 +261,7 @@ const Vector2 ConfigFile::GetVector2(const ea::string& section, const ea::string
 const Vector3 ConfigFile::GetVector3(const ea::string& section, const ea::string& parameter, const Vector3& defaultValue) {
     ea::string property(GetString(section, parameter));
 
-    if (property == ea::string::EMPTY) {
+    if (property == "") {
         return defaultValue;
     }
 
@@ -271,7 +271,7 @@ const Vector3 ConfigFile::GetVector3(const ea::string& section, const ea::string
 const Vector4 ConfigFile::GetVector4(const ea::string& section, const ea::string& parameter, const Vector4& defaultValue) {
     ea::string property(GetString(section, parameter));
 
-    if (property == ea::string::EMPTY) {
+    if (property == "") {
         return defaultValue;
     }
 
@@ -281,7 +281,7 @@ const Vector4 ConfigFile::GetVector4(const ea::string& section, const ea::string
 const Quaternion ConfigFile::GetQuaternion(const ea::string& section, const ea::string& parameter, const Quaternion& defaultValue) {
     ea::string property(GetString(section, parameter));
 
-    if (property == ea::string::EMPTY) {
+    if (property == "") {
         return defaultValue;
     }
 
@@ -291,7 +291,7 @@ const Quaternion ConfigFile::GetQuaternion(const ea::string& section, const ea::
 const Color ConfigFile::GetColor(const ea::string& section, const ea::string& parameter, const Color& defaultValue) {
     ea::string property(GetString(section, parameter));
 
-    if (property == ea::string::EMPTY) {
+    if (property == "") {
         return defaultValue;
     }
 
@@ -301,7 +301,7 @@ const Color ConfigFile::GetColor(const ea::string& section, const ea::string& pa
 const IntRect ConfigFile::GetIntRect(const ea::string& section, const ea::string& parameter, const IntRect& defaultValue) {
     ea::string property(GetString(section, parameter));
 
-    if (property == ea::string::EMPTY) {
+    if (property == "") {
         return defaultValue;
     }
 
@@ -311,7 +311,7 @@ const IntRect ConfigFile::GetIntRect(const ea::string& section, const ea::string
 const IntVector2 ConfigFile::GetIntVector2(const ea::string& section, const ea::string& parameter, const IntVector2& defaultValue) {
     ea::string property(GetString(section, parameter));
 
-    if (property == ea::string::EMPTY) {
+    if (property == "") {
         return defaultValue;
     }
 
@@ -321,7 +321,7 @@ const IntVector2 ConfigFile::GetIntVector2(const ea::string& section, const ea::
 const Matrix3 ConfigFile::GetMatrix3(const ea::string& section, const ea::string& parameter, const Matrix3& defaultValue) {
     ea::string property(GetString(section, parameter));
 
-    if (property == ea::string::EMPTY) {
+    if (property == "") {
         return defaultValue;
     }
 
@@ -331,7 +331,7 @@ const Matrix3 ConfigFile::GetMatrix3(const ea::string& section, const ea::string
 const Matrix3x4 ConfigFile::GetMatrix3x4(const ea::string& section, const ea::string& parameter, const Matrix3x4& defaultValue) {
     ea::string property(GetString(section, parameter));
 
-    if (property == ea::string::EMPTY) {
+    if (property == "") {
         return defaultValue;
     }
 
@@ -341,7 +341,7 @@ const Matrix3x4 ConfigFile::GetMatrix3x4(const ea::string& section, const ea::st
 const Matrix4 ConfigFile::GetMatrix4(const ea::string& section, const ea::string& parameter, const Matrix4& defaultValue) {
     ea::string property(GetString(section, parameter));
 
-    if (property == ea::string::EMPTY) {
+    if (property == "") {
         return defaultValue;
     }
 
@@ -370,7 +370,7 @@ void ConfigFile::Set(const ea::string& section, const ea::string& parameter, con
         }
     }
 
-    if (section == ea::string::EMPTY) {
+    if (section == "") {
         configSection = &(*configMap_.begin());
     }
 
@@ -385,7 +385,7 @@ void ConfigFile::Set(const ea::string& section, const ea::string& parameter, con
 
         // Create section.
         configMap_.push_back(ConfigSection());
-        configSection = &configMap_.Back();
+        configSection = &configMap_.back();
 
         // Add header and blank line.
         configSection->Push(sectionName);
@@ -423,7 +423,7 @@ void ConfigFile::Set(const ea::string& section, const ea::string& parameter, con
     // Find a good place to insert the parameter, avoiding lines which are entirely comments or whitespacing.
     int index(configSection->Size() - 1);
     for (int i(index); i >= 0; i--) {
-        if (ParseComments((*configSection)[i]) != ea::string::EMPTY) {
+        if (ParseComments((*configSection)[i]) != "") {
             index = i + 1;
             break;
         }
@@ -475,8 +475,8 @@ const void ConfigFile::ParseProperty(ea::string line, ea::string& property, ea::
 
     // Not a property.
     if (separatorPos == ea::string::NPOS) {
-        property = ea::string::EMPTY;
-        value = ea::string::EMPTY;
+        property = "";
+        value = "";
         return;
     }
 

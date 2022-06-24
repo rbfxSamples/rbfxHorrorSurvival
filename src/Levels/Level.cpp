@@ -363,7 +363,7 @@ void Level::RegisterConsoleCommands()
 
 void Level::HandleBeforeLevelDestroy(StringHash eventType, VariantMap& eventData)
 {
-    remotePlayers_.Clear();
+    remotePlayers_.clear();
 #if !defined(__EMSCRIPTEN__)
     UnsubscribeFromEvent(E_SERVERDISCONNECTED);
     if (GetSubsystem<Network>() && GetSubsystem<Network>()->IsServerRunning()) {
@@ -413,7 +413,7 @@ void Level::HandleControllerDisconnected(StringHash eventType, VariantMap& event
     int controllerIndex = eventData[P_INDEX].GetInt();
 
     if (controllerIndex > 0) {
-        players_.Erase(controllerIndex);
+        players_.erase(controllerIndex);
     }
     auto* controllerInput = GetSubsystem<ControllerInput>();
     ea::vector<int> controlIndexes = controllerInput->GetControlIndexes();
@@ -583,7 +583,7 @@ void Level::HandleClientDisconnected(StringHash eventType, VariantMap& eventData
 
     // When a client connects, assign to scene to begin scene replication
     auto* connection = static_cast<Connection*>(eventData[P_CONNECTION].GetPtr());
-    remotePlayers_.Erase(connection);
+    remotePlayers_.erase(connection);
 }
 
 void Level::HandleServerConnected(StringHash eventType, VariantMap& eventData)
@@ -593,7 +593,7 @@ void Level::HandleServerConnected(StringHash eventType, VariantMap& eventData)
 
 void Level::HandleServerDisconnected(StringHash eventType, VariantMap& eventData)
 {
-    players_.Clear();
+    players_.clear();
     auto localization = GetSubsystem<Localization>();
     VariantMap data;
     data["Name"] = "MainMenu";

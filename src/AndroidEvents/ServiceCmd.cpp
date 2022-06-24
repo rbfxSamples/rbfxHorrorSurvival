@@ -148,7 +148,7 @@ void ServiceCmd::ReceiveCmdMessage(int cmd, int status, const char* message)
 
     messageData.command  = cmd;
     messageData.status   = status;
-    messageData.message  = message ? Urho3D::ea::string(message) : Urho3D::ea::string::EMPTY;
+    messageData.message = message ? ea::string{ message } : "";
 }
 
 bool ServiceCmd::HasQueueMessage(MessageData& messageData)
@@ -172,7 +172,7 @@ void ServiceCmd::PopFrontQueue()
 
     if (messageList_.size())
     {
-        messageList_.Erase(0);
+        messageList_.erase(0);
     }
 }
 
@@ -187,7 +187,7 @@ void ServiceCmd::SendResponseMsg(const MessageData &msg)
 
     SendEvent(E_SERVICE_MESSAGE, eventData);
 
-    eventData["Message"] = "Got cmd: " + Urho3D::ea::string(msg.command) + "; Status: " + Urho3D::ea::string(msg.status) + "; Msg: " + msg.message;
+    eventData["Message"] = "Got cmd: " + ea::to_string(msg.command) + "; Status: " + ea::to_string(msg.status) + "; Msg: " + msg.message;
     SendEvent("ShowNotification", eventData);
 }
 

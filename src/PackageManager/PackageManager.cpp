@@ -59,7 +59,7 @@ void PackageManager::SubscribeToEvents()
             URHO3D_LOGINFOF("Listing all available packages from %s", params[1].CString());
 #if !defined(__EMSCRIPTEN__)
             auto *network = GetSubsystem<Network>();
-            data_.Clear();
+            data_.clear();
             httpRequest_ = network->MakeHttpRequest(params[1]);
 #endif
         }

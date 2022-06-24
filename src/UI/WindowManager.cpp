@@ -23,7 +23,7 @@ WindowManager::WindowManager(Context* context) :
 
 WindowManager::~WindowManager()
 {
-    windowList_.Clear();
+    windowList_.clear();
 }
 
 void WindowManager::RegisterAllFactories()
@@ -62,7 +62,7 @@ void WindowManager::HandleOpenWindow(StringHash eventType, VariantMap& eventData
     for (auto it = windowList_.begin(); it != windowList_.end(); ++it) {
         if ((*it)->GetType() == StringHash(windowName)) {
             if (!(*it).Refs()) {
-                windowList_.Erase(it);
+                windowList_.erase(it);
             } else {
                 URHO3D_LOGWARNING("Window '" + windowName + "' already opened!");
                 BaseWindow* window = (*it)->Cast<BaseWindow>();
@@ -109,7 +109,7 @@ void WindowManager::HandleCloseAllWindows(StringHash eventType, VariantMap& even
         closeQueue_.push_back((*it));
     }
 
-    openedWindows_.Clear();
+    openedWindows_.clear();
 }
 
 bool WindowManager::IsWindowOpen(ea::string windowName)
@@ -133,7 +133,7 @@ void WindowManager::CloseWindow(ea::string windowName)
     for (auto it = windowList_.begin(); it != windowList_.end(); ++it) {
         if ((*it)->GetType() == StringHash(windowName)) {
 
-            windowList_.Erase(it);
+            windowList_.erase(it);
             VariantMap data;
             data[P_NAME] = windowName;
             SendEvent(E_WINDOW_CLOSED, data);
@@ -148,7 +148,7 @@ void WindowManager::HandleUpdate(StringHash eventType, VariantMap& eventData)
         for (auto it = closeQueue_.begin(); it != closeQueue_.end(); ++it) {
             CloseWindow((*it));
         }
-        closeQueue_.Clear();
+        closeQueue_.clear();
     }
 }
 

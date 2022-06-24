@@ -221,7 +221,7 @@ ea::string JoystickInput::GetActionKeyName(int action)
         return "Joy_" + ea::string(mappedControlToKey_[action]);
     }
 
-    return ea::string::EMPTY;
+    return "";
 }
 
 void JoystickInput::HandleJoystickConnected(StringHash eventType, VariantMap& eventData)
@@ -245,7 +245,7 @@ void JoystickInput::HandleJoystickDisconnected(StringHash eventType, VariantMap&
         id++;
     }
     URHO3D_LOGINFO("Joystick disconnected : " + ea::string(id));
-    axisPosition_.Erase(id);
+    axisPosition_.erase(id);
     auto* controllerInput = GetSubsystem<ControllerInput>();
     controllerInput->DestroyController(id);
 }

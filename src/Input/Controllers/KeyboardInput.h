@@ -1,24 +1,24 @@
 #pragma once
 
-#include "BaseInput.h"
 #include "../../Config/ConfigFile.h"
+#include "BaseInput.h"
 
 class KeyboardInput : public BaseInput
 {
-	URHO3D_OBJECT(KeyboardInput, BaseInput);
+    URHO3D_OBJECT(KeyboardInput, BaseInput);
 
 public:
-	KeyboardInput(Context* context);
+    KeyboardInput(Context* context);
 
-	virtual ~KeyboardInput();
-	virtual ea::string GetActionKeyName(int action) override;
+    virtual ~KeyboardInput();
+    virtual ea::string GetActionKeyName(int action) override;
 
 protected:
-	virtual void Init();
+    virtual void Init();
 
 private:
-	void SubscribeToEvents();
+    void SubscribeToEvents();
 
-	void HandleKeyDown(StringHash eventType, VariantMap& eventData);
-	void HandleKeyUp(StringHash eventType, VariantMap& eventData);
+    void HandleKeyDown(StringHash eventType, VariantMap& eventData);
+    void HandleKeyUp(StringHash eventType, VariantMap& eventData);
 };

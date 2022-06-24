@@ -155,7 +155,7 @@ void ModLoader::SubscribeToEvents()
 void ModLoader::Dispose()
 {
     #ifdef URHO3D_ANGELSCRIPT
-    asMods_.Clear();
+    asMods_.clear();
     #endif
 }
 
@@ -307,7 +307,7 @@ void ModLoader::HandleReloadScript(StringHash eventType, VariantMap& eventData)
         asScriptMap_[filename] = cache->GetResource<ScriptFile>(filename);
         if (!asScriptMap_[filename]) {
             URHO3D_LOGWARNING("Mod '" + filename + "' removed!");
-            asScriptMap_.Erase(filename);
+            asScriptMap_.erase(filename);
 
            CheckAllMods();
 
@@ -330,7 +330,7 @@ void ModLoader::HandleReloadScript(StringHash eventType, VariantMap& eventData)
                 asScriptMap_[filename] = cache->GetResource<ScriptFile>(filename);
                 if (!asScriptMap_[filename]) {
                     URHO3D_LOGWARNING("Mod '" + filename + "' can't be loaded!");
-                    asScriptMap_.Erase(filename);
+                    asScriptMap_.erase(filename);
                 } else {
                     if (asScriptMap_[filename]->GetFunction("void Start()")) {
                         asScriptMap_[filename]->Execute("void Start()");
@@ -344,7 +344,7 @@ void ModLoader::HandleReloadScript(StringHash eventType, VariantMap& eventData)
                     asScriptMap_[(*it).first]->Execute("void Stop()");
                 }
                 URHO3D_LOGWARNING("Unloading mod '" + (*it).first + "'");
-                asScriptMap_.Erase((*it).first);
+                asScriptMap_.erase((*it).first);
             }
         }
         CheckAllMods();

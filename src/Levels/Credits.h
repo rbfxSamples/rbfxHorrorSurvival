@@ -1,71 +1,70 @@
 #pragma once
 
-#include <Urho3D/UI/UIElement.h>
 #include "../BaseLevel.h"
+#include <Urho3D/UI/UIElement.h>
 
-namespace Levels {
+namespace Levels
+{
 
-	class Credits : public BaseLevel
-	{
-		URHO3D_OBJECT(Credits, BaseLevel);
+class Credits : public BaseLevel
+{
+    URHO3D_OBJECT(Credits, BaseLevel);
 
-	public:
-		Credits(Context* context);
-		virtual ~Credits();
-		static void RegisterObject(Context* context);
+public:
+    Credits(Context* context);
+    virtual ~Credits();
+    static void RegisterObject(Context* context);
 
-	protected:
-		void Init() override;
+protected:
+    void Init() override;
 
-	private:
+private:
+    void CreateScene();
 
-		void CreateScene();
+    /**
+     * Create the actual Credits content
+     */
+    void CreateUI();
 
-		/**
-		 * Create the actual Credits content
-		 */
-		void CreateUI();
+    void SubscribeToEvents();
 
+    /**
+     * End credits
+     */
+    void HandleEndCredits(bool forced = false);
 
-		void SubscribeToEvents();
+    UIElement* CreateEmptyLine(int height);
 
-		/**
-		 * End credits
-		 */
-		void HandleEndCredits(bool forced = false);
+    /**
+     * Create single text line
+     */
+    void CreateSingleLine(ea::string content, int fontSize);
 
-		UIElement* CreateEmptyLine(int height);
+    /**
+     * Create single image line
+     */
+    void CreateImageLine(const ea::string& image, int size);
 
-		/**
-		 * Create single text line
-		 */
-		void CreateSingleLine(ea::string content, int fontSize);
+    /**
+     * Handle credits scrolling
+     */
+    void HandleUpdate(StringHash eventType, VariantMap& eventData);
 
-		/**
-		 * Create single image line
-		 */
-		void CreateImageLine(const ea::string& image, int size);
+    /**
+     * Credits window lifetime timer
+     */
+    Timer timer_;
 
-		/**
-		 * Handle credits scrolling
-		 */
-		void HandleUpdate(StringHash eventType, VariantMap& eventData);
+    /**
+     * Credits view content
+     */
+    ea::vector<SharedPtr<UIElement>> credits_;
 
-		/**
-		 * Credits window lifetime timer
-		 */
-		Timer timer_;
+    /**
+     * Credits base UI view
+     */
+    SharedPtr<UIElement> creditsBase_;
 
-		/**
-		 * Credits view content
-		 */
-		ea::vector<SharedPtr<UIElement>> credits_;
-
-		/**
-		 * Credits base UI view
-		 */
-		SharedPtr<UIElement> creditsBase_;
-
-		float offset_;
-	};
-}
+    float offset_;
+};
+} // namespace Levels

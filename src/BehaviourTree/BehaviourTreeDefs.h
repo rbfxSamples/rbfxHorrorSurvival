@@ -1,11 +1,13 @@
 #pragma once
 
-enum BTState {
-	SUCCESS,
-	FAILED
+enum BTState
+{
+    SUCCESS,
+    FAILED
 };
 
-enum BTNodeType {
-	SELECTOR,
-	SEQUENCE
+enum BTNodeType
+{
+    SELECTOR,
+    SEQUENCE
 };

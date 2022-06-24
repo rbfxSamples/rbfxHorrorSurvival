@@ -356,8 +356,8 @@ void BaseLevel::InitViewports(ea::vector<int> playerIndexes)
         return;
     }
     renderer->SetNumViewports(playerIndexes.size());
-    viewports_.Clear();
-    cameras_.Clear();
+    viewports_.clear();
+    cameras_.clear();
 
     if (!scene_) {
         return;

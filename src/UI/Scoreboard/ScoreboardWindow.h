@@ -1,30 +1,28 @@
 #pragma once
 
-#include <Urho3D/UI/Window.h>
 #include "../BaseWindow.h"
+#include <Urho3D/UI/Window.h>
 
 class ScoreboardWindow : public BaseWindow
 {
-	URHO3D_OBJECT(ScoreboardWindow, BaseWindow);
+    URHO3D_OBJECT(ScoreboardWindow, BaseWindow);
 
 public:
-	ScoreboardWindow(Context* context);
+    ScoreboardWindow(Context* context);
 
-	virtual ~ScoreboardWindow();
+    virtual ~ScoreboardWindow();
 
-	virtual void Init() override;
+    virtual void Init() override;
 
 protected:
-
-	virtual void Create() override;
+    virtual void Create() override;
 
 private:
+    void SubscribeToEvents();
 
-	void SubscribeToEvents();
+    void HandleScoresUpdated(StringHash eventType, VariantMap& eventData);
 
-	void HandleScoresUpdated(StringHash eventType, VariantMap& eventData);
+    void CreatePlayerScores();
 
-	void CreatePlayerScores();
-
-	SharedPtr<Window> baseWindow_;
+    SharedPtr<Window> baseWindow_;
 };

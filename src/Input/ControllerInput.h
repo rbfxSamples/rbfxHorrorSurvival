@@ -1,17 +1,18 @@
 #pragma once
 
-#include <Urho3D/Core/Object.h>
-#include <Urho3D/Input/Controls.h>
-#include <Urho3D/Container/Str.h>
 #include "../Config/ConfigManager.h"
 #include "Controllers/BaseInput.h"
+#include <Urho3D/Container/Str.h>
+#include <Urho3D/Core/Object.h>
+#include <Urho3D/Input/Controls.h>
 
 using namespace Urho3D;
 
 /**
  * Different types of input handlers
  */
-enum ControllerType {
+enum ControllerType
+{
     KEYBOARD,
     MOUSE,
     JOYSTICK,
@@ -105,8 +106,8 @@ public:
     bool IsMappingInProgress();
 
     /**
-    * Load INI configuration file from config.cfg
-    */
+     * Load INI configuration file from config.cfg
+     */
     void LoadConfig();
 
     /**

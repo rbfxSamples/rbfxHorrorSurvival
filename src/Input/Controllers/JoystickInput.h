@@ -1,49 +1,49 @@
 #pragma once
 
-#include "BaseInput.h"
 #include "../../Config/ConfigFile.h"
+#include "BaseInput.h"
 
 class JoystickInput : public BaseInput
 {
-	URHO3D_OBJECT(JoystickInput, BaseInput);
+    URHO3D_OBJECT(JoystickInput, BaseInput);
 
 public:
-	JoystickInput(Context* context);
+    JoystickInput(Context* context);
 
-	virtual ~JoystickInput();
-	virtual ea::string GetActionKeyName(int action) override;
+    virtual ~JoystickInput();
+    virtual ea::string GetActionKeyName(int action) override;
 
-	void SetJoystickAsFirstController(bool enabled);
+    void SetJoystickAsFirstController(bool enabled);
 
-	bool GetJoystickAsFirstController();
+    bool GetJoystickAsFirstController();
 
-	/**
-	 * Load joystick config from config.cfg file [joystick] block
-	 */
-	void LoadConfig() override;
+    /**
+     * Load joystick config from config.cfg file [joystick] block
+     */
+    void LoadConfig() override;
 
 protected:
-	virtual void Init();
+    virtual void Init();
 
 private:
-	void SubscribeToEvents();
+    void SubscribeToEvents();
 
-	void HandleJoystickConnected(StringHash eventType, VariantMap& eventData);
-	void HandleJoystickDisconnected(StringHash eventType, VariantMap& eventData);
+    void HandleJoystickConnected(StringHash eventType, VariantMap& eventData);
+    void HandleJoystickDisconnected(StringHash eventType, VariantMap& eventData);
 
-	void HandleKeyDown(StringHash eventType, VariantMap& eventData);
-	void HandleKeyUp(StringHash eventType, VariantMap& eventData);
-	void HandleAxisMove(StringHash eventType, VariantMap& eventData);
-	void HandleHatMove(StringHash eventType, VariantMap& eventData);
-	void HandleUpdate(StringHash eventType, VariantMap& eventData);
+    void HandleKeyDown(StringHash eventType, VariantMap& eventData);
+    void HandleKeyUp(StringHash eventType, VariantMap& eventData);
+    void HandleAxisMove(StringHash eventType, VariantMap& eventData);
+    void HandleHatMove(StringHash eventType, VariantMap& eventData);
+    void HandleUpdate(StringHash eventType, VariantMap& eventData);
 
-	ea::hash_map<int, Vector2> axisPosition_;
+    ea::hash_map<int, Vector2> axisPosition_;
 
-	bool joystickAsFirstController_;
+    bool joystickAsFirstController_;
 
-	// x - move left/right
-	// y - move forward/bacward
-	// z - rotate x 
-	// w - rotate y 
-	Vector4 joystickMapping_;
+    // x - move left/right
+    // y - move forward/bacward
+    // z - rotate x
+    // w - rotate y
+    Vector4 joystickMapping_;
 };

@@ -2,49 +2,50 @@
 
 #include "../BaseLevel.h"
 
-namespace Levels {
+namespace Levels
+{
 
-	class Splash : public BaseLevel
-	{
-		URHO3D_OBJECT(Splash, BaseLevel);
+class Splash : public BaseLevel
+{
+    URHO3D_OBJECT(Splash, BaseLevel);
 
-	public:
-		Splash(Context* context);
-		virtual ~Splash();
-		static void RegisterObject(Context* context);
-		void HandleUpdate(StringHash eventType, VariantMap& eventData);
+public:
+    Splash(Context* context);
+    virtual ~Splash();
+    static void RegisterObject(Context* context);
+    void HandleUpdate(StringHash eventType, VariantMap& eventData);
 
-	protected:
-		void Init() override;
+protected:
+    void Init() override;
 
-	private:
-		void CreateScene();
+private:
+    void CreateScene();
 
-		/**
-		 * Create the actual splash screen content
-		 */
-		void CreateUI();
+    /**
+     * Create the actual splash screen content
+     */
+    void CreateUI();
 
-		void SubscribeToEvents();
+    void SubscribeToEvents();
 
-		/**
-		 * Show next screen
-		 */
-		void HandleEndSplash();
+    /**
+     * Show next screen
+     */
+    void HandleEndSplash();
 
-		/**
-		 * Timer to check splash screen lifetime
-		 */
-		Timer timer_;
+    /**
+     * Timer to check splash screen lifetime
+     */
+    Timer timer_;
 
-		/**
-		 * Current logo index
-		 */
-		int logoIndex_;
+    /**
+     * Current logo index
+     */
+    int logoIndex_;
 
-		/**
-		 * ea::list of all the logos that splash screen should show
-		 */
-		ea::vector<ea::string> logos_;
-	};
-}
+    /**
+     * ea::list of all the logos that splash screen should show
+     */
+    ea::vector<ea::string> logos_;
+};
+} // namespace Levels

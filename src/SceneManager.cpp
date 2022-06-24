@@ -129,7 +129,7 @@ void SceneManager::CleanupLoadingSteps()
     for (auto it = loadingSteps_.begin(); it != loadingSteps_.end(); ++it) {
         if ((*it).second.autoRemove) {
             URHO3D_LOGINFOF("Auto removing loading step %s", (*it).second.name.CString());
-            loadingSteps_.Erase(it);
+            loadingSteps_.erase(it);
             it--;
         }
     }

@@ -12,7 +12,7 @@
 ////
 ////#endif
 //
-//class TestClass {
+// class TestClass {
 ////public:
 //    void Test();
 //};

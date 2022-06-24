@@ -374,7 +374,7 @@ const Matrix4 ConfigManager::GetMatrix4(const ea::string& section, const ea::str
 
 // Clears all settings.
 void ConfigManager::Clear() {
-    map_.Clear();
+    map_.clear();
 }
 
 // Load settings from file.
@@ -403,7 +403,7 @@ bool ConfigManager::Load(ConfigFile& configFile, bool overwriteExisting) {
             continue;
         }
 
-        ea::string header(ea::string::EMPTY);
+        ea::string header("");
 
         if (itr != map->Begin()) {
             header = *(itr->Begin());
@@ -420,7 +420,7 @@ bool ConfigManager::Load(ConfigFile& configFile, bool overwriteExisting) {
 
             ConfigFile::ParseProperty(line, parameter, value);
 
-            if (parameter != ea::string::EMPTY && value != ea::string::EMPTY) {
+            if (parameter != "" && value != "") {
                 Set(header, parameter, value);
             }
         }
@@ -555,7 +555,7 @@ void ConfigManager::SaveSettingsMap(ea::string section, SettingsMap& map, Config
 
 SettingsMap* ConfigManager::GetSection(const ea::string& section, bool create) {
     // Empty section gets assigned to main map.
-    if (section == ea::string::EMPTY) {
+    if (section == "") {
         return &map_;
     }
 
@@ -593,7 +593,7 @@ SettingsMap* ConfigManager::GetSection(const ea::string& section, bool create) {
 
         ea::string sub = section.Substring(lastSplitPos, length);
 
-        if (sub != ea::string::EMPTY) {
+        if (sub != "") {
             split.push_back(sub);
         }
     }

@@ -24,16 +24,17 @@ SOFTWARE.
 
 #pragma once
 
-#include <Urho3D/Resource/Resource.h>
 #include <Urho3D/Core/Object.h>
 #include <Urho3D/Core/StringUtils.h>
+#include <Urho3D/Resource/Resource.h>
 
 typedef ea::vector<ea::string> ConfigSection;
 typedef ea::vector<ConfigSection> ConfigMap;
 
-class ConfigFile : public Urho3D::Resource {
+class ConfigFile : public Urho3D::Resource
+{
 public:
-URHO3D_OBJECT(ConfigFile, Urho3D::Object);
+    URHO3D_OBJECT(ConfigFile, Urho3D::Object);
 
 public:
     ConfigFile(Urho3D::Context* context, bool caseSensitive = false);
@@ -41,9 +42,7 @@ public:
 
     static void RegisterObject(Urho3D::Context* context);
 
-    void SetCaseSensitive(bool caseSensitive) {
-        caseSensitive_ = caseSensitive;
-    }
+    void SetCaseSensitive(bool caseSensitive) { caseSensitive_ = caseSensitive; }
 
     /// Load resource from stream. May be called from a worker thread. Return true if successful.
     virtual bool BeginLoad(Urho3D::Deserializer& source) override;
@@ -55,26 +54,48 @@ public:
     /// Deserialize from a string. Return true if successful.
     bool FromString(const ea::string& source);
 
-    const ConfigMap* GetMap() {
-        return &configMap_;
-    }
+    const ConfigMap* GetMap() { return &configMap_; }
 
     bool Has(const ea::string& section, const ea::string& parameter);
 
-    const ea::string GetString(const ea::string& section, const ea::string& parameter, const ea::string& defaultValue = ea::string::EMPTY);
+    const ea::string GetString(
+        const ea::string& section, const ea::string& parameter, const ea::string& defaultValue = "");
+
     const int GetInt(const ea::string& section, const ea::string& parameter, const int defaultValue = 0);
+
     const bool GetBool(const ea::string& section, const ea::string& parameter, const bool defaultValue = false);
+
     const float GetFloat(const ea::string& section, const ea::string& parameter, const float defaultValue = 0.f);
-    const Urho3D::Vector2 GetVector2(const ea::string& section, const ea::string& parameter, const Urho3D::Vector2& defaultValue = Urho3D::Vector2::ZERO);
-    const Urho3D::Vector3 GetVector3(const ea::string& section, const ea::string& parameter, const Urho3D::Vector3& defaultValue = Urho3D::Vector3::ZERO);
-    const Urho3D::Vector4 GetVector4(const ea::string& section, const ea::string& parameter, const Urho3D::Vector4& defaultValue = Urho3D::Vector4::ZERO);
-    const Urho3D::Quaternion GetQuaternion(const ea::string& section, const ea::string& parameter, const Urho3D::Quaternion& defaultValue = Urho3D::Quaternion::IDENTITY);
-    const Urho3D::Color GetColor(const ea::string& section, const ea::string& parameter, const Urho3D::Color& defaultValue = Urho3D::Color::WHITE);
-    const Urho3D::IntRect GetIntRect(const ea::string& section, const ea::string& parameter, const Urho3D::IntRect& defaultValue = Urho3D::IntRect::ZERO);
-    const Urho3D::IntVector2 GetIntVector2(const ea::string& section, const ea::string& parameter, const Urho3D::IntVector2& defaultValue = Urho3D::IntVector2::ZERO);
-    const Urho3D::Matrix3 GetMatrix3(const ea::string& section, const ea::string& parameter, const Urho3D::Matrix3& defaultValue = Urho3D::Matrix3::IDENTITY);
-    const Urho3D::Matrix3x4 GetMatrix3x4(const ea::string& section, const ea::string& parameter, const Urho3D::Matrix3x4& defaultValue = Urho3D::Matrix3x4::IDENTITY);
-    const Urho3D::Matrix4 GetMatrix4(const ea::string& section, const ea::string& parameter, const Urho3D::Matrix4& defaultValue = Urho3D::Matrix4::IDENTITY);
+
+    const Urho3D::Vector2 GetVector2(const ea::string& section, const ea::string& parameter,
+        const Urho3D::Vector2& defaultValue = Urho3D::Vector2::ZERO);
+
+    const Urho3D::Vector3 GetVector3(const ea::string& section, const ea::string& parameter,
+        const Urho3D::Vector3& defaultValue = Urho3D::Vector3::ZERO);
+
+    const Urho3D::Vector4 GetVector4(const ea::string& section, const ea::string& parameter,
+        const Urho3D::Vector4& defaultValue = Urho3D::Vector4::ZERO);
+
+    const Urho3D::Quaternion GetQuaternion(const ea::string& section, const ea::string& parameter,
+        const Urho3D::Quaternion& defaultValue = Urho3D::Quaternion::IDENTITY);
+
+    const Urho3D::Color GetColor(const ea::string& section, const ea::string& parameter,
+        const Urho3D::Color& defaultValue = Urho3D::Color::WHITE);
+
+    const Urho3D::IntRect GetIntRect(const ea::string& section, const ea::string& parameter,
+        const Urho3D::IntRect& defaultValue = Urho3D::IntRect::ZERO);
+
+    const Urho3D::IntVector2 GetIntVector2(const ea::string& section, const ea::string& parameter,
+        const Urho3D::IntVector2& defaultValue = Urho3D::IntVector2::ZERO);
+
+    const Urho3D::Matrix3 GetMatrix3(const ea::string& section, const ea::string& parameter,
+        const Urho3D::Matrix3& defaultValue = Urho3D::Matrix3::IDENTITY);
+
+    const Urho3D::Matrix3x4 GetMatrix3x4(const ea::string& section, const ea::string& parameter,
+        const Urho3D::Matrix3x4& defaultValue = Urho3D::Matrix3x4::IDENTITY);
+
+    const Urho3D::Matrix4 GetMatrix4(const ea::string& section, const ea::string& parameter,
+        const Urho3D::Matrix4& defaultValue = Urho3D::Matrix4::IDENTITY);
 
     void Set(const ea::string& section, const ea::string& parameter, const ea::string& value);
 
@@ -86,7 +107,6 @@ public:
     static const ea::string ParseComments(ea::string line);
 
 protected:
-
     bool caseSensitive_;
     ConfigMap configMap_;
 };

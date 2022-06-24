@@ -596,7 +596,7 @@ namespace Urho3D {
         tab.button->Remove();
         tab.page->Remove();
 
-        tabs_.Erase(index, 1);
+        tabs_.erase(index, 1);
         tab_count_ = tabs_.size();
     }
 
@@ -606,7 +606,7 @@ namespace Urho3D {
             it->button->Remove();
             it->page->Remove();
         }
-        tabs_.Clear();
+        tabs_.clear();
     }
 
     UIElement* UITabPanel::GetTab(int index) const {

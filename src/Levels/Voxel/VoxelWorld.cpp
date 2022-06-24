@@ -199,7 +199,7 @@ void VoxelWorld::RemoveObserver(SharedPtr<Node> observer)
 {
     auto it = observers_.find(observer);
     if (it != observers_.end()) {
-        observers_.Erase(it);
+        observers_.erase(it);
         URHO3D_LOGINFO("Removing observer from voxel world!");
     }
 }
@@ -375,7 +375,7 @@ void VoxelWorld::UpdateChunks()
             }
         }
 
-        chunksToLoad_.Clear();
+        chunksToLoad_.clear();
 
         MutexLock lock(mutex_);
         for (auto it = chunks_.begin(); it != chunks_.end(); ++it) {
@@ -383,7 +383,7 @@ void VoxelWorld::UpdateChunks()
                 if ((*it).second->IsMarkedForDeletion()) {
                     int distance = (*it).second->GetDistance();
 //                        URHO3D_LOGINFOF("Deleting chunk distance=%d ", distance);
-                    it = chunks_.Erase(it);
+                    it = chunks_.erase(it);
                 }
                 if (chunks_.end() == it) {
                     break;

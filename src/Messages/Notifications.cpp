@@ -119,13 +119,13 @@ void Notifications::HandleUpdate(StringHash eventType, VariantMap& eventData)
     float timeStep = eventData[P_TIMESTEP].GetFloat();
     for (auto it = messages_.begin(); it != messages_.end(); ++it) {
         if (!(*it)) {
-            messages_.Erase(it);
+            messages_.erase(it);
             return;
         }
         float lifetime = (*it)->GetVar("Lifetime").GetFloat();
         if (lifetime <= 0) {
             (*it)->Remove();
-            messages_.Erase(it);
+            messages_.erase(it);
             return; 
         }
         lifetime -= timeStep;
@@ -140,5 +140,5 @@ void Notifications::HandleUpdate(StringHash eventType, VariantMap& eventData)
 
 void Notifications::HandleGameEnd(StringHash eventType, VariantMap& eventData)
 {
-    messages_.Clear();
+    messages_.clear();
 }

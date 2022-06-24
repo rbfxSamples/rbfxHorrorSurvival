@@ -101,7 +101,7 @@ ea::string MouseInput::GetActionKeyName(int action)
         }
     }
 
-    return ea::string::EMPTY;
+    return "";
 }
 
 void MouseInput::LoadConfig()

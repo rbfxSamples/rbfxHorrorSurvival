@@ -1,55 +1,55 @@
 #pragma once
 
-#include <Urho3D/UI/UIElement.h>
-#include "BaseInput.h"
 #include "../../Config/ConfigFile.h"
+#include "BaseInput.h"
+#include <Urho3D/UI/UIElement.h>
 
 class ScreenJoystickInput : public BaseInput
 {
-	URHO3D_OBJECT(ScreenJoystickInput, BaseInput);
+    URHO3D_OBJECT(ScreenJoystickInput, BaseInput);
 
 public:
-	ScreenJoystickInput(Context* context);
+    ScreenJoystickInput(Context* context);
 
-	virtual ~ScreenJoystickInput();
+    virtual ~ScreenJoystickInput();
 
-	void SetJoystickAsFirstController(bool enabled);
+    void SetJoystickAsFirstController(bool enabled);
 
-	bool GetJoystickAsFirstController();
+    bool GetJoystickAsFirstController();
 
-	/**
-	 * Load joystick config from config.cfg file [joystick] block
-	 */
-	void LoadConfig() override;
+    /**
+     * Load joystick config from config.cfg file [joystick] block
+     */
+    void LoadConfig() override;
 
-	void Show() override;
-	void Hide() override;
+    void Show() override;
+    void Hide() override;
 
 protected:
-	virtual void Init();
+    virtual void Init();
 
 private:
-	void SubscribeToEvents();
+    void SubscribeToEvents();
 
-	void HandleJoystickDrag(StringHash eventType, VariantMap& eventData);
-	void HandleJumpPress(StringHash eventType, VariantMap& eventData);
-	void HandleJumpRelease(StringHash eventType, VariantMap& eventData);
-	void HandleSettings(StringHash eventType, VariantMap& eventData);
-	void HandleScreenJoystickTouch(StringHash eventType, VariantMap& eventData);
-	void HandleScreenJoystickTouchEnd(StringHash eventType, VariantMap& eventData);
+    void HandleJoystickDrag(StringHash eventType, VariantMap& eventData);
+    void HandleJumpPress(StringHash eventType, VariantMap& eventData);
+    void HandleJumpRelease(StringHash eventType, VariantMap& eventData);
+    void HandleSettings(StringHash eventType, VariantMap& eventData);
+    void HandleScreenJoystickTouch(StringHash eventType, VariantMap& eventData);
+    void HandleScreenJoystickTouchEnd(StringHash eventType, VariantMap& eventData);
 
-	ea::hash_map<int, Vector2> axisPosition_;
+    ea::hash_map<int, Vector2> axisPosition_;
 
-	// x - move left/right
-	// y - move forward/bacward
-	// z - rotate x 
-	// w - rotate y 
-	Vector4 joystickMapping_;
+    // x - move left/right
+    // y - move forward/bacward
+    // z - rotate x
+    // w - rotate y
+    Vector4 joystickMapping_;
 
-	WeakPtr<UIElement> leftAxis_;
-	WeakPtr<UIElement> leftAxisInner_;
-	Vector2 inputValue_;
-	SharedPtr<UIElement> screenJoystick_;
-	SharedPtr<UIElement> settingsButton_;
-	SharedPtr<UIElement> jumpButton_;
+    WeakPtr<UIElement> leftAxis_;
+    WeakPtr<UIElement> leftAxisInner_;
+    Vector2 inputValue_;
+    SharedPtr<UIElement> screenJoystick_;
+    SharedPtr<UIElement> settingsButton_;
+    SharedPtr<UIElement> jumpButton_;
 };

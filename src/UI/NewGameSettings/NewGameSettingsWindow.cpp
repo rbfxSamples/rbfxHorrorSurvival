@@ -50,7 +50,7 @@ void NewGameSettingsWindow::Create()
 //#ifndef __EMSCRIPTEN__
 //        data["StartServer"] = startServer_->IsChecked();
 //#endif
-//        data["ConnectServer"] = connectServer_->IsChecked() && !startServer_->IsChecked() ? "127.0.0.1" : ea::string::EMPTY;
+//        data["ConnectServer"] = connectServer_->IsChecked() && !startServer_->IsChecked() ? "127.0.0.1" : "";
         SendEvent(E_SET_LEVEL, data);
         return;
     }
@@ -182,7 +182,7 @@ void NewGameSettingsWindow::CreateLevelSelection()
 #ifndef __EMSCRIPTEN__
             data["StartServer"] = startServer_->IsChecked();
 #endif
-            data["ConnectServer"] = connectServer_->IsChecked() && !startServer_->IsChecked() ? "127.0.0.1" : ea::string::EMPTY;
+            data["ConnectServer"] = connectServer_->IsChecked() && !startServer_->IsChecked() ? "127.0.0.1" : "";
             SendEvent(E_SET_LEVEL, data);
         });
 

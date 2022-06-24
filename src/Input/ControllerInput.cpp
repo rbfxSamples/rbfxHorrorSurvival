@@ -310,7 +310,7 @@ void ControllerInput::DestroyController(int controllerIndex)
     }
     // Don't allow destroying first input controller
     if (controllerIndex > 0) {
-        controls_.Erase(controllerIndex);
+        controls_.erase(controllerIndex);
 
         using namespace ControllerRemoved;
 
@@ -340,7 +340,7 @@ ea::string ControllerInput::GetActionKeyName(int action)
         }
     }
 
-    return ea::string::EMPTY;
+    return "";
 }
 
 void ControllerInput::SetActionState(int action, bool active, int index, float strength)

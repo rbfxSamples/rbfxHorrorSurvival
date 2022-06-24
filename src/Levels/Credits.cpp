@@ -139,8 +139,8 @@ namespace Levels {
         offset_ -= timestep * CREDITS_SCROLL_SPEED * GetSubsystem<UI>()->GetScale();
         creditsBase_->SetPosition(creditsBase_->GetPosition().x_, offset_);
 
-        if (credits_.Back()) {
-            if (credits_.Back()->GetScreenPosition().y_ < -100) {
+        if (credits_.back()) {
+            if (credits_.back()->GetScreenPosition().y_ < -100) {
                 HandleEndCredits(false);
             }
         }

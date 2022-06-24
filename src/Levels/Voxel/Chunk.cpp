@@ -260,8 +260,8 @@ void Chunk::CalculateGeometry()
     MutexLock lock(mutex_);
     SetSunlight(15);
 
-    chunkMesh_.Clear();
-    chunkWaterMesh_.Clear();
+    chunkMesh_.clear();
+    chunkWaterMesh_.clear();
 
     for (int x = 0; x < SIZE_X; x++) {
         for (int y = 0; y < SIZE_Y; y++) {

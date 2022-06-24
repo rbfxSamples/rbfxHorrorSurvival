@@ -133,13 +133,13 @@ void AudioManager::PlaySound(ea::string filename, ea::string type, int index)
             sound->SetLooped(true);
             if (type == SOUND_MUSIC) {
                 if (!multipleMusicTracks_) {
-                    musicNodes_.Clear();
+                    musicNodes_.clear();
                 }
                 musicNodes_[index] = node;
             }
             if (type == SOUND_AMBIENT) {
                 if (!multipleMusicTracks_) {
-                    ambientNodes_.Clear();
+                    ambientNodes_.clear();
                 }
                 ambientNodes_[index] = node;
             }
@@ -167,12 +167,12 @@ void AudioManager::HandleStopSound(StringHash eventType, VariantMap& eventData)
     if (type == SOUND_AMBIENT) {
         // Disable only specific music
         if (ambientNodes_[index]) {
-            ambientNodes_.Erase(index);
+            ambientNodes_.erase(index);
         }
 
         // Disable all music
         if (index == -1) {
-            ambientNodes_.Clear();
+            ambientNodes_.clear();
         }
     }
     if (type == SOUND_VOICE) {
@@ -181,12 +181,12 @@ void AudioManager::HandleStopSound(StringHash eventType, VariantMap& eventData)
     if (type == SOUND_MUSIC) {
         // Disable only specific music
         if (musicNodes_[index]) {
-            musicNodes_.Erase(index);
+            musicNodes_.erase(index);
         }
 
         // Disable all music
         if (index == -1) {
-            musicNodes_.Clear();
+            musicNodes_.clear();
         }
     }
 }
@@ -203,8 +203,8 @@ void AudioManager::AllowMultipleAmbientTracks(bool enabled)
 
 void AudioManager::HandleStopAllSounds(StringHash eventType, VariantMap& eventData)
 {
-    musicNodes_.Clear();
-    ambientNodes_.Clear();
+    musicNodes_.clear();
+    ambientNodes_.clear();
 }
 
 void AudioManager::HandleButtonClick(StringHash eventType, VariantMap& eventData)

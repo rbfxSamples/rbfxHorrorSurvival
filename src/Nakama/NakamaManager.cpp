@@ -501,7 +501,7 @@ void NakamaManager::LeaveMatch()
 {
     if (rtClient_) {
         rtClient_->leaveMatch(matchId_.CString());
-        matchId_.Clear();
+        matchId_.clear();
     }
 }
 #endif

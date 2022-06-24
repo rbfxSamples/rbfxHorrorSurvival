@@ -136,8 +136,8 @@ unsigned ChunkMesh::GetVertexCount()
 
 void ChunkMesh::Clear()
 {
-    indices_.Clear();
-    vertices_.Clear();
+    indices_.clear();
+    vertices_.clear();
 }
 
 SharedPtr<Geometry> ChunkMesh::GetGeometry()

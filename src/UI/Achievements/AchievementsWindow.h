@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Urho3D/UI/Button.h>
-#include <Urho3D/UI/Window.h>
-#include <Urho3D/UI/ListView.h>
 #include "../BaseWindow.h"
+#include <Urho3D/UI/Button.h>
+#include <Urho3D/UI/ListView.h>
+#include <Urho3D/UI/Window.h>
 
 class AchievementsWindow : public BaseWindow
 {
@@ -17,7 +17,6 @@ public:
     virtual void Init() override;
 
 private:
-
     virtual void Create() override;
 
     void SubscribeToEvents();

@@ -19,7 +19,7 @@ PlayerState::PlayerState(Context* context) :
 PlayerState::~PlayerState()
 {
     VariantMap players = GetGlobalVar("Players").GetVariantMap();
-    players.Erase(ea::string(GetPlayerID()));
+    players.erase(ea::to_string(GetPlayerID()));
     SetGlobalVar("Players", players);
 }
 
@@ -28,7 +28,7 @@ void PlayerState::RegisterObject(Context* context)
     context->RegisterFactory<PlayerState>();
     URHO3D_ACCESSOR_ATTRIBUTE("Score", GetScore, SetScore, int, 0, AM_DEFAULT);
     URHO3D_ACCESSOR_ATTRIBUTE("Player ID", GetPlayerID, SetPlayerID, int, -1, AM_DEFAULT);
-    URHO3D_ACCESSOR_ATTRIBUTE("Name", GetPlayerName, SetPlayerName, ea::string, ea::string::EMPTY, AM_DEFAULT);
+    URHO3D_ACCESSOR_ATTRIBUTE("Name", GetPlayerName, SetPlayerName, ea::string, "", AM_DEFAULT);
 }
 
 void PlayerState::OnNodeSet(Node* node)
