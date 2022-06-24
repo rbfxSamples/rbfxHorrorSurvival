@@ -1,52 +1,51 @@
-#include <Urho3D/IO/FileSystem.h>
-#include <Urho3D/UI/UI.h>
-#include <Urho3D/Engine/DebugHud.h>
-#include <Urho3D/Engine/EngineDefs.h>
-#include <Urho3D/Graphics/Renderer.h>
-#include <Urho3D/Core/Context.h>
-#include <Urho3D/Audio/Audio.h>
-#include <Urho3D/Resource/Localization.h>
-#include <Urho3D/Graphics/Graphics.h>
-#include <Urho3D/Input/Input.h>
-#include <Urho3D/IO/PackageFile.h>
 #include "BaseApplication.h"
-#include "Config/ConfigFile.h"
-#include "Input/ControllerInput.h"
+#include "AndroidEvents/ServiceCmd.h"
 #include "Audio/AudioManager.h"
+#include "BehaviourTree/BehaviourTree.h"
+#include "Config/ConfigFile.h"
 #include "Console/ConsoleHandler.h"
-#include "SceneManager.h"
 #include "CustomEvents.h"
 #include "Generator/Generator.h"
-#include "AndroidEvents/ServiceCmd.h"
-#include "BehaviourTree/BehaviourTree.h"
-#include "State/State.h"
 #include "Globals/Settings.h"
+#include "Input/ControllerInput.h"
+#include "SceneManager.h"
+#include "State/State.h"
 #include "signal.h"
+#include <Urho3D/Audio/Audio.h>
+#include <Urho3D/Core/Context.h>
+#include <Urho3D/Engine/EngineDefs.h>
+#include <Urho3D/Graphics/Graphics.h>
+#include <Urho3D/Graphics/Renderer.h>
+#include <Urho3D/IO/FileSystem.h>
+#include <Urho3D/IO/PackageFile.h>
+#include <Urho3D/Input/Input.h>
+#include <Urho3D/Resource/Localization.h>
+#include <Urho3D/SystemUI/DebugHud.h>
+#include <Urho3D/UI/UI.h>
 
 #ifdef PACKAGE_MANAGER
-#include "PackageManager/PackageManager.h"
+    #include "PackageManager/PackageManager.h"
 #endif
 
 #include "Console/ConsoleHandlerEvents.h"
-#include "Console/ConsoleHandlerEvents.h"
-#include "LevelManagerEvents.h"
-#include "Input/ControllerEvents.h"
 #include "Input/ControlDefines.h"
+#include "Input/ControllerEvents.h"
+#include "LevelManagerEvents.h"
 
 #ifdef NAKAMA_SUPPORT
-#include "Nakama/NakamaManager.h"
+    #include "Nakama/NakamaManager.h"
 #endif
 
 #if defined(URHO3D_LUA) || defined(URHO3D_ANGELSCRIPT)
-#include "Mods/ModLoader.h"
+    #include "Mods/ModLoader.h"
 #endif
 
 #if defined(__EMSCRIPTEN__)
-#include <Urho3D/Graphics/GraphicsEvents.h>
-#include <Urho3D/Input/InputEvents.h>
-#include <emscripten/emscripten.h>
-#include <emscripten/bind.h>
-static const Context *appContext;
+    #include <Urho3D/Graphics/GraphicsEvents.h>
+    #include <Urho3D/Input/InputEvents.h>
+    #include <emscripten/bind.h>
+    #include <emscripten/emscripten.h>
+static const Context* appContext;
 static bool mouseVisible;
 static unsigned int mouseMode;
 #endif
@@ -62,18 +61,21 @@ using namespace CustomEvents;
 static BaseApplication* app = nullptr;
 #endif
 
-BaseApplication::BaseApplication(Context* context) :
-    Application(context)
+BaseApplication::BaseApplication(Context* context)
+    : Application(context)
 {
 #ifndef __EMSCRIPTEN__
     app = this;
-    signal(SIGINT, [](int signum){
-        URHO3D_LOGINFOF("Signal '%d' received, exiting app...", signum);
-        if (app) {
-            app->Exit();
-            app = nullptr;
-        }
-    });
+    signal(SIGINT,
+        [](int signum)
+        {
+            URHO3D_LOGINFOF("Signal '%d' received, exiting app...", signum);
+            if (app)
+            {
+                app->Exit();
+                app = nullptr;
+            }
+        });
 #endif
 
     ConfigFile::RegisterObject(context);
@@ -96,14 +98,13 @@ BaseApplication::BaseApplication(Context* context) :
     NakamaManager::RegisterObject(context_);
 #endif
 
-    #if defined(URHO3D_LUA) || defined(URHO3D_ANGELSCRIPT)
+#if defined(URHO3D_LUA) || defined(URHO3D_ANGELSCRIPT)
     context_->RegisterFactory<ModLoader>();
-    #endif
+#endif
 
-    #if defined(__EMSCRIPTEN__)
+#if defined(__EMSCRIPTEN__)
     appContext = context;
-    #endif
-
+#endif
 
     context_->RegisterFactory<WindowManager>();
     context_->RegisterFactory<AudioManager>();
@@ -117,11 +118,11 @@ BaseApplication::BaseApplication(Context* context) :
     configurationFile_ = GetSubsystem<FileSystem>()->GetUserDocumentsDir() + DOCUMENTS_DIR + "/config.cfg";
 #else
 
-#ifdef __EMSCRIPTEN__
+    #ifdef __EMSCRIPTEN__
     configurationFile_ = GetSubsystem<FileSystem>()->GetProgramDir() + "Data/Config/config.cfg";
-#else
+    #else
     configurationFile_ = "Data/Config/config.cfg";
-#endif
+    #endif
 #endif
 
     ConfigManager* configManager = new ConfigManager(context_, configurationFile_);
@@ -141,7 +142,8 @@ BaseApplication::BaseApplication(Context* context) :
 
 #ifdef __ANDROID__
     ea::string directory = GetSubsystem<FileSystem>()->GetUserDocumentsDir() + DOCUMENTS_DIR;
-    if (!GetSubsystem<FileSystem>()->DirExists(directory)) {
+    if (!GetSubsystem<FileSystem>()->DirExists(directory))
+    {
         GetSubsystem<FileSystem>()->CreateDir(directory);
     }
 #endif
@@ -178,11 +180,12 @@ void BaseApplication::Start()
     GetSubsystem<ConfigManager>()->Set("engine", "HighDPI", true);
 #endif
 
-    if (!GetSubsystem<Engine>()->IsHeadless()) {
+    if (!GetSubsystem<Engine>()->IsHeadless())
+    {
         GetSubsystem<ConsoleHandler>()->Create();
         DebugHud* debugHud = GetSubsystem<Engine>()->CreateDebugHud();
-        XMLFile* xmlFile = cache->GetResource<XMLFile>("UI/DefaultStyle.xml");
-        debugHud->SetDefaultStyle(xmlFile);
+        // XMLFile* xmlFile = cache->GetResource<XMLFile>("UI/DefaultStyle.xml");
+        // debugHud->SetDe(xmlFile);
     }
 
     cache->SetAutoReloadResources(true);
@@ -220,11 +223,14 @@ void BaseApplication::Start()
 
     // Initialize the first level from the config file
     VariantMap& eventData = GetEventDataMap();
-    if (GetSubsystem<ConfigManager>()->GetBool("server", "Dedicated", false)) {
+    if (GetSubsystem<ConfigManager>()->GetBool("server", "Dedicated", false))
+    {
         eventData["Name"] = "Loading";
         eventData["StartServer"] = true;
         eventData["Map"] = GetSubsystem<ConfigManager>()->GetString("server", "Map", "Scenes/Flat.xml");
-    } else {
+    }
+    else
+    {
         eventData["Name"] = GetSubsystem<ConfigManager>()->GetString("game", "FirstLevel", "Splash");
     }
     SendEvent(E_SET_LEVEL, eventData);
@@ -234,9 +240,7 @@ void BaseApplication::Start()
     SendEvent("GameStarted");
 }
 
-void BaseApplication::Stop()
-{
-}
+void BaseApplication::Stop() {}
 
 void BaseApplication::LoadConfig(ea::string filename, ea::string prefix, bool isMain)
 {
@@ -244,31 +248,39 @@ void BaseApplication::LoadConfig(ea::string filename, ea::string prefix, bool is
     JSONFile json(context_);
     json.LoadFile(GetSubsystem<FileSystem>()->GetProgramDir() + filename);
     JSONValue& content = json.GetRoot();
-    if (content.IsObject()) {
-        for (auto it = content.begin(); it != content.end(); ++it) {
-
+    if (content.IsObject())
+    {
+        for (auto it = begin(content); it != end(content); ++it)
+        {
             // If it's the main config file, we should only then register this
             // config parameter key for saving
-            if (isMain) {
+            if (isMain)
+            {
                 globalSettings_[StringHash((*it).first)] = (*it).first;
             }
-            if ((*it).second.IsBool()) {
+            if ((*it).second.IsBool())
+            {
                 engine_->SetGlobalVar(prefix + (*it).first, (*it).second.GetBool());
             }
-            if ((*it).second.IsString()) {
+            if ((*it).second.IsString())
+            {
                 engine_->SetGlobalVar(prefix + (*it).first, (*it).second.GetString());
             }
-            if ((*it).second.IsNumber()) {
-                if ((*it).second.GetNumberType() == JSONNT_FLOAT_DOUBLE) {
+            if ((*it).second.IsNumber())
+            {
+                if ((*it).second.GetNumberType() == JSONNT_FLOAT_DOUBLE)
+                {
                     engine_->SetGlobalVar(prefix + (*it).first, (*it).second.GetFloat());
                 }
-                if ((*it).second.GetNumberType() == JSONNT_INT) {
+                if ((*it).second.GetNumberType() == JSONNT_INT)
+                {
                     engine_->SetGlobalVar(prefix + (*it).first, (*it).second.GetInt());
                 }
             }
         }
     }
-    else {
+    else
+    {
         URHO3D_LOGERROR("Config file " + filename + " format is not correct!");
     }
 }
@@ -277,7 +289,8 @@ void BaseApplication::HandleLoadConfig(StringHash eventType, VariantMap& eventDa
 {
     ea::string filename = eventData["Filepath"].GetString();
     ea::string prefix = eventData["Prefix"].GetString();
-    if (!filename.empty()) {
+    if (!filename.empty())
+    {
         LoadConfig(filename, prefix);
     }
 }
@@ -285,64 +298,70 @@ void BaseApplication::HandleLoadConfig(StringHash eventType, VariantMap& eventDa
 void BaseApplication::RegisterConsoleCommands()
 {
     VariantMap& data = GetEventDataMap();
-    data["ConsoleCommandName"]        = "exit";
-    data["ConsoleCommandEvent"]       = "HandleExit";
+    data["ConsoleCommandName"] = "exit";
+    data["ConsoleCommandEvent"] = "HandleExit";
     data["ConsoleCommandDescription"] = "Exits game";
     SendEvent("ConsoleCommandAdd", data);
 
     SubscribeToEvent("HandleExit", URHO3D_HANDLER(BaseApplication, HandleExit));
 
-    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "debugger", ConsoleCommandAdd::P_EVENT, "#debugger", ConsoleCommandAdd::P_DESCRIPTION, "Show debug");
-    SubscribeToEvent("#debugger", [&](StringHash eventType, VariantMap& eventData) {
-        if (GetSubsystem<DebugHud>()) {
-            GetSubsystem<DebugHud>()->Toggle(DEBUGHUD_SHOW_STATS | DEBUGHUD_SHOW_MEMORY | DEBUGHUD_SHOW_EVENTPROFILER);
-        }
-    });
+    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "debugger", ConsoleCommandAdd::P_EVENT, "#debugger",
+        ConsoleCommandAdd::P_DESCRIPTION, "Show debug");
+    SubscribeToEvent("#debugger",
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            if (GetSubsystem<DebugHud>())
+            {
+                GetSubsystem<DebugHud>()->Toggle(DEBUGHUD_SHOW_STATS); // TODO: Show All?
+            }
+        });
 
-    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "mouse_visible", ConsoleCommandAdd::P_EVENT, "#mouse_visible", ConsoleCommandAdd::P_DESCRIPTION, "Toggle mouse visible");
-    SubscribeToEvent("#mouse_visible", [&](StringHash eventType, VariantMap& eventData) {
-        Input* input = GetSubsystem<Input>();
-        if (input->IsMouseVisible()) {
-            input->SetMouseVisible(!input->IsMouseVisible());
-        }
-    });
+    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "mouse_visible", ConsoleCommandAdd::P_EVENT,
+        "#mouse_visible", ConsoleCommandAdd::P_DESCRIPTION, "Toggle mouse visible");
+    SubscribeToEvent("#mouse_visible",
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            Input* input = GetSubsystem<Input>();
+            if (input->IsMouseVisible())
+            {
+                input->SetMouseVisible(!input->IsMouseVisible());
+            }
+        });
 }
 
-void BaseApplication::HandleExit(StringHash eventType, VariantMap& eventData)
-{
-    GetSubsystem<Engine>()->Exit();
-}
+void BaseApplication::HandleExit(StringHash eventType, VariantMap& eventData) { GetSubsystem<Engine>()->Exit(); }
 
-void BaseApplication::Exit()
-{
-    GetSubsystem<Engine>()->Exit();
-}
+void BaseApplication::Exit() { GetSubsystem<Engine>()->Exit(); }
 
 void BaseApplication::SubscribeToEvents()
 {
     SubscribeToEvent(E_ADD_CONFIG, URHO3D_HANDLER(BaseApplication, HandleAddConfig));
     SubscribeToEvent(E_LOAD_CONFIG, URHO3D_HANDLER(BaseApplication, HandleLoadConfig));
 
-    SubscribeToEvent(E_MAPPED_CONTROL_RELEASED, [&](StringHash eventType, VariantMap& eventData) {
-        using namespace MappedControlReleased;
-        int action = eventData[P_ACTION].GetInt();
-        if (action == CTRL_SCREENSHOT) {
-            Graphics *graphics = GetSubsystem<Graphics>();
-            Image screenshot(context_);
-            graphics->TakeScreenShot(screenshot);
-            // Here we save in the Data folder with date and time appended
-            screenshot.SavePNG(GetSubsystem<FileSystem>()->GetProgramDir() + "Data/Screenshot_" +
-                               Time::GetTimeStamp().Replaced(':', '_').Replaced('.', '_').Replaced(' ', '_') + ".png");
+    SubscribeToEvent(E_MAPPED_CONTROL_RELEASED,
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            using namespace MappedControlReleased;
+            int action = eventData[P_ACTION].GetInt();
+            if (action == CTRL_SCREENSHOT)
+            {
+                Graphics* graphics = GetSubsystem<Graphics>();
+                Image screenshot(context_);
+                graphics->TakeScreenShot(screenshot);
+                // Here we save in the Data folder with date and time appended
+                screenshot.SavePNG(GetSubsystem<FileSystem>()->GetProgramDir() + "Data/Screenshot_"
+                    + Time::GetTimeStamp().replaced(':', '_').replaced('.', '_').replaced(' ', '_') + ".png");
 
-            SendEvent("ScreenshotTaken");
-        }
-    });
+                SendEvent("ScreenshotTaken");
+            }
+        });
 }
 
 void BaseApplication::HandleAddConfig(StringHash eventType, VariantMap& eventData)
 {
     ea::string paramName = eventData["Name"].GetString();
-    if (!paramName.empty()) {
+    if (!paramName.empty())
+    {
         globalSettings_[paramName] = paramName;
     }
 }
@@ -370,7 +389,6 @@ void BaseApplication::LoadINIConfig(ea::string filename)
     SetEngineParameter(EP_BORDERLESS, false);
 #endif
 
-
     // Engine settings
     GetSubsystem<Engine>()->SetMaxFps(GetSubsystem<ConfigManager>()->GetInt("engine", "FPSLimit", 60));
     SetEngineParameter(EP_HIGH_DPI, GetSubsystem<ConfigManager>()->GetBool("engine", "HighDPI", false));
@@ -378,19 +396,20 @@ void BaseApplication::LoadINIConfig(ea::string filename)
     SetEngineParameter(EP_WINDOW_ICON, "Textures/AppIcon.png");
 
     // Logs
-    SetEngineParameter(EP_LOG_NAME, GetSubsystem<ConfigManager>()->GetString("engine", "LogName", "ProjectTemplate.log"));
+    SetEngineParameter(
+        EP_LOG_NAME, GetSubsystem<ConfigManager>()->GetString("engine", "LogName", "ProjectTemplate.log"));
     SetEngineParameter(EP_LOG_LEVEL, GetSubsystem<ConfigManager>()->GetInt("engine", "LogLevel", LOG_INFO));
     SetEngineParameter(EP_LOG_QUIET, GetSubsystem<ConfigManager>()->GetBool("engine", "LogQuiet", false));
-    SetEngineParameter(EP_RESOURCE_PATHS, GetSubsystem<ConfigManager>()->GetString("engine", "ResourcePaths", "Data;CoreData"));
+    SetEngineParameter(
+        EP_RESOURCE_PATHS, GetSubsystem<ConfigManager>()->GetString("engine", "ResourcePaths", "Data;CoreData"));
     SetEngineParameter(EP_FLUSH_GPU, GetSubsystem<ConfigManager>()->GetBool("engine", "FlushGPU", true));
     SetEngineParameter(EP_WORKER_THREADS, GetSubsystem<ConfigManager>()->GetBool("engine", "WorkerThreads ", true));
 
-    SetEngineParameter("Master" , GetSubsystem<ConfigManager>()->GetFloat("audio", "Master", 1.0));
+    SetEngineParameter("Master", GetSubsystem<ConfigManager>()->GetFloat("audio", "Master", 1.0));
     SetEngineParameter("Effect", GetSubsystem<ConfigManager>()->GetFloat("audio", "Effect", 1.0));
     SetEngineParameter("Ambient", GetSubsystem<ConfigManager>()->GetFloat("audio", "Ambient", 1.0));
     SetEngineParameter("Voice", GetSubsystem<ConfigManager>()->GetFloat("audio", "Voice", 1.0));
     SetEngineParameter("Music", GetSubsystem<ConfigManager>()->GetFloat("audio", "Music", 1.0));
-
 
     Audio* audio = GetSubsystem<Audio>();
 
@@ -399,26 +418,23 @@ void BaseApplication::LoadINIConfig(ea::string filename)
     audio->SetMasterGain(SOUND_AMBIENT, engine_->GetGlobalVar("Ambient").GetFloat());
     audio->SetMasterGain(SOUND_VOICE, engine_->GetGlobalVar("Voice").GetFloat());
     audio->SetMasterGain(SOUND_MUSIC, engine_->GetGlobalVar("Music").GetFloat());
-
-    GetSubsystem<Log>()->SetTimeStamp(GetSubsystem<ConfigManager>()->GetBool("engine", "LogTimestamp", true));
 }
 
 void BaseApplication::ApplyGraphicsSettings()
 {
     auto* renderer = GetSubsystem<Renderer>();
-    if (renderer) {
-        renderer->SetTextureQuality(
-                (Urho3D::MaterialQuality) GetSubsystem<ConfigManager>()->GetInt("graphics", "TextureQuality",
-                                                                                MaterialQuality::QUALITY_HIGH));
-        renderer->SetMaterialQuality(
-                (Urho3D::MaterialQuality) GetSubsystem<ConfigManager>()->GetInt("graphics", "MaterialQuality",
-                                                                                MaterialQuality::QUALITY_MAX));
+    if (renderer)
+    {
+        renderer->SetTextureQuality((Urho3D::MaterialQuality)GetSubsystem<ConfigManager>()->GetInt(
+            "graphics", "TextureQuality", MaterialQuality::QUALITY_HIGH));
+        renderer->SetMaterialQuality((Urho3D::MaterialQuality)GetSubsystem<ConfigManager>()->GetInt(
+            "graphics", "MaterialQuality", MaterialQuality::QUALITY_MAX));
         renderer->SetDrawShadows(GetSubsystem<ConfigManager>()->GetBool("graphics", "DrawShadows", true));
         renderer->SetShadowMapSize(GetSubsystem<ConfigManager>()->GetInt("graphics", "ShadowMapSize", 512));
-        renderer->SetShadowQuality((ShadowQuality) GetSubsystem<ConfigManager>()->GetInt("graphics", "ShadowQuality",
-                                                                                         ShadowQuality::SHADOWQUALITY_PCF_16BIT));
+        renderer->SetShadowQuality((ShadowQuality)GetSubsystem<ConfigManager>()->GetInt(
+            "graphics", "ShadowQuality", ShadowQuality::SHADOWQUALITY_PCF_16BIT));
         renderer->SetMaxOccluderTriangles(
-                GetSubsystem<ConfigManager>()->GetInt("graphics", "MaxOccluderTriangles", 5000));
+            GetSubsystem<ConfigManager>()->GetInt("graphics", "MaxOccluderTriangles", 5000));
         renderer->SetDynamicInstancing(GetSubsystem<ConfigManager>()->GetBool("graphics", "DynamicInstancing", true));
         renderer->SetSpecularLighting(GetSubsystem<ConfigManager>()->GetBool("graphics", "SpecularLighting", true));
         renderer->SetHDRRendering(GetSubsystem<ConfigManager>()->GetBool("graphics", "HDRRendering", false));
@@ -438,32 +454,41 @@ void BaseApplication::LoadTranslationFiles()
     auto* localization = GetSubsystem<Localization>();
 
     // Get all translation files in the Data/Translations folder
-    GetSubsystem<FileSystem>()->ScanDir(result, GetSubsystem<FileSystem>()->GetProgramDir() + ea::string("Data/Translations"), ea::string("*.json"), SCAN_FILES, true);
+    GetSubsystem<FileSystem>()->ScanDir(result,
+        GetSubsystem<FileSystem>()->GetProgramDir() + ea::string("Data/Translations"), ea::string("*.json"), SCAN_FILES,
+        true);
 
     // Get all the translations from packages
     auto packageFiles = GetSubsystem<ResourceCache>()->GetPackageFiles();
-    for (auto it = packageFiles.begin(); it != packageFiles.end(); ++it) {
+    for (auto it = packageFiles.begin(); it != packageFiles.end(); ++it)
+    {
         auto files = (*it)->GetEntryNames();
-        for (auto it2 = files.begin(); it2 != files.end(); ++it2) {
-            if ((*it2).StartsWith("Translations/") && (*it2).EndsWith(".json") && (*it2).Split('/')  .size() == 2) {
-                result.push_back((*it2).Split('/').At(1));
+        for (auto it2 = files.begin(); it2 != files.end(); ++it2)
+        {
+            if ((*it2).starts_with("Translations/") && (*it2).ends_with(".json") && (*it2).split('/').size() == 2)
+            {
+                result.push_back((*it2).split('/').at(1));
             }
         }
     }
 
-    for (auto it = result.begin(); it != result.end(); ++it) {
+    for (auto it = result.begin(); it != result.end(); ++it)
+    {
         ea::string file = (*it);
 
         ea::string filepath = "Translations/" + file;
         // Filename is handled as a language
-        file.Replace(".json", "", false);
+        file.replace(".json", "", false);
 
         auto jsonFile = GetSubsystem<ResourceCache>()->GetResource<JSONFile>(filepath);
-        if (jsonFile) {
+        if (jsonFile)
+        {
             // Load the actual file in the system
             localization->LoadSingleLanguageJSON(jsonFile->GetRoot(), file);
             URHO3D_LOGINFO("Loading translation file '" + filepath + "' to '" + file + "' language");
-        } else {
+        }
+        else
+        {
             URHO3D_LOGERROR("Translation file '" + filepath + "' not found!");
         }
     }

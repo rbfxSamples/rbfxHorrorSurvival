@@ -32,26 +32,27 @@ SOFTWARE.
 
 using namespace Urho3D;
 
-ConfigManager::ConfigManager(Context* context, const ea::string& defaultFileName, bool caseSensitive, bool saveDefaultParameters) :
-        Object(context)
-        , defaultFileName_(defaultFileName)
-        , caseSensitive_(caseSensitive)
-        , saveDefaultParameters_(saveDefaultParameters)
+ConfigManager::ConfigManager(
+    Context* context, const ea::string& defaultFileName, bool caseSensitive, bool saveDefaultParameters)
+    : Object(context)
+    , defaultFileName_(defaultFileName)
+    , caseSensitive_(caseSensitive)
+    , saveDefaultParameters_(saveDefaultParameters)
 {
     Load();
 }
 
-void ConfigManager::RegisterObject(Context* context) {
-    context->RegisterFactory<ConfigManager>();
-}
+void ConfigManager::RegisterObject(Context* context) { context->RegisterFactory<ConfigManager>(); }
 
 // Check if value exists.
-bool ConfigManager::Has(const ea::string& section, const ea::string& parameter) {
+bool ConfigManager::Has(const ea::string& section, const ea::string& parameter)
+{
     return Get(section, parameter) != Variant::EMPTY;
 }
 
 // Set value.
-void ConfigManager::Set(const ea::string& section, const ea::string& parameter, const Variant& value) {
+void ConfigManager::Set(const ea::string& section, const ea::string& parameter, const Variant& value)
+{
     SettingsMap* sectionMap(GetSection(section, true));
 
     sectionMap->operator[](parameter) = value;
@@ -59,16 +60,19 @@ void ConfigManager::Set(const ea::string& section, const ea::string& parameter, 
 }
 
 // Get value.
-const Variant ConfigManager::Get(const ea::string& section, const ea::string& parameter, const Variant& defaultValue) {
+const Variant ConfigManager::Get(const ea::string& section, const ea::string& parameter, const Variant& defaultValue)
+{
     SettingsMap* sectionMap(GetSection(section));
 
     // Section doesn't exist.
-    if (!sectionMap) {
+    if (!sectionMap)
+    {
         return defaultValue;
     }
 
     // Section exists, parameter doesn't exist.
-    if (sectionMap->Find(parameter) == sectionMap->End()) {
+    if (sectionMap->find(parameter) == sectionMap->end())
+    {
         return defaultValue;
     }
 
@@ -76,15 +80,19 @@ const Variant ConfigManager::Get(const ea::string& section, const ea::string& pa
     return (*sectionMap)[parameter];
 }
 
-const ea::string ConfigManager::GetString(const ea::string& section, const ea::string& parameter, const ea::string& defaultValue) {
+const ea::string ConfigManager::GetString(
+    const ea::string& section, const ea::string& parameter, const ea::string& defaultValue)
+{
     const Variant value(Get(section, parameter));
 
-    if (value.GetType() == VAR_STRING) {
+    if (value.GetType() == VAR_STRING)
+    {
         return value.GetString();
     }
 
     // Parameter doesn't exist, or is a different type.
-    if (saveDefaultParameters_) {
+    if (saveDefaultParameters_)
+    {
         // Set back to default.
         Set(section, parameter, defaultValue);
     }
@@ -92,19 +100,23 @@ const ea::string ConfigManager::GetString(const ea::string& section, const ea::s
     return defaultValue;
 }
 
-const int ConfigManager::GetInt(const ea::string& section, const ea::string& parameter, const int defaultValue) {
+const int ConfigManager::GetInt(const ea::string& section, const ea::string& parameter, const int defaultValue)
+{
     const Variant value(Get(section, parameter));
 
-    if (value.GetType() == VAR_INT && value.GetInt() != defaultValue) {
+    if (value.GetType() == VAR_INT && value.GetInt() != defaultValue)
+    {
         return value.GetInt();
     }
 
-    if (value.GetType() == VAR_STRING) {
+    if (value.GetType() == VAR_STRING)
+    {
         return ToInt(value.GetString());
     }
 
     // Parameter doesn't exist, or is a different type.
-    if (saveDefaultParameters_) {
+    if (saveDefaultParameters_)
+    {
         // Set back to default.
         Set(section, parameter, defaultValue);
     }
@@ -112,19 +124,23 @@ const int ConfigManager::GetInt(const ea::string& section, const ea::string& par
     return defaultValue;
 }
 
-const int ConfigManager::GetUInt(const ea::string& section, const ea::string& parameter, const unsigned defaultValue) {
+const int ConfigManager::GetUInt(const ea::string& section, const ea::string& parameter, const unsigned defaultValue)
+{
     const Variant value(Get(section, parameter));
 
-    if (value.GetType() == VAR_INT && value.GetUInt() != defaultValue) {
+    if (value.GetType() == VAR_INT && value.GetUInt() != defaultValue)
+    {
         return value.GetUInt();
     }
 
-    if (value.GetType() == VAR_STRING) {
+    if (value.GetType() == VAR_STRING)
+    {
         return ToUInt(value.GetString());
     }
 
     // Parameter doesn't exist, or is a different type.
-    if (saveDefaultParameters_) {
+    if (saveDefaultParameters_)
+    {
         // Set back to default.
         Set(section, parameter, defaultValue);
     }
@@ -132,19 +148,23 @@ const int ConfigManager::GetUInt(const ea::string& section, const ea::string& pa
     return defaultValue;
 }
 
-const bool ConfigManager::GetBool(const ea::string& section, const ea::string& parameter, const bool defaultValue) {
+const bool ConfigManager::GetBool(const ea::string& section, const ea::string& parameter, const bool defaultValue)
+{
     const Variant value(Get(section, parameter));
 
-    if (value.GetType() == VAR_BOOL) {
+    if (value.GetType() == VAR_BOOL)
+    {
         return value.GetBool();
     }
 
-    if (value.GetType() == VAR_STRING) {
+    if (value.GetType() == VAR_STRING)
+    {
         return ToBool(value.GetString());
     }
 
     // Parameter doesn't exist, or is a different type.
-    if (saveDefaultParameters_) {
+    if (saveDefaultParameters_)
+    {
         // Set back to default.
         Set(section, parameter, defaultValue);
     }
@@ -152,19 +172,23 @@ const bool ConfigManager::GetBool(const ea::string& section, const ea::string& p
     return defaultValue;
 }
 
-const float ConfigManager::GetFloat(const ea::string& section, const ea::string& parameter, const float defaultValue) {
+const float ConfigManager::GetFloat(const ea::string& section, const ea::string& parameter, const float defaultValue)
+{
     const Variant value(Get(section, parameter));
 
-    if (value.GetType() == VAR_FLOAT) {
+    if (value.GetType() == VAR_FLOAT)
+    {
         return value.GetFloat();
     }
 
-    if (value.GetType() == VAR_STRING) {
+    if (value.GetType() == VAR_STRING)
+    {
         return ToFloat(value.GetString());
     }
 
     // Parameter doesn't exist, or is a different type.
-    if (saveDefaultParameters_) {
+    if (saveDefaultParameters_)
+    {
         // Set back to default.
         Set(section, parameter, defaultValue);
     }
@@ -172,19 +196,24 @@ const float ConfigManager::GetFloat(const ea::string& section, const ea::string&
     return defaultValue;
 }
 
-const Vector2 ConfigManager::GetVector2(const ea::string& section, const ea::string& parameter, const Vector2& defaultValue) {
+const Vector2 ConfigManager::GetVector2(
+    const ea::string& section, const ea::string& parameter, const Vector2& defaultValue)
+{
     const Variant value(Get(section, parameter));
 
-    if (value.GetType() == VAR_VECTOR2) {
+    if (value.GetType() == VAR_VECTOR2)
+    {
         return value.GetVector2();
     }
 
-    if (value.GetType() == VAR_STRING) {
+    if (value.GetType() == VAR_STRING)
+    {
         return ToVector2(value.GetString());
     }
 
     // Parameter doesn't exist, or is a different type.
-    if (saveDefaultParameters_) {
+    if (saveDefaultParameters_)
+    {
         // Set back to default.
         Set(section, parameter, defaultValue);
     }
@@ -192,19 +221,24 @@ const Vector2 ConfigManager::GetVector2(const ea::string& section, const ea::str
     return defaultValue;
 }
 
-const Vector3 ConfigManager::GetVector3(const ea::string& section, const ea::string& parameter, const Vector3& defaultValue) {
+const Vector3 ConfigManager::GetVector3(
+    const ea::string& section, const ea::string& parameter, const Vector3& defaultValue)
+{
     const Variant value(Get(section, parameter));
 
-    if (value.GetType() == VAR_VECTOR3) {
+    if (value.GetType() == VAR_VECTOR3)
+    {
         return value.GetVector3();
     }
 
-    if (value.GetType() == VAR_STRING) {
+    if (value.GetType() == VAR_STRING)
+    {
         return ToVector3(value.GetString());
     }
 
     // Parameter doesn't exist, or is a different type.
-    if (saveDefaultParameters_) {
+    if (saveDefaultParameters_)
+    {
         // Set back to default.
         Set(section, parameter, defaultValue);
     }
@@ -212,19 +246,24 @@ const Vector3 ConfigManager::GetVector3(const ea::string& section, const ea::str
     return defaultValue;
 }
 
-const Vector4 ConfigManager::GetVector4(const ea::string& section, const ea::string& parameter, const Vector4& defaultValue) {
+const Vector4 ConfigManager::GetVector4(
+    const ea::string& section, const ea::string& parameter, const Vector4& defaultValue)
+{
     const Variant value(Get(section, parameter));
 
-    if (value.GetType() == VAR_VECTOR4) {
+    if (value.GetType() == VAR_VECTOR4)
+    {
         return value.GetVector4();
     }
 
-    if (value.GetType() == VAR_STRING) {
+    if (value.GetType() == VAR_STRING)
+    {
         return ToVector4(value.GetString());
     }
 
     // Parameter doesn't exist, or is a different type.
-    if (saveDefaultParameters_) {
+    if (saveDefaultParameters_)
+    {
         // Set back to default.
         Set(section, parameter, defaultValue);
     }
@@ -232,19 +271,24 @@ const Vector4 ConfigManager::GetVector4(const ea::string& section, const ea::str
     return defaultValue;
 }
 
-const Quaternion ConfigManager::GetQuaternion(const ea::string& section, const ea::string& parameter, const Quaternion& defaultValue) {
+const Quaternion ConfigManager::GetQuaternion(
+    const ea::string& section, const ea::string& parameter, const Quaternion& defaultValue)
+{
     const Variant value(Get(section, parameter));
 
-    if (value.GetType() == VAR_QUATERNION) {
+    if (value.GetType() == VAR_QUATERNION)
+    {
         return value.GetQuaternion();
     }
 
-    if (value.GetType() == VAR_STRING) {
+    if (value.GetType() == VAR_STRING)
+    {
         return ToQuaternion(value.GetString());
     }
 
     // Parameter doesn't exist, or is a different type.
-    if (saveDefaultParameters_) {
+    if (saveDefaultParameters_)
+    {
         // Set back to default.
         Set(section, parameter, defaultValue);
     }
@@ -252,19 +296,23 @@ const Quaternion ConfigManager::GetQuaternion(const ea::string& section, const e
     return defaultValue;
 }
 
-const Color ConfigManager::GetColor(const ea::string& section, const ea::string& parameter, const Color& defaultValue) {
+const Color ConfigManager::GetColor(const ea::string& section, const ea::string& parameter, const Color& defaultValue)
+{
     const Variant value(Get(section, parameter));
 
-    if (value.GetType() == VAR_COLOR) {
+    if (value.GetType() == VAR_COLOR)
+    {
         return value.GetColor();
     }
 
-    if (value.GetType() == VAR_STRING) {
+    if (value.GetType() == VAR_STRING)
+    {
         return ToColor(value.GetString());
     }
 
     // Parameter doesn't exist, or is a different type.
-    if (saveDefaultParameters_) {
+    if (saveDefaultParameters_)
+    {
         // Set back to default.
         Set(section, parameter, defaultValue);
     }
@@ -272,19 +320,24 @@ const Color ConfigManager::GetColor(const ea::string& section, const ea::string&
     return defaultValue;
 }
 
-const IntRect ConfigManager::GetIntRect(const ea::string& section, const ea::string& parameter, const IntRect& defaultValue) {
+const IntRect ConfigManager::GetIntRect(
+    const ea::string& section, const ea::string& parameter, const IntRect& defaultValue)
+{
     const Variant value(Get(section, parameter));
 
-    if (value.GetType() == VAR_INTRECT) {
+    if (value.GetType() == VAR_INTRECT)
+    {
         return value.GetIntRect();
     }
 
-    if (value.GetType() == VAR_STRING) {
+    if (value.GetType() == VAR_STRING)
+    {
         return ToIntRect(value.GetString());
     }
 
     // Parameter doesn't exist, or is a different type.
-    if (saveDefaultParameters_) {
+    if (saveDefaultParameters_)
+    {
         // Set back to default.
         Set(section, parameter, defaultValue);
     }
@@ -292,19 +345,24 @@ const IntRect ConfigManager::GetIntRect(const ea::string& section, const ea::str
     return defaultValue;
 }
 
-const IntVector2 ConfigManager::GetIntVector2(const ea::string& section, const ea::string& parameter, const IntVector2& defaultValue) {
+const IntVector2 ConfigManager::GetIntVector2(
+    const ea::string& section, const ea::string& parameter, const IntVector2& defaultValue)
+{
     const Variant value(Get(section, parameter));
 
-    if (value.GetType() == VAR_INTVECTOR2) {
+    if (value.GetType() == VAR_INTVECTOR2)
+    {
         return value.GetIntVector2();
     }
 
-    if (value.GetType() == VAR_STRING) {
+    if (value.GetType() == VAR_STRING)
+    {
         return ToIntVector2(value.GetString());
     }
 
     // Parameter doesn't exist, or is a different type.
-    if (saveDefaultParameters_) {
+    if (saveDefaultParameters_)
+    {
         // Set back to default.
         Set(section, parameter, defaultValue);
     }
@@ -312,19 +370,24 @@ const IntVector2 ConfigManager::GetIntVector2(const ea::string& section, const e
     return defaultValue;
 }
 
-const Matrix3 ConfigManager::GetMatrix3(const ea::string& section, const ea::string& parameter, const Matrix3& defaultValue) {
+const Matrix3 ConfigManager::GetMatrix3(
+    const ea::string& section, const ea::string& parameter, const Matrix3& defaultValue)
+{
     const Variant value(Get(section, parameter));
 
-    if (value.GetType() == VAR_MATRIX3) {
+    if (value.GetType() == VAR_MATRIX3)
+    {
         return value.GetMatrix3();
     }
 
-    if (value.GetType() == VAR_STRING) {
+    if (value.GetType() == VAR_STRING)
+    {
         return ToMatrix3(value.GetString());
     }
 
     // Parameter doesn't exist, or is a different type.
-    if (saveDefaultParameters_) {
+    if (saveDefaultParameters_)
+    {
         // Set back to default.
         Set(section, parameter, defaultValue);
     }
@@ -332,19 +395,24 @@ const Matrix3 ConfigManager::GetMatrix3(const ea::string& section, const ea::str
     return defaultValue;
 }
 
-const Matrix3x4 ConfigManager::GetMatrix3x4(const ea::string& section, const ea::string& parameter, const Matrix3x4& defaultValue) {
+const Matrix3x4 ConfigManager::GetMatrix3x4(
+    const ea::string& section, const ea::string& parameter, const Matrix3x4& defaultValue)
+{
     const Variant value(Get(section, parameter));
 
-    if (value.GetType() == VAR_MATRIX3X4) {
+    if (value.GetType() == VAR_MATRIX3X4)
+    {
         return value.GetMatrix3x4();
     }
 
-    if (value.GetType() == VAR_STRING) {
+    if (value.GetType() == VAR_STRING)
+    {
         return ToMatrix3x4(value.GetString());
     }
 
     // Parameter doesn't exist, or is a different type.
-    if (saveDefaultParameters_) {
+    if (saveDefaultParameters_)
+    {
         // Set back to default.
         Set(section, parameter, defaultValue);
     }
@@ -352,19 +420,24 @@ const Matrix3x4 ConfigManager::GetMatrix3x4(const ea::string& section, const ea:
     return defaultValue;
 }
 
-const Matrix4 ConfigManager::GetMatrix4(const ea::string& section, const ea::string& parameter, const Matrix4& defaultValue) {
+const Matrix4 ConfigManager::GetMatrix4(
+    const ea::string& section, const ea::string& parameter, const Matrix4& defaultValue)
+{
     const Variant value(Get(section, parameter));
 
-    if (value.GetType() == VAR_MATRIX4) {
+    if (value.GetType() == VAR_MATRIX4)
+    {
         return value.GetMatrix4();
     }
 
-    if (value.GetType() == VAR_STRING) {
+    if (value.GetType() == VAR_STRING)
+    {
         return ToMatrix4(value.GetString());
     }
 
     // Parameter doesn't exist, or is a different type.
-    if (saveDefaultParameters_) {
+    if (saveDefaultParameters_)
+    {
         // Set back to default.
         Set(section, parameter, defaultValue);
     }
@@ -373,18 +446,18 @@ const Matrix4 ConfigManager::GetMatrix4(const ea::string& section, const ea::str
 }
 
 // Clears all settings.
-void ConfigManager::Clear() {
-    map_.clear();
-}
+void ConfigManager::Clear() { map_.clear(); }
 
 // Load settings from file.
-bool ConfigManager::Load(const ea::string& fileName, bool overwriteExisting) {
+bool ConfigManager::Load(const ea::string& fileName, bool overwriteExisting)
+{
     const FileSystem* fileSystem(context_->GetSubsystem<FileSystem>());
 
     ConfigFile configFile(context_);
 
     // Check if file exists.
-    if (!fileSystem->FileExists(fileName)) {
+    if (!fileSystem->FileExists(fileName))
+    {
         return false;
     }
 
@@ -394,25 +467,31 @@ bool ConfigManager::Load(const ea::string& fileName, bool overwriteExisting) {
     return Load(configFile, overwriteExisting);
 }
 
-bool ConfigManager::Load(ConfigFile& configFile, bool overwriteExisting) {
+bool ConfigManager::Load(ConfigFile& configFile, bool overwriteExisting)
+{
     const ConfigMap* map(configFile.GetMap());
 
     SettingsMap* section(nullptr);
-    for (ea::vector<ConfigSection>::const_iterator itr(map->Begin()); itr != map->End(); ++itr) {
-        if (itr->Begin() == itr->End()) {
+    for (ea::vector<ConfigSection>::const_iterator itr(map->begin()); itr != map->end(); ++itr)
+    {
+        if (itr->begin() == itr->end())
+        {
             continue;
         }
 
         ea::string header("");
 
-        if (itr != map->Begin()) {
-            header = *(itr->Begin());
+        if (itr != map->begin())
+        {
+            header = *(itr->begin());
             header = ConfigFile::ParseHeader(header);
         }
 
         const SettingsMap* section(GetSection(header, true));
 
-        for (ea::vector<ea::string>::const_iterator section_itr = ++itr->Begin(); section_itr != itr->End(); ++section_itr) {
+        for (ea::vector<ea::string>::const_iterator section_itr = itr->begin(); section_itr != itr->end(); // TODO Verify ++itr->begin()
+             ++section_itr)
+        {
             const ea::string& line(*section_itr);
 
             ea::string parameter;
@@ -420,7 +499,8 @@ bool ConfigManager::Load(ConfigFile& configFile, bool overwriteExisting) {
 
             ConfigFile::ParseProperty(line, parameter, value);
 
-            if (parameter != "" && value != "") {
+            if (parameter != "" && value != "")
+            {
                 Set(header, parameter, value);
             }
         }
@@ -430,26 +510,31 @@ bool ConfigManager::Load(ConfigFile& configFile, bool overwriteExisting) {
 }
 
 // Save settings to file.
-bool ConfigManager::Save(const ea::string& fileName, bool smartSave) {
+bool ConfigManager::Save(const ea::string& fileName, bool smartSave)
+{
     const FileSystem* fileSystem(GetSubsystem<FileSystem>());
 
     SharedPtr<ConfigFile> configFile(new ConfigFile(context_));
 
-    if (smartSave) {
+    if (smartSave)
+    {
         SharedPtr<File> file(new File(context_, fileName, FILE_READ));
 
         // Ensure file is open.
-        if (file->IsOpen()) {
+        if (file->IsOpen())
+        {
             configFile->BeginLoad(*file);
         }
     }
 
     // Attempt to save the file.
-    if (Save(*configFile)) {
+    if (Save(*configFile))
+    {
         SharedPtr<File> file(new File(context_, fileName, FILE_WRITE));
 
         // Ensure file is open.
-        if (!file->IsOpen()) {
+        if (!file->IsOpen())
+        {
             return false;
         }
 
@@ -459,103 +544,125 @@ bool ConfigManager::Save(const ea::string& fileName, bool smartSave) {
     return true;
 }
 
-
-bool ConfigManager::Save(ConfigFile& configFile) {
+bool ConfigManager::Save(ConfigFile& configFile)
+{
     SaveSettingsMap("", map_, configFile);
 
     return true;
 }
 
-void ConfigManager::SaveSettingsMap(ea::string section, SettingsMap& map, ConfigFile& configFile) {
+void ConfigManager::SaveSettingsMap(ea::string section, SettingsMap& map, ConfigFile& configFile)
+{
     // Save out parameters.
-    for (SettingsMap::Iterator itr(map.begin()); itr != map.end(); ++itr) {
+    for (SettingsMap::iterator itr(map.begin()); itr != map.end(); ++itr)
+    {
         // Skip over sub-sections.
-        if (itr->second.GetType() == VAR_VOIDPTR) {
+        if (itr->second.GetType() == VAR_VOIDPTR)
+        {
             continue;
         }
 
         ea::string value(itr->first);
 
         // Set parameter.
-        if (itr->second.GetType() == VAR_STRING) {
+        if (itr->second.GetType() == VAR_STRING)
+        {
             configFile.Set(section, value, itr->second.GetString());
         }
 
-        if (itr->second.GetType() == VAR_INT) {
-            configFile.Set(section, value, ea::string(itr->second.GetInt()));
+        if (itr->second.GetType() == VAR_INT)
+        {
+            configFile.Set(section, value, ea::to_string(itr->second.GetInt()));
         }
 
-        if (itr->second.GetType() == VAR_BOOL) {
-            configFile.Set(section, value, ea::string(itr->second.GetBool()));
+        if (itr->second.GetType() == VAR_BOOL)
+        {
+            configFile.Set(section, value, ea::to_string(itr->second.GetBool()));
         }
 
-        if (itr->second.GetType() == VAR_FLOAT) {
-            configFile.Set(section, value, ea::string(itr->second.GetFloat()));
+        if (itr->second.GetType() == VAR_FLOAT)
+        {
+            configFile.Set(section, value, ea::to_string(itr->second.GetFloat()));
         }
 
-        if (itr->second.GetType() == VAR_VECTOR2) {
-            configFile.Set(section, value, ea::string(itr->second.GetVector2()));
+        if (itr->second.GetType() == VAR_VECTOR2)
+        {
+            configFile.Set(section, value, itr->second.GetVector2().ToString());
         }
 
-        if (itr->second.GetType() == VAR_VECTOR3) {
-            configFile.Set(section, value, ea::string(itr->second.GetVector3()));
+        if (itr->second.GetType() == VAR_VECTOR3)
+        {
+            configFile.Set(section, value, itr->second.GetVector3().ToString());
         }
 
-        if (itr->second.GetType() == VAR_VECTOR4) {
-            configFile.Set(section, value, ea::string(itr->second.GetVector4()));
+        if (itr->second.GetType() == VAR_VECTOR4)
+        {
+            configFile.Set(section, value, itr->second.GetVector4().ToString());
         }
 
-        if (itr->second.GetType() == VAR_QUATERNION) {
-            configFile.Set(section, value, ea::string(itr->second.GetQuaternion()));
+        if (itr->second.GetType() == VAR_QUATERNION)
+        {
+            configFile.Set(section, value, itr->second.GetQuaternion().ToString());
         }
 
-        if (itr->second.GetType() == VAR_COLOR) {
-            configFile.Set(section, value, ea::string(itr->second.GetColor()));
+        if (itr->second.GetType() == VAR_COLOR)
+        {
+            configFile.Set(section, value, itr->second.GetColor().ToString());
         }
 
-        if (itr->second.GetType() == VAR_INTRECT) {
-            configFile.Set(section, value, ea::string(itr->second.GetIntRect()));
+        if (itr->second.GetType() == VAR_INTRECT)
+        {
+            configFile.Set(section, value, itr->second.GetIntRect().ToString());
         }
 
-        if (itr->second.GetType() == VAR_INTVECTOR2) {
-            configFile.Set(section, value, ea::string(itr->second.GetIntVector2()));
+        if (itr->second.GetType() == VAR_INTVECTOR2)
+        {
+            configFile.Set(section, value, itr->second.GetIntVector2().ToString());
         }
 
-        if (itr->second.GetType() == VAR_MATRIX3) {
-            configFile.Set(section, value, ea::string(itr->second.GetMatrix3()));
+        if (itr->second.GetType() == VAR_MATRIX3)
+        {
+            configFile.Set(section, value, itr->second.GetMatrix3().ToString());
         }
 
-        if (itr->second.GetType() == VAR_MATRIX3X4) {
-            configFile.Set(section, value, ea::string(itr->second.GetMatrix3x4()));
+        if (itr->second.GetType() == VAR_MATRIX3X4)
+        {
+            configFile.Set(section, value, itr->second.GetMatrix3x4().ToString());
         }
 
-        if (itr->second.GetType() == VAR_MATRIX4) {
-            configFile.Set(section, value, ea::string(itr->second.GetMatrix4()));
+        if (itr->second.GetType() == VAR_MATRIX4)
+        {
+            configFile.Set(section, value, itr->second.GetMatrix4().ToString());
         }
     }
 
     // Save out sub-sections.
-    for (SettingsMap::const_iterator itr(map.begin()); itr != map.end(); ++itr) {
+    for (SettingsMap::const_iterator itr(map.begin()); itr != map.end(); ++itr)
+    {
         // Skip over parameter.
-        if (itr->second.GetType() != VAR_VOIDPTR) {
+        if (itr->second.GetType() != VAR_VOIDPTR)
+        {
             continue;
         }
 
         ea::string path(section);
-        path.Append(itr->first);
+        path.append(itr->first);
 
         SettingsMap* value = static_cast<SettingsMap*>(itr->second.GetVoidPtr());
 
-        if (value) {
+        if (value)
+        {
             // Save sub-section
             SaveSettingsMap(path, *value, configFile);
         }
     }
 }
 
-SettingsMap* ConfigManager::GetSection(const ea::string& section, bool create) {
+SettingsMap* ConfigManager::GetSection(const ea::string& section, bool create)
+{
     // Empty section gets assigned to main map.
-    if (section == "") {
+    if (section == "")
+    {
         return &map_;
     }
 
@@ -564,13 +671,15 @@ SettingsMap* ConfigManager::GetSection(const ea::string& section, bool create) {
 
     unsigned splitPos(0);
 
-    if (ConfigFile::ParseHeader(section).empty()) {
+    if (ConfigFile::ParseHeader(section).empty())
+    {
         return &map_;
     }
 
     // Split sections by '.' or '/'.
     // Comments will ignore splits behind them.
-    while (splitPos != ea::string::NPOS) {
+    while (splitPos != ea::string::npos)
+    {
         // Find next comment split
         unsigned commentSplitPos(splitPos);
         unsigned hashPos(section.find("#", commentSplitPos));
@@ -584,32 +693,38 @@ SettingsMap* ConfigManager::GetSection(const ea::string& section, bool create) {
         splitPos = (dotPos < slashPos) ? dotPos : slashPos;
 
         // Ignore splits after comments.
-        splitPos = (commentSplitPos <= splitPos) ? ea::string::NPOS : splitPos;
+        splitPos = (commentSplitPos <= splitPos) ? ea::string::npos : splitPos;
 
         int length(splitPos - lastSplitPos);
-        if (splitPos == ea::string::NPOS) {
-            length = section.Length() - lastSplitPos;
+        if (splitPos == ea::string::npos)
+        {
+            length = section.length() - lastSplitPos;
         }
 
-        ea::string sub = section.Substring(lastSplitPos, length);
+        ea::string sub = section.substr(lastSplitPos, length);
 
-        if (sub != "") {
+        if (sub != "")
+        {
             split.push_back(sub);
         }
     }
 
     SettingsMap* currentMap(&map_);
-    for (ea::vector<ea::string>::const_iterator itr(split.begin()); itr != split.end(); ++itr) {
+    for (ea::vector<ea::string>::const_iterator itr(split.begin()); itr != split.end(); ++itr)
+    {
         ea::string section(*itr);
 
         // Find section.
         SettingsMap* newMap(nullptr);
-        for (SettingsMap::const_iterator map_itr(currentMap->Begin()); map_itr != currentMap->End(); ++map_itr) {
-            if (map_itr->first == section) {
+        for (SettingsMap::const_iterator map_itr(currentMap->begin()); map_itr != currentMap->end(); ++map_itr)
+        {
+            if (map_itr->first == section)
+            {
                 newMap = static_cast<SettingsMap*>(map_itr->second.GetVoidPtr());
 
                 // Key exists, but is not a SettingsMap.
-                if (!newMap) {
+                if (!newMap)
+                {
                     return nullptr;
                 }
 
@@ -619,14 +734,17 @@ SettingsMap* ConfigManager::GetSection(const ea::string& section, bool create) {
         }
 
         // Key does not exist.
-        if (!newMap) {
-            if (create) {
+        if (!newMap)
+        {
+            if (create)
+            {
                 currentMap->operator[](section) = new SettingsMap(); //@TODO: fix a few bytes leak
                 newMap = static_cast<SettingsMap*>((*currentMap)[section].GetVoidPtr());
             }
         }
 
-        if (newMap) {
+        if (newMap)
+        {
             currentMap = newMap;
         }
     }

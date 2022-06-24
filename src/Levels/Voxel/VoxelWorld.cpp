@@ -208,14 +208,14 @@ void VoxelWorld::HandleUpdate(StringHash eventType, VariantMap& eventData)
 {
     int loadedChunkCounter = 0;
     if (!removeBlocks_.empty()) {
-        auto chunk = GetChunkByPosition(removeBlocks_.Front());
+        auto chunk = GetChunkByPosition(removeBlocks_.front());
         if (chunk) {
             VariantMap& data = GetEventDataMap();
-            data["Position"] = removeBlocks_.Front();
+            data["Position"] = removeBlocks_.front();
             data["ControllerId"] = -1;
             if (chunk->GetNode()) {
                 chunk->GetNode()->SendEvent("ChunkHit", data);
-                removeBlocks_.PopFront();
+                removeBlocks_.pop_front();
             }
         }
     }
@@ -514,7 +514,7 @@ bool VoxelWorld::ProcessQueue()
         }
         if (haveChanges) {
             (*it)->SetVar("ChunkPosition", currentChunkPosition);
-            URHO3D_LOGINFOF("Player %s moved to chunk %dx%dx%d", (*it)->GetName().CString(), (int)currentChunkPosition.x_, (int)currentChunkPosition.y_, (int)currentChunkPosition.z_);
+            URHO3D_LOGINFOF("Player %s moved to chunk %dx%dx%d", (*it)->GetName().c_str(), (int)currentChunkPosition.x_, (int)currentChunkPosition.y_, (int)currentChunkPosition.z_);
         }
     }
 

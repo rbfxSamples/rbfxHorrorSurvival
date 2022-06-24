@@ -1,20 +1,20 @@
+#include <Urho3D/Audio/AudioDefs.h>
+#include <Urho3D/Core/Context.h>
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Core/WorkQueue.h>
+#include <Urho3D/IO/FileSystem.h>
 #include <Urho3D/IO/Log.h>
-#include <Urho3D/Scene/ValueAnimation.h>
-#include <Urho3D/Scene/ObjectAnimation.h>
-#include <Urho3D/Core/Context.h>
-#include <Urho3D/Audio/AudioDefs.h>
 #include <Urho3D/Resource/JSONFile.h>
 #include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Engine/DebugHud.h>
-#include <Urho3D/IO/FileSystem.h>
+#include <Urho3D/Scene/ObjectAnimation.h>
+#include <Urho3D/Scene/ValueAnimation.h>
+#include <Urho3D/SystemUI/DebugHud.h>
 
-#include "Achievements.h"
-#include "../Audio/AudioManagerDefs.h"
 #include "../Audio/AudioEvents.h"
-#include "MessageEvents.h"
+#include "../Audio/AudioManagerDefs.h"
 #include "../Globals/Settings.h"
+#include "Achievements.h"
+#include "MessageEvents.h"
 
 using namespace Urho3D;
 using namespace AudioEvents;
@@ -26,29 +26,22 @@ void SaveProgressAsync(const WorkItem* item, unsigned threadIndex)
     achievementHandler->SaveProgress();
 }
 
-Achievements::Achievements(Context* context) :
-    Object(context),
-    showAchievements_(false)
+Achievements::Achievements(Context* context)
+    : Object(context)
+    , showAchievements_(false)
 {
     Init();
 }
 
-Achievements::~Achievements()
-{
-    activeAchievements_.clear();
-}
+Achievements::~Achievements() { activeAchievements_.clear(); }
 
-void Achievements::SetShowAchievements(bool show)
-{
-    showAchievements_ = show;
-}
+void Achievements::SetShowAchievements(bool show) { showAchievements_ = show; }
 
 void Achievements::Init()
 {
     SubscribeToEvents();
     LoadAchievementList();
 }
-
 
 void Achievements::SubscribeToEvents()
 {
@@ -62,14 +55,17 @@ void Achievements::HandleNewAchievement(StringHash eventType, VariantMap& eventD
     using namespace NewAchievement;
     ea::string message = eventData[P_MESSAGE].GetString();
 
-    if (!activeAchievements_.empty() || !showAchievements_) {
+    if (!activeAchievements_.empty() || !showAchievements_)
+    {
         achievementQueue_.push_back(eventData);
         URHO3D_LOGINFO("Pushing achievement to the queue " + message);
         return;
     }
-    
-    for (auto it = activeAchievements_.begin(); it != activeAchievements_.end(); ++it) {
-        if ((*it)->GetMessage() == message) {
+
+    for (auto it = activeAchievements_.begin(); it != activeAchievements_.end(); ++it)
+    {
+        if ((*it)->GetMessage() == message)
+        {
             URHO3D_LOGINFO("Achievement already visible!");
             return;
         }
@@ -80,9 +76,12 @@ void Achievements::HandleNewAchievement(StringHash eventType, VariantMap& eventD
     SharedPtr<SingleAchievement> singleAchievement = context_->CreateObject<SingleAchievement>();
 
     ea::string imageName = eventData[P_IMAGE].GetString();
-    if (!imageName.empty()) {
+    if (!imageName.empty())
+    {
         singleAchievement->SetImage(imageName);
-    } else {
+    }
+    else
+    {
         singleAchievement->SetImage("Textures/UrhoIcon.png");
     }
 
@@ -95,7 +94,7 @@ void Achievements::HandleNewAchievement(StringHash eventType, VariantMap& eventD
     // Use spline interpolation method
     positionAnimation2->SetInterpolationMethod(IM_LINEAR);
     // Set spline tension
-    //positionAnimation2->SetSplineTension(0.7f);
+    // positionAnimation2->SetSplineTension(0.7f);
     positionAnimation2->SetKeyFrame(0.0f, -300.0f);
     positionAnimation2->SetKeyFrame(1.0f, 10.0f);
     positionAnimation2->SetKeyFrame(4.0f, 10.0f);
@@ -125,33 +124,39 @@ void Achievements::HandleUpdate(StringHash eventType, VariantMap& eventData)
 {
     using namespace Update;
 
-    if (activeAchievements_.empty() && !achievementQueue_.empty() && showAchievements_) {
-        HandleNewAchievement("", achievementQueue_.Front());
-        achievementQueue_.PopFront();
+    if (activeAchievements_.empty() && !achievementQueue_.empty() && showAchievements_)
+    {
+        HandleNewAchievement("", achievementQueue_.front());
+        achievementQueue_.pop_front();
     }
 
     float timeStep = eventData[P_TIMESTEP].GetFloat();
-    for (auto it = activeAchievements_.begin(); it != activeAchievements_.end(); ++it) {
-        if (!(*it)) {
+    for (auto it = activeAchievements_.begin(); it != activeAchievements_.end(); ++it)
+    {
+        if (!(*it))
+        {
             activeAchievements_.erase(it);
 
-            if (!achievementQueue_.empty() && showAchievements_) {
-                HandleNewAchievement("", achievementQueue_.Front());
-                achievementQueue_.PopFront();
+            if (!achievementQueue_.empty() && showAchievements_)
+            {
+                HandleNewAchievement("", achievementQueue_.front());
+                achievementQueue_.pop_front();
             }
 
             return;
         }
         float lifetime = (*it)->GetVar("Lifetime").GetFloat();
-        if (lifetime <= 0) {
+        if (lifetime <= 0)
+        {
             // (*it)->Remove();
             activeAchievements_.erase(it);
 
-            if (!achievementQueue_.empty() && showAchievements_) {
-                HandleNewAchievement("", achievementQueue_.Front());
-                achievementQueue_.PopFront();
+            if (!achievementQueue_.empty() && showAchievements_)
+            {
+                HandleNewAchievement("", achievementQueue_.front());
+                achievementQueue_.pop_front();
             }
-            return; 
+            return;
         }
         lifetime -= timeStep;
         (*it)->SetVar("Lifetime", lifetime);
@@ -165,18 +170,16 @@ void Achievements::LoadAchievementList()
     auto configFile = GetSubsystem<ResourceCache>()->GetResource<JSONFile>("Config/Achievements.json");
 
     JSONValue value = configFile->GetRoot();
-    if (value.IsArray()) {
-        URHO3D_LOGINFOF("Loading achievements config: %u", value.size());
-        for (int i = 0; i < value.size(); i++) {
+    if (value.IsArray())
+    {
+        URHO3D_LOGINFOF("Loading achievements config: %u", value.Size());
+        for (int i = 0; i < value.Size(); i++)
+        {
             JSONValue mapInfo = value[i];
-            if (mapInfo.contains("Event")
-                && mapInfo["Event"].IsString()
-                && mapInfo.contains("Image")
-                && mapInfo["Image"].IsString()
-                && mapInfo.contains("Message")
-                && mapInfo["Message"].IsString()
-                && mapInfo.contains("Threshold")
-                && mapInfo["Threshold"].IsNumber()) {
+            if (mapInfo.Contains("Event") && mapInfo["Event"].IsString() && mapInfo.Contains("Image")
+                && mapInfo["Image"].IsString() && mapInfo.Contains("Message") && mapInfo["Message"].IsString()
+                && mapInfo.Contains("Threshold") && mapInfo["Threshold"].IsNumber())
+            {
 
                 ea::string eventName = mapInfo["Event"].GetString();
                 ea::string image = mapInfo["Image"].GetString();
@@ -185,36 +188,34 @@ void Achievements::LoadAchievementList()
                 ea::string parameterName;
                 Variant parameterValue;
 
-                if (mapInfo.contains("ParameterName") && mapInfo["ParameterName"].IsString() && mapInfo.contains("Value")) {
+                if (mapInfo.Contains("ParameterName") && mapInfo["ParameterName"].IsString()
+                    && mapInfo.Contains("Value"))
+                {
                     parameterName = mapInfo["ParameterName"].GetString();
-                    switch (mapInfo["Value"].GetValueType()) {
-                    case JSONValueType::JSON_BOOL:
-                        parameterValue = mapInfo["Value"].GetBool();
-                        break;
-                    case JSONValueType::JSON_NUMBER:
-                        parameterValue = mapInfo["Value"].GetInt();
-                        break;
-                    case JSONValueType::JSON_STRING:
-                        parameterValue = mapInfo["Value"].GetString();
-                        break;
-                    default:
-                        continue;
+                    switch (mapInfo["Value"].GetValueType())
+                    {
+                    case JSONValueType::JSON_BOOL: parameterValue = mapInfo["Value"].GetBool(); break;
+                    case JSONValueType::JSON_NUMBER: parameterValue = mapInfo["Value"].GetInt(); break;
+                    case JSONValueType::JSON_STRING: parameterValue = mapInfo["Value"].GetString(); break;
+                    default: continue;
                     }
                 }
 
                 AddAchievement(message, eventName, image, threshold, parameterName, parameterValue);
-                
             }
-            else {
+            else
+            {
                 URHO3D_LOGINFOF("Achievement array element doesnt contain all needed info! Index: %u", i);
             }
         }
 
-        if (GetSubsystem<DebugHud>()) {
+        if (GetSubsystem<DebugHud>())
+        {
             GetSubsystem<DebugHud>()->SetAppStats("Total achievements loaded", CountAchievements());
         }
     }
-    else {
+    else
+    {
         URHO3D_LOGERROR("Data/Config/Achievements.json must be an array");
     }
 }
@@ -222,22 +223,30 @@ void Achievements::LoadAchievementList()
 void Achievements::HandleRegisteredEvent(StringHash eventType, VariantMap& eventData)
 {
     bool processed = false;
-    if (registeredAchievements_.contains(eventType)) {
-        for (auto it = registeredAchievements_[eventType].begin(); it != registeredAchievements_[eventType].end(); ++it) {
-            if ((*it).deepCheck) {
+    if (registeredAchievements_.contains(eventType))
+    {
+        for (auto it = registeredAchievements_[eventType].begin(); it != registeredAchievements_[eventType].end(); ++it)
+        {
+            if ((*it).deepCheck)
+            {
                 // check if the event contains specified parameter and same value
-                if (eventData[(*it).parameterName] == (*it).parameterValue) {
+                if (eventData[(*it).parameterName] == (*it).parameterValue)
+                {
                     (*it).current++;
                     processed = true;
                 }
-            } else {
+            }
+            else
+            {
                 // No additional check needed, event was called, so we can increment our counter
                 (*it).current++;
                 processed = true;
             }
 
-            //URHO3D_LOGINFOF("Achievement progress: '%s' => %i/%i",(*it).message.CString(), (*it).current, (*it).threshold);
-            if ((*it).current >= (*it).threshold && !(*it).completed) {
+            // URHO3D_LOGINFOF("Achievement progress: '%s' => %i/%i",(*it).message.c_str(), (*it).current,
+            // (*it).threshold);
+            if ((*it).current >= (*it).threshold && !(*it).completed)
+            {
                 (*it).completed = true;
                 VariantMap& data = GetEventDataMap();
                 data["Message"] = (*it).message;
@@ -248,8 +257,9 @@ void Achievements::HandleRegisteredEvent(StringHash eventType, VariantMap& event
     }
 
     // If any of the achievements were updated, save progress
-    if (processed) {
-        WorkQueue *workQueue = GetSubsystem<WorkQueue>();
+    if (processed)
+    {
+        WorkQueue* workQueue = GetSubsystem<WorkQueue>();
         SharedPtr<WorkItem> item = workQueue->GetFreeItem();
         item->priority_ = M_MAX_UNSIGNED;
         item->workFunction_ = SaveProgressAsync;
@@ -266,8 +276,10 @@ void Achievements::HandleRegisteredEvent(StringHash eventType, VariantMap& event
 ea::list<AchievementRule> Achievements::GetAchievements()
 {
     achievements_.clear();
-    for (auto it = registeredAchievements_.begin(); it != registeredAchievements_.end(); ++it) {
-        for (auto it2 = (*it).second.begin(); it2 != (*it).second.end(); ++it2) {
+    for (auto it = registeredAchievements_.begin(); it != registeredAchievements_.end(); ++it)
+    {
+        for (auto it2 = (*it).second.begin(); it2 != (*it).second.end(); ++it2)
+        {
             achievements_.push_back((*it2));
         }
     }
@@ -278,8 +290,10 @@ ea::list<AchievementRule> Achievements::GetAchievements()
 void Achievements::SaveProgress()
 {
     JSONFile file(context_);
-    for (auto it = registeredAchievements_.begin(); it != registeredAchievements_.end(); ++it) {
-        for (auto achievement = (*it).second.begin(); achievement != (*it).second.end(); ++achievement) {
+    for (auto it = registeredAchievements_.begin(); it != registeredAchievements_.end(); ++it)
+    {
+        for (auto achievement = (*it).second.begin(); achievement != (*it).second.end(); ++achievement)
+        {
             StringHash id = (*achievement).eventName + (*achievement).message;
             file.GetRoot()[id.ToString()] = (*achievement).current;
         }
@@ -288,7 +302,7 @@ void Achievements::SaveProgress()
     ea::string directory = GetSubsystem<FileSystem>()->GetUserDocumentsDir() + DOCUMENTS_DIR;
     file.SaveFile(directory + "/Achievements.json");
 #elif defined(__EMSCRIPTEN__)
-    //TODO: implement local storage utilization for web
+    // TODO: implement local storage utilization for web
 #else
     file.SaveFile(GetSubsystem<FileSystem>()->GetProgramDir() + "Data/Saves/Achievements.json");
 #endif
@@ -302,14 +316,16 @@ void Achievements::LoadProgress()
     ea::string directory = GetSubsystem<FileSystem>()->GetUserDocumentsDir() + DOCUMENTS_DIR;
     configFile.LoadFile(directory + "/Achievements.json");
 #elif defined(__EMSCRIPTEN__)
-    //TODO: implement achievement progress loading
+    // TODO: implement achievement progress loading
 #else
     configFile.LoadFile(GetSubsystem<FileSystem>()->GetProgramDir() + "Data/Saves/Achievements.json");
 #endif
 
     JSONValue value = configFile.GetRoot();
-    if (value.IsObject()) {
-        for (auto it = value.begin(); it != value.end(); ++it) {
+    if (value.IsObject())
+    {
+        for (auto it = begin(value); it != end(value); ++it)
+        {
             progress_[(*it).first] = (*it).second.GetInt();
         }
     }
@@ -317,8 +333,10 @@ void Achievements::LoadProgress()
 
 void Achievements::ClearAchievementsProgress()
 {
-    for (auto it = registeredAchievements_.begin(); it != registeredAchievements_.end(); ++it) {
-        for (auto achievement = (*it).second.begin(); achievement != (*it).second.end(); ++achievement) {
+    for (auto it = registeredAchievements_.begin(); it != registeredAchievements_.end(); ++it)
+    {
+        for (auto achievement = (*it).second.begin(); achievement != (*it).second.end(); ++achievement)
+        {
             achievement->current = 0;
             achievement->completed = false;
         }
@@ -327,13 +345,8 @@ void Achievements::ClearAchievementsProgress()
     SaveProgress();
 }
 
-void Achievements::AddAchievement(ea::string message, 
-    ea::string eventName, 
-    ea::string image, 
-    int threshold, 
-    ea::string parameterName, 
-    Variant parameterValue
-)
+void Achievements::AddAchievement(ea::string message, ea::string eventName, ea::string image, int threshold,
+    ea::string parameterName, Variant parameterValue)
 {
     AchievementRule rule;
     rule.message = message;
@@ -341,11 +354,13 @@ void Achievements::AddAchievement(ea::string message,
     rule.image = image;
     rule.threshold = threshold;
     rule.current = 0;
-    rule.completed = false; 
-    if (!parameterName.empty() && !parameterValue.IsEmpty()) {
+    rule.completed = false;
+    if (!parameterName.empty() && !parameterValue.IsEmpty())
+    {
         rule.deepCheck = true;
     }
-    else {
+    else
+    {
         rule.deepCheck = false;
     }
     rule.parameterName = parameterName;
@@ -353,23 +368,26 @@ void Achievements::AddAchievement(ea::string message,
 
     // Check current achievement saved progress
     StringHash id = rule.eventName + rule.message;
-    if (progress_.contains(id.ToString())) {
+    if (progress_.contains(id.ToString()))
+    {
         rule.current = progress_[id.ToString()];
 
         // Check if achievement was already unlocked
-        if (rule.current >= rule.threshold) {
+        if (rule.current >= rule.threshold)
+        {
             rule.completed = true;
             URHO3D_LOGINFO("Achievement '" + rule.message + "' already unlocked!");
         }
-    }    
+    }
 
     registeredAchievements_[eventName].push_back(rule);
 
-//    URHO3D_LOGINFOF("Registering achievement [%s]", rule.message.CString());
+    //    URHO3D_LOGINFOF("Registering achievement [%s]", rule.message.c_str());
 
     SubscribeToEvent(eventName, URHO3D_HANDLER(Achievements, HandleRegisteredEvent));
 
-    if (GetSubsystem<DebugHud>()) {
+    if (GetSubsystem<DebugHud>())
+    {
         GetSubsystem<DebugHud>()->SetAppStats("Total achievements loaded", CountAchievements());
     }
 }
@@ -377,26 +395,24 @@ void Achievements::AddAchievement(ea::string message,
 void Achievements::HandleAddAchievement(StringHash eventType, VariantMap& eventData)
 {
     using namespace AddAchievement;
-    if (eventData.contains(P_EVENT)
-        && eventData.contains(P_MESSAGE)
-        && eventData.contains(P_IMAGE)
-        && eventData.contains(P_THRESHOLD)) {
-        AddAchievement(eventData[P_MESSAGE].GetString(),
-            eventData[P_EVENT].GetString(),
-            eventData[P_IMAGE].GetString(),
-            eventData[P_THRESHOLD].GetInt(),
-            eventData[P_PARAMETER_NAME].GetString(),
-            eventData[P_PARAMETER_VALUE]);
+    if (eventData.contains(P_EVENT) && eventData.contains(P_MESSAGE) && eventData.contains(P_IMAGE)
+        && eventData.contains(P_THRESHOLD))
+    {
+        AddAchievement(eventData[P_MESSAGE].GetString(), eventData[P_EVENT].GetString(), eventData[P_IMAGE].GetString(),
+            eventData[P_THRESHOLD].GetInt(), eventData[P_PARAMETER_NAME].GetString(), eventData[P_PARAMETER_VALUE]);
     }
-    else {
-        URHO3D_LOGERRORF("Unable to register achievement [%s], incomplete data provided!", eventData[P_MESSAGE].GetString().CString());
+    else
+    {
+        URHO3D_LOGERRORF(
+            "Unable to register achievement [%s], incomplete data provided!", eventData[P_MESSAGE].GetString().c_str());
     }
 }
 
 int Achievements::CountAchievements()
 {
     int count = 0;
-    for (auto it = registeredAchievements_.begin(); it != registeredAchievements_.end(); ++it) {
+    for (auto it = registeredAchievements_.begin(); it != registeredAchievements_.end(); ++it)
+    {
         count += (*it).second.size();
     }
     return count;

@@ -1,14 +1,14 @@
-#include <Urho3D/UI/UI.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Graphics/Graphics.h>
-#include <Urho3D/Graphics/Texture2D.h>
 #include "BaseWindow.h"
 #include "../CustomEvents.h"
+#include <Urho3D/Graphics/Graphics.h>
+#include <Urho3D/Graphics/Texture2D.h>
+#include <Urho3D/Resource/ResourceCache.h>
+#include <Urho3D/UI/UI.h>
 
 using namespace CustomEvents;
 
-BaseWindow::BaseWindow(Context* context):
-    Object(context)
+BaseWindow::BaseWindow(Context* context)
+    : Object(context)
 {
     Init();
 }
@@ -16,14 +16,16 @@ BaseWindow::BaseWindow(Context* context):
 BaseWindow::~BaseWindow()
 {
     Dispose();
-    if (overlay_) {
+    if (overlay_)
+    {
         overlay_->Remove();
     }
 }
 
 Sprite* BaseWindow::CreateOverlay()
 {
-    if (overlay_) {
+    if (overlay_)
+    {
         overlay_->Remove();
     }
     auto* cache = GetSubsystem<ResourceCache>();
@@ -37,15 +39,14 @@ Sprite* BaseWindow::CreateOverlay()
     overlay_->SetBlendMode(BlendMode::BLEND_ALPHA);
 
     // In cases where resolution is changed, we have to resize the overlay to match the new resolution
-    SubscribeToEvent(E_VIDEO_SETTINGS_CHANGED, [&](StringHash eventType, VariantMap& eventData) {
-        overlay_->SetFixedWidth(GetSubsystem<Graphics>()->GetWidth() / GetSubsystem<UI>()->GetScale());
-        overlay_->SetFixedHeight(GetSubsystem<Graphics>()->GetHeight() / GetSubsystem<UI>()->GetScale());
-    });
+    SubscribeToEvent(E_VIDEO_SETTINGS_CHANGED,
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            overlay_->SetFixedWidth(GetSubsystem<Graphics>()->GetWidth() / GetSubsystem<UI>()->GetScale());
+            overlay_->SetFixedHeight(GetSubsystem<Graphics>()->GetHeight() / GetSubsystem<UI>()->GetScale());
+        });
 
     return overlay_;
 }
 
-void BaseWindow::SetData(VariantMap data)
-{
-    data_ = data;
-}
+void BaseWindow::SetData(VariantMap data) { data_ = data; }

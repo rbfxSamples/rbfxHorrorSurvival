@@ -67,7 +67,7 @@ void State::Save()
 //    EM_ASM({
 //        console.log('Storing state', $0);
 //        window.localStorage.setItem('name', 'Obaseki Nosa');
-//    }, file.ToString().CString());
+//    }, file.ToString().c_str());
 #endif
 }
 

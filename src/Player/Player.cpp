@@ -1,36 +1,44 @@
-#include <Urho3D/Physics/PhysicsEvents.h>
-#include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/IO/Log.h>
 #include <Urho3D/Core/Context.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Graphics/StaticModel.h>
-#include <Urho3D/Physics/CollisionShape.h>
-#include <Urho3D/IO/MemoryBuffer.h>
-#include <Urho3D/Graphics/Model.h>
+#include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Graphics/Light.h>
 #include <Urho3D/Graphics/Material.h>
+#include <Urho3D/Graphics/Model.h>
+#include <Urho3D/Graphics/StaticModel.h>
+#include <Urho3D/IO/Log.h>
+#include <Urho3D/IO/MemoryBuffer.h>
+#include <Urho3D/Physics/CollisionShape.h>
+#include <Urho3D/Physics/PhysicsEvents.h>
+#include <Urho3D/Resource/ResourceCache.h>
+
+#include <Urho3D/Replica/BehaviorNetworkObject.h>
+#include <Urho3D/Replica/ClientReplica.h>
+#include <Urho3D/Replica/ReplicationManager.h>
+
+#include <Urho3D/Network/Connection.h>
+#include <Urho3D/Network/Network.h>
+#include <Urho3D/Network/NetworkEvents.h>
 
 #if !defined(__EMSCRIPTEN__)
-#include <Urho3D/Network/Network.h>
+    #include <Urho3D/Network/Network.h>
 #endif
 
+#include "../BehaviourTree/BehaviourTree.h"
+#include "../Console/ConsoleHandlerEvents.h"
+#include "../Globals/CollisionLayers.h"
+#include "../Globals/GUIDefines.h"
+#include "../Globals/ViewLayers.h"
+#include "../Input/ControlDefines.h"
+#include "../Input/ControllerInput.h"
+#include "Player.h"
+#include "PlayerState.h"
+#include <Urho3D/SystemUI/DebugHud.h>
+#include <Urho3D/Graphics/Light.h>
 #include <Urho3D/Scene/SceneEvents.h>
 #include <Urho3D/UI/Font.h>
-#include <Urho3D/Graphics/Light.h>
 #include <Urho3D/UI/UI.h>
-#include <Urho3D/Engine/DebugHud.h>
-#include "Player.h"
-#include "../Input/ControllerInput.h"
-#include "../BehaviourTree/BehaviourTree.h"
-#include "PlayerState.h"
-#include "../Console/ConsoleHandlerEvents.h"
-#include "../Globals/ViewLayers.h"
-#include "../Globals/GUIDefines.h"
-#include "../Globals/CollisionLayers.h"
-#include "../Input/ControlDefines.h"
 
 #ifdef VOXEL_SUPPORT
-#include "../Levels/Voxel/VoxelWorld.h"
+    #include "../Levels/Voxel/VoxelWorld.h"
 #endif
 
 #include "../Input/ControllerEvents.h"
@@ -44,8 +52,79 @@ static float CAMERA_TARGET_DISTANCE_SPEED = 0.1f; // How many seconds the camera
 using namespace ConsoleHandlerEvents;
 using namespace ControllerEvents;
 
-Player::Player(Context* context):
-    Object(context)
+/// Controls data.
+struct PlayerControls
+{
+    float yaw_{};
+    unsigned buttons_{};
+};
+
+/// Simple controller that implements sample networking logic:
+/// - Synchronize light color on setup;
+/// - Deliver client input to server.
+class SceneReplicationPlayer : public NetworkBehavior
+{
+    URHO3D_OBJECT(SceneReplicationPlayer, NetworkBehavior);
+
+public:
+    static constexpr NetworkCallbackFlags CallbackMask = NetworkCallbackMask::UnreliableFeedback;
+
+    explicit SceneReplicationPlayer(Context* context)
+        : NetworkBehavior(context, CallbackMask)
+    {
+    }
+
+    /// Set current controls on client side.
+    void SetControls(const PlayerControls& controls) { controls_ = controls; }
+
+    /// Return latest received controls on server side.
+    const PlayerControls& GetControls() const { return controls_; }
+
+    /// Write object color on the server.
+    void WriteSnapshot(NetworkFrame frame, Serializer& dest) override
+    {
+        auto* light = GetComponent<Light>();
+        dest.WriteColor(light->GetColor());
+    }
+
+    /// Read object color on the client.
+    void InitializeFromSnapshot(NetworkFrame frame, Deserializer& src, bool isOwned) override
+    {
+        auto* light = GetComponent<Light>();
+        light->SetColor(src.ReadColor());
+    }
+
+    /// Always send controls.
+    bool PrepareUnreliableFeedback(NetworkFrame frame) override { return true; }
+
+    /// Write controls on the client.
+    void WriteUnreliableFeedback(NetworkFrame frame, Serializer& dest) override
+    {
+        dest.WriteFloat(controls_.yaw_);
+        dest.WriteVLE(controls_.buttons_);
+    }
+
+    /// Read controls on the server.
+    void ReadUnreliableFeedback(NetworkFrame feedbackFrame, Deserializer& src) override
+    {
+        // Skip outdated controls
+        if (lastFeedbackFrame_ && (*lastFeedbackFrame_ >= feedbackFrame))
+            return;
+
+        controls_.yaw_ = src.ReadFloat();
+        controls_.buttons_ = src.ReadVLE();
+        lastFeedbackFrame_ = feedbackFrame;
+    }
+
+private:
+    /// Most recent player controls.
+    PlayerControls controls_;
+    /// Time when latest player controls were received.
+    ea::optional<NetworkFrame> lastFeedbackFrame_;
+};
+
+Player::Player(Context* context)
+    : Object(context)
 {
     SubscribeToEvent(E_PHYSICSPRESTEP, URHO3D_HANDLER(Player, HandlePhysicsPrestep));
     SubscribeToEvent(E_MAPPED_CONTROL_PRESSED, URHO3D_HANDLER(Player, HandleMappedControlPressed));
@@ -56,7 +135,8 @@ Player::Player(Context* context):
     auto* font = cache->GetResource<Font>(APPLICATION_FONT);
 
 #ifdef VOXEL_SUPPORT
-    if (GetSubsystem<VoxelWorld>()) {
+    if (GetSubsystem<VoxelWorld>())
+    {
         selectedItemUI_ = GetSubsystem<UI>()->GetRoot()->CreateChild<Text>();
         selectedItemUI_->SetAlignment(HA_CENTER, VA_BOTTOM);
         selectedItemUI_->SetPosition(0, -20);
@@ -75,9 +155,11 @@ Player::Player(Context* context):
 
 Player::~Player()
 {
-    if (node_) {
+    if (node_)
+    {
 #ifdef VOXEL_SUPPORT
-        if (GetSubsystem<VoxelWorld>()) {
+        if (GetSubsystem<VoxelWorld>())
+        {
             GetSubsystem<VoxelWorld>()->RemoveObserver(node_);
         }
 #endif
@@ -89,94 +171,97 @@ void Player::RegisterObject(Context* context)
 {
     context->RegisterFactory<Player>();
     PlayerState::RegisterObject(context);
+
+    if (!context->IsReflected<SceneReplicationPlayer>())
+        context->RegisterFactory<SceneReplicationPlayer>();
 }
 
 void Player::RegisterConsoleCommands()
 {
-    SendEvent(
-            E_CONSOLE_COMMAND_ADD,
-            ConsoleCommandAdd::P_NAME, "movement_speed",
-            ConsoleCommandAdd::P_EVENT, "#movement_speed",
-            ConsoleCommandAdd::P_DESCRIPTION, "Show player labels",
-            ConsoleCommandAdd::P_OVERWRITE, true
-    );
-    SubscribeToEvent("#movement_speed", [&](StringHash eventType, VariantMap& eventData) {
-        StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.size() != 2) {
-            URHO3D_LOGERROR("Invalid number of arguments!");
-            return;
-        }
-        MOVE_TORQUE = ToFloat(params[1]);
-    });
+    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "movement_speed", ConsoleCommandAdd::P_EVENT,
+        "#movement_speed", ConsoleCommandAdd::P_DESCRIPTION, "Show player labels", ConsoleCommandAdd::P_OVERWRITE,
+        true);
+    SubscribeToEvent("#movement_speed",
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            StringVector params = eventData["Parameters"].GetStringVector();
+            if (params.size() != 2)
+            {
+                URHO3D_LOGERROR("Invalid number of arguments!");
+                return;
+            }
+            MOVE_TORQUE = ToFloat(params[1]);
+        });
 
-    SendEvent(
-            E_CONSOLE_COMMAND_ADD,
-            ConsoleCommandAdd::P_NAME, "camera_distance",
-            ConsoleCommandAdd::P_EVENT, "#camera_distance",
-            ConsoleCommandAdd::P_DESCRIPTION, "Camera distance from player (0 - 1st person view, > 0  - 3rd person view)",
-            ConsoleCommandAdd::P_OVERWRITE, true
-    );
-    SubscribeToEvent("#camera_distance", [&](StringHash eventType, VariantMap& eventData) {
-        StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.size() != 2) {
-            URHO3D_LOGERROR("Invalid number of arguments!");
-            return;
-        }
-        SetCameraDistance(ToFloat(params[1]));
-    });
+    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "camera_distance", ConsoleCommandAdd::P_EVENT,
+        "#camera_distance", ConsoleCommandAdd::P_DESCRIPTION,
+        "Camera distance from player (0 - 1st person view, > 0  - 3rd person view)", ConsoleCommandAdd::P_OVERWRITE,
+        true);
+    SubscribeToEvent("#camera_distance",
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            StringVector params = eventData["Parameters"].GetStringVector();
+            if (params.size() != 2)
+            {
+                URHO3D_LOGERROR("Invalid number of arguments!");
+                return;
+            }
+            SetCameraDistance(ToFloat(params[1]));
+        });
 
-    SendEvent(
-            E_CONSOLE_COMMAND_ADD,
-            ConsoleCommandAdd::P_NAME, "jump_force",
-            ConsoleCommandAdd::P_EVENT, "#jump_force",
-            ConsoleCommandAdd::P_DESCRIPTION, "Show player labels",
-            ConsoleCommandAdd::P_OVERWRITE, true
-    );
-    SubscribeToEvent("#jump_force", [&](StringHash eventType, VariantMap& eventData) {
-        StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.size() != 2) {
-            URHO3D_LOGERROR("Invalid number of arguments!");
-            return;
-        }
-        JUMP_FORCE = ToFloat(params[1]);
-    });
+    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "jump_force", ConsoleCommandAdd::P_EVENT, "#jump_force",
+        ConsoleCommandAdd::P_DESCRIPTION, "Show player labels", ConsoleCommandAdd::P_OVERWRITE, true);
+    SubscribeToEvent("#jump_force",
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            StringVector params = eventData["Parameters"].GetStringVector();
+            if (params.size() != 2)
+            {
+                URHO3D_LOGERROR("Invalid number of arguments!");
+                return;
+            }
+            JUMP_FORCE = ToFloat(params[1]);
+        });
 
-    SendEvent(
-            E_CONSOLE_COMMAND_ADD,
-            ConsoleCommandAdd::P_NAME, "noclip",
-            ConsoleCommandAdd::P_EVENT, "#noclip",
-            ConsoleCommandAdd::P_DESCRIPTION, "Enable/Disable noclip mode",
-            ConsoleCommandAdd::P_OVERWRITE, true
-    );
-    SubscribeToEvent("#noclip", [&](StringHash eventType, VariantMap& eventData) {
-        StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.size() != 1) {
-            URHO3D_LOGERROR("This command doesn't have any arguments!");
-            return;
-        }
-        if (!rigidBody_) {
-            rigidBody_ = node_->GetComponent<RigidBody>();
-        }
-        if (noclip_) {
-            noclip_ = false;
-            rigidBody_->SetLinearFactor(Vector3::ONE);
-        } else {
-            noclip_ = true;
-            rigidBody_->SetLinearFactor(Vector3::ZERO);
-//            SetCameraTarget(noclipNode_);
-//            SetCameraDistance(0.0f);
+    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "noclip", ConsoleCommandAdd::P_EVENT, "#noclip",
+        ConsoleCommandAdd::P_DESCRIPTION, "Enable/Disable noclip mode", ConsoleCommandAdd::P_OVERWRITE, true);
+    SubscribeToEvent("#noclip",
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            StringVector params = eventData["Parameters"].GetStringVector();
+            if (params.size() != 1)
+            {
+                URHO3D_LOGERROR("This command doesn't have any arguments!");
+                return;
+            }
+            if (!rigidBody_)
+            {
+                rigidBody_ = node_->GetComponent<RigidBody>();
+            }
+            if (noclip_)
+            {
+                noclip_ = false;
+                rigidBody_->SetLinearFactor(Vector3::ONE);
+            }
+            else
+            {
+                noclip_ = true;
+                rigidBody_->SetLinearFactor(Vector3::ZERO);
+            //            SetCameraTarget(noclipNode_);
+            //            SetCameraDistance(0.0f);
 
-//            GetSubsystem<VoxelWorld>()->AddObserver(noclipNode_);
+            //            GetSubsystem<VoxelWorld>()->AddObserver(noclipNode_);
 
             // Clear server connection controls
 #if !defined(__EMSCRIPTEN__)
-            auto serverConnection = GetSubsystem<Network>()->GetServerConnection();
-            if (serverConnection) {
-                serverConnection->SetControls(Controls());
-            }
+                auto serverConnection = GetSubsystem<Network>()->GetServerConnection();
+                if (serverConnection)
+                {
+                    serverConnection->SetControls(Controls());
+                }
 #endif
-        }
-    });
+            }
+        });
 }
 
 void Player::CreateNode(Scene* scene, int controllerId, Terrain* terrain, int type)
@@ -187,7 +272,7 @@ void Player::CreateNode(Scene* scene, int controllerId, Terrain* terrain, int ty
     auto* cache = GetSubsystem<ResourceCache>();
 
     // Create the scene node & visual representation. This will be a replicated object
-    node_ = scene->CreateChild("Player" + ea::string(controllerId));
+    node_ = scene->CreateChild("Player" + ea::to_string(controllerId));
     auto playerState = node_->CreateComponent<PlayerState>(REPLICATED);
     playerState->SetPlayerID(controllerId_);
     URHO3D_LOGINFOF("Creating player node=%d, playerstate=%d", node_->GetID(), playerState->GetID());
@@ -202,7 +287,8 @@ void Player::CreateNode(Scene* scene, int controllerId, Terrain* terrain, int ty
     ballObject->SetCastShadows(true);
     ballObject->SetViewMask(VIEW_MASK_PLAYER);
 
-    if (type == 0) {
+    if (type == 0)
+    {
         // Create the physics components
         rigidBody_ = node_->CreateComponent<RigidBody>(REPLICATED);
         rigidBody_->SetMass(5.0f);
@@ -212,21 +298,23 @@ void Player::CreateNode(Scene* scene, int controllerId, Terrain* terrain, int ty
         rigidBody_->SetAngularDamping(0.8f);
         rigidBody_->SetCollisionEventMode(COLLISION_ALWAYS);
         rigidBody_->SetCollisionLayerAndMask(COLLISION_MASK_PLAYER | COLLISION_MASK_CHUNK_LOADER,
-                                             COLLISION_MASK_PLAYER | COLLISION_MASK_CHECKPOINT |
-                                             COLLISION_MASK_OBSTACLES | COLLISION_MASK_GROUND | COLLISION_MASK_CHUNK);
+            COLLISION_MASK_PLAYER | COLLISION_MASK_CHECKPOINT | COLLISION_MASK_OBSTACLES | COLLISION_MASK_GROUND
+                | COLLISION_MASK_CHUNK);
 
         auto light = node_->CreateComponent<Light>();
         light->SetRadius(10.0f);
         light->SetLightType(LIGHT_POINT);
 
-        auto *shape = node_->CreateComponent<CollisionShape>();
+        auto* shape = node_->CreateComponent<CollisionShape>();
         shape->SetSphere(1.0f);
-    } else {
+    }
+    else
+    {
         // Create rigidbody, and set non-zero mass so that the body becomes dynamic
         rigidBody_ = node_->CreateComponent<RigidBody>();
         rigidBody_->SetCollisionLayerAndMask(COLLISION_MASK_PLAYER | COLLISION_MASK_CHUNK_LOADER,
-                                             COLLISION_MASK_PLAYER | COLLISION_MASK_CHECKPOINT |
-                                             COLLISION_MASK_OBSTACLES | COLLISION_MASK_GROUND | COLLISION_MASK_CHUNK);
+            COLLISION_MASK_PLAYER | COLLISION_MASK_CHECKPOINT | COLLISION_MASK_OBSTACLES | COLLISION_MASK_GROUND
+                | COLLISION_MASK_CHUNK);
         rigidBody_->SetMass(1.0f);
 
         // Set zero angular factor so that physics doesn't turn the character on its own.
@@ -251,7 +339,8 @@ void Player::CreateNode(Scene* scene, int controllerId, Terrain* terrain, int ty
 void Player::FindNode(Scene* scene, int id)
 {
     node_ = scene->GetNode(id);
-    if (node_) {
+    if (node_)
+    {
         node_->SetInterceptNetworkUpdate("Network Position", true);
         node_->GetComponent<PlayerState>()->HideLabel();
         rigidBody_ = node_->GetComponent<RigidBody>();
@@ -262,36 +351,37 @@ void Player::FindNode(Scene* scene, int id)
 void Player::ResetPosition()
 {
     Vector3 position = spawnPoint_;
-    if (terrain_) {
+    if (terrain_)
+    {
         position.y_ = terrain_->GetHeight(position) + 1.0f;
     }
     GetNode()->SetWorldPosition(position);
 
-    if (GetNode() && GetNode()->HasComponent<RigidBody>()) {
+    if (GetNode() && GetNode()->HasComponent<RigidBody>())
+    {
         GetNode()->GetComponent<RigidBody>()->SetLinearVelocity(Vector3::ZERO);
         GetNode()->GetComponent<RigidBody>()->SetAngularVelocity(Vector3::ZERO);
     }
 }
 
-void Player::SetControllerId(unsigned int id)
-{
-    controllerId_ = id;
-}
+void Player::SetControllerId(unsigned int id) { controllerId_ = id; }
 
-SharedPtr<Node> Player::GetNode()
-{
-    return node_;
-}
+SharedPtr<Node> Player::GetNode() { return node_; }
 
 void Player::SetControllable(bool value)
 {
     isControlled_ = value;
-    if (isControlled_) {
-        if (GetNode() && GetNode()->HasComponent<BehaviourTree>()) {
+    if (isControlled_)
+    {
+        if (GetNode() && GetNode()->HasComponent<BehaviourTree>())
+        {
             GetNode()->RemoveComponent<BehaviourTree>();
         }
-    } else {
-        if (GetNode() && !GetNode()->HasComponent<BehaviourTree>()) {
+    }
+    else
+    {
+        if (GetNode() && !GetNode()->HasComponent<BehaviourTree>())
+        {
             GetNode()->CreateComponent<BehaviourTree>();
             GetNode()->GetComponent<BehaviourTree>()->Init("Config/Behaviour.json");
         }
@@ -309,46 +399,58 @@ void Player::HandlePhysicsPrestep(StringHash eventType, VariantMap& eventData)
     Controls controls;
     float movementSpeed = MOVE_TORQUE;
 
-    if (isControlled_) {
-        if (connection_) {
+    if (isControlled_)
+    {
+        if (connection_)
+        {
             controls = connection_->GetControls();
-        } else if (!IsCameraTargetSet()) {
+        }
+        else if (!IsCameraTargetSet())
+        {
             controls = GetSubsystem<ControllerInput>()->GetControls(controllerId_);
         }
-    } else {
+    }
+    else
+    {
         controls = GetNode()->GetComponent<BehaviourTree>()->GetControls();
     }
 
-    if (positionUI_) {
+    if (positionUI_)
+    {
         Vector3 position = node_->GetWorldPosition();
-        ea::string content =
-                "X:" + ea::string(static_cast<int>(position.x_)) + " Y:" + ea::string(static_cast<int>(position.y_)) + " Z:" +
-                ea::string(static_cast<int>(position.z_));
+        ea::string content = "X:" + ea::to_string(static_cast<int>(position.x_))
+            + " Y:" + ea::to_string(static_cast<int>(position.y_)) + " Z:" + ea::string(static_cast<int>(position.z_));
         positionUI_->SetText(content);
     }
 
-    if (noclip_) {
+    if (noclip_)
+    {
         node_->SetRotation(Quaternion(controls.pitch_, controls.yaw_, 0.0f));
         // Movement speed as world units per second
         float MOVE_SPEED = NOCLIP_CAMERA_SPEED;
-        if (controls.IsDown(CTRL_SPRINT)) {
+        if (controls.IsDown(CTRL_SPRINT))
+        {
             MOVE_SPEED *= 2;
         }
         // Read WASD keys and move the camera scene node to the corresponding direction if they are pressed
-        if (controls.IsDown(CTRL_FORWARD)) {
+        if (controls.IsDown(CTRL_FORWARD))
+        {
             cameraInertia_ += Vector3::FORWARD * MOVE_SPEED * timeStep * 0.5f;
-//            node_->Translate(Vector3::FORWARD * MOVE_SPEED * timeStep);
+            //            node_->Translate(Vector3::FORWARD * MOVE_SPEED * timeStep);
         }
-        if (controls.IsDown(CTRL_BACK)) {
-//            node_->Translate(Vector3::BACK * MOVE_SPEED * timeStep);
+        if (controls.IsDown(CTRL_BACK))
+        {
+            //            node_->Translate(Vector3::BACK * MOVE_SPEED * timeStep);
             cameraInertia_ += Vector3::BACK * MOVE_SPEED * timeStep * 0.5f;
         }
-        if (controls.IsDown(CTRL_LEFT)) {
-//            node_->Translate(Vector3::LEFT * MOVE_SPEED * timeStep);
+        if (controls.IsDown(CTRL_LEFT))
+        {
+            //            node_->Translate(Vector3::LEFT * MOVE_SPEED * timeStep);
             cameraInertia_ += Vector3::LEFT * MOVE_SPEED * timeStep * 0.5f;
         }
-        if (controls.IsDown(CTRL_RIGHT)) {
-//            node_->Translate(Vector3::RIGHT * MOVE_SPEED * timeStep);
+        if (controls.IsDown(CTRL_RIGHT))
+        {
+            //            node_->Translate(Vector3::RIGHT * MOVE_SPEED * timeStep);
             cameraInertia_ += Vector3::RIGHT * MOVE_SPEED * timeStep * 0.5f;
         }
 
@@ -363,77 +465,95 @@ void Player::HandlePhysicsPrestep(StringHash eventType, VariantMap& eventData)
     }
 
 #if !defined(__EMSCRIPTEN__)
-    if (serverConnection) {
-        if (IsCameraTargetSet()) {
+    if (serverConnection)
+    {
+        if (IsCameraTargetSet())
+        {
             // We are not following our player node, so we must not control it
             serverConnection->SetControls(Controls());
-        } else {
+        }
+        else
+        {
             serverConnection->SetControls(controls);
         }
         return;
     }
 #endif
 
-//    if (node_->GetPosition().y_ < -SIZE_Y * 1.5) {
-//        ResetPosition();
-//
-//        VariantMap &data = GetEventDataMap();
-//        data["Player"] = controllerId_;
-//        SendEvent("FallOffTheMap", data);
-//        node_->GetComponent<PlayerState>()->AddScore(-10);
-//    }
+    //    if (node_->GetPosition().y_ < -SIZE_Y * 1.5) {
+    //        ResetPosition();
+    //
+    //        VariantMap &data = GetEventDataMap();
+    //        data["Player"] = controllerId_;
+    //        SendEvent("FallOffTheMap", data);
+    //        node_->GetComponent<PlayerState>()->AddScore(-10);
+    //    }
 
-    if (controls.IsDown(CTRL_SPRINT)) {
+    if (controls.IsDown(CTRL_SPRINT))
+    {
         movementSpeed *= 2;
     }
 
     // Torque is relative to the forward vector
     Quaternion rotation(0.0f, controls.yaw_, 0.0f);
-    if (controls.IsDown(CTRL_FORWARD)) {
+    if (controls.IsDown(CTRL_FORWARD))
+    {
         static StringHash forward(CTRL_FORWARD);
         float strength = 1.0f;
-        if (controls.extraData_.contains(forward)) {
+        if (controls.extraData_.contains(forward))
+        {
             strength = controls.extraData_[forward].GetFloat();
         }
         rigidBody_->ApplyTorque(rotation * Vector3::RIGHT * movementSpeed * strength);
-        if (!onGround_) {
+        if (!onGround_)
+        {
             rigidBody_->ApplyForce(rotation * Vector3::FORWARD * movementSpeed * strength);
         }
     }
-    if (controls.IsDown(CTRL_BACK)) {
+    if (controls.IsDown(CTRL_BACK))
+    {
         static StringHash backward(CTRL_BACK);
         float strength = 1.0f;
-        if (controls.extraData_.contains(backward)) {
+        if (controls.extraData_.contains(backward))
+        {
             strength = controls.extraData_[backward].GetFloat();
         }
         rigidBody_->ApplyTorque(rotation * Vector3::LEFT * movementSpeed * strength);
-        if (!onGround_) {
+        if (!onGround_)
+        {
             rigidBody_->ApplyForce(rotation * Vector3::BACK * movementSpeed * strength);
         }
     }
-    if (controls.IsDown(CTRL_LEFT)) {
+    if (controls.IsDown(CTRL_LEFT))
+    {
         static StringHash left(CTRL_LEFT);
         float strength = 1.0f;
-        if (controls.extraData_.contains(left)) {
+        if (controls.extraData_.contains(left))
+        {
             strength = controls.extraData_[left].GetFloat();
         }
         rigidBody_->ApplyTorque(rotation * Vector3::FORWARD * movementSpeed * strength);
-        if (!onGround_) {
+        if (!onGround_)
+        {
             rigidBody_->ApplyForce(rotation * Vector3::LEFT * movementSpeed * strength);
         }
     }
-    if (controls.IsDown(CTRL_RIGHT)) {
+    if (controls.IsDown(CTRL_RIGHT))
+    {
         static StringHash right(CTRL_RIGHT);
         float strength = 1.0f;
-        if (controls.extraData_.contains(right)) {
+        if (controls.extraData_.contains(right))
+        {
             strength = controls.extraData_[right].GetFloat();
         }
         rigidBody_->ApplyTorque(rotation * Vector3::BACK * movementSpeed * strength);
-        if (!onGround_) {
+        if (!onGround_)
+        {
             rigidBody_->ApplyForce(rotation * Vector3::RIGHT * movementSpeed * strength);
         }
     }
-    if (controls.IsPressed(CTRL_JUMP, controls_) && onGround_) {
+    if (controls.IsPressed(CTRL_JUMP, controls_) && onGround_)
+    {
         rigidBody_->ApplyImpulse(Vector3::UP * JUMP_FORCE);
     }
 
@@ -443,7 +563,8 @@ void Player::HandlePhysicsPrestep(StringHash eventType, VariantMap& eventData)
 
 void Player::HandleNodeCollision(StringHash eventType, VariantMap& eventData)
 {
-    // Check collision contacts and see if character is standing on ground (look for a contact that has near vertical normal)
+    // Check collision contacts and see if character is standing on ground (look for a contact that has near vertical
+    // normal)
     using namespace NodeCollision;
 
     MemoryBuffer contacts(eventData[P_CONTACTS].GetBuffer());
@@ -452,8 +573,8 @@ void Player::HandleNodeCollision(StringHash eventType, VariantMap& eventData)
     {
         Vector3 contactPosition = contacts.ReadVector3();
         Vector3 contactNormal = contacts.ReadVector3();
-        /*float contactDistance = */contacts.ReadFloat();
-        /*float contactImpulse = */contacts.ReadFloat();
+        /*float contactDistance = */ contacts.ReadFloat();
+        /*float contactImpulse = */ contacts.ReadFloat();
 
         // If contact is below node center and pointing up, assume it's a ground contact
         if (contactPosition.y_ < (node_->GetPosition().y_ + 1.0f))
@@ -474,38 +595,28 @@ void Player::SetClientConnection(Connection* connection)
     positionUI_.Reset();
 }
 
-void Player::SetCameraTarget(Node* target)
-{
-    cameraTarget_ = target;
-}
+void Player::SetCameraTarget(Node* target) { cameraTarget_ = target; }
 
 Node* Player::GetCameraTarget()
 {
-    if (cameraTarget_) {
+    if (cameraTarget_)
+    {
         return cameraTarget_;
     }
 
     return GetNode();
 }
 
-bool Player::IsCameraTargetSet()
-{
-    return cameraTarget_ && cameraTarget_ != node_ && !noclip_;
-}
+bool Player::IsCameraTargetSet() { return cameraTarget_ && cameraTarget_ != node_ && !noclip_; }
 
-void Player::SetCameraDistance(float distance)
-{
-    cameraTargetDistance_ = distance;
-}
+void Player::SetCameraDistance(float distance) { cameraTargetDistance_ = distance; }
 
-float Player::GetCameraDistance()
-{
-    return cameraDistance_;
-}
+float Player::GetCameraDistance() { return cameraDistance_; }
 
 void Player::SetName(const ea::string& name)
 {
-    if (node_) {
+    if (node_)
+    {
         node_->GetOrCreateComponent<PlayerState>()->SetPlayerName(name);
     }
 }
@@ -516,52 +627,54 @@ void Player::HandlePredictPlayerPosition(StringHash eventType, VariantMap& event
     ea::string name = eventData[P_NAME].GetString();
     Node* node = static_cast<Node*>(eventData[P_SERIALIZABLE].GetPtr());
     Vector3 position = eventData[P_VALUE].GetVector3();
-//    node_->SetWorldPosition(position);
-//    URHO3D_LOGINFOF("HandlePredictPlayerPosition %s", (position - node->GetPosition()).ToString().CString());
+    //    node_->SetWorldPosition(position);
+    //    URHO3D_LOGINFOF("HandlePredictPlayerPosition %s", (position - node->GetPosition()).ToString().c_str());
     const AttributeInfo& attr = node->GetAttributes()->At(eventData[P_INDEX].GetInt());
     node->OnSetAttribute(attr, eventData[P_VALUE]);
 }
 
-void Player::SetSpawnPoint(Vector3 position)
-{
-    spawnPoint_ = position;
-}
+void Player::SetSpawnPoint(Vector3 position) { spawnPoint_ = position; }
 
 void Player::HandleMappedControlPressed(StringHash eventType, VariantMap& eventData)
 {
     using namespace MappedControlPressed;
     int id = eventData[P_CONTROLLER].GetInt();
-    if (id == controllerId_) {
+    if (id == controllerId_)
+    {
         int action = eventData[P_ACTION].GetInt();
-        if (action == CTRL_CHANGE_ITEM) {
+        if (action == CTRL_CHANGE_ITEM)
+        {
 #ifdef VOXEL_SUPPORT
-            if (GetSubsystem<VoxelWorld>()) {
+            if (GetSubsystem<VoxelWorld>())
+            {
                 selectedItem_++;
-                if (selectedItem_ >= BlockType::BT_NONE) {
+                if (selectedItem_ >= BlockType::BT_NONE)
+                {
                     selectedItem_ = 1;
                 }
-                selectedItemUI_->SetText(GetSubsystem<VoxelWorld>()->GetBlockName(static_cast<BlockType>(selectedItem_)));
+                selectedItemUI_->SetText(
+                    GetSubsystem<VoxelWorld>()->GetBlockName(static_cast<BlockType>(selectedItem_)));
             }
 #endif
         }
     }
-
 }
 
-int Player::GetSelectedItem()
-{
-    return selectedItem_;
-}
+int Player::GetSelectedItem() { return selectedItem_; }
 
 void Player::HandleUpdate(StringHash eventType, VariantMap& eventData)
 {
     using namespace Update;
     float timeStep = eventData[P_TIMESTEP].GetFloat();
-    if (cameraDistance_ != cameraTargetDistance_ * scaleFactor_) {
+    if (cameraDistance_ != cameraTargetDistance_ * scaleFactor_)
+    {
         float diff = cameraTargetDistance_ * scaleFactor_ - cameraDistance_;
-        if (Abs(diff) > 0.01f) {
+        if (Abs(diff) > 0.01f)
+        {
             cameraDistance_ += diff * timeStep / CAMERA_TARGET_DISTANCE_SPEED;
-        } else {
+        }
+        else
+        {
             cameraDistance_ = cameraTargetDistance_ * scaleFactor_;
         }
     }
@@ -573,7 +686,4 @@ void Player::SetScale(float scale)
     node_->SetScale(scale);
 }
 
-float Player::GetScale()
-{
-    return scaleFactor_;
-}
+float Player::GetScale() { return scaleFactor_; }

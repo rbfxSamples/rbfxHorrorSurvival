@@ -1,31 +1,26 @@
 #ifdef NAKAMA_SUPPORT
-#include <Urho3D/Core/Object.h>
-#include <Urho3D/Core/Context.h>
-#include <Urho3D/IO/Log.h>
-#include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/IO/MemoryBuffer.h>
-#include "NakamaManager.h"
-#include "../Console/ConsoleHandlerEvents.h"
-#include "NakamaEvents.h"
-#include "NetworkProtocol.h"
+    #include "NakamaManager.h"
+    #include "../Console/ConsoleHandlerEvents.h"
+    #include "NakamaEvents.h"
+    #include "NetworkProtocol.h"
+    #include <Urho3D/Core/Context.h>
+    #include <Urho3D/Core/CoreEvents.h>
+    #include <Urho3D/Core/Object.h>
+    #include <Urho3D/IO/Log.h>
+    #include <Urho3D/IO/MemoryBuffer.h>
 
 using namespace Urho3D;
 using namespace ConsoleHandlerEvents;
 using namespace NakamaEvents;
 
-NakamaManager::NakamaManager(Context* context) :
-        Object(context)
+NakamaManager::NakamaManager(Context* context)
+    : Object(context)
 {
 }
 
-NakamaManager::~NakamaManager()
-{
-}
+NakamaManager::~NakamaManager() {}
 
-void NakamaManager::RegisterObject(Context* context)
-{
-    context->RegisterFactory<NakamaManager>();
-}
+void NakamaManager::RegisterObject(Context* context) { context->RegisterFactory<NakamaManager>(); }
 
 void NakamaManager::Init()
 {
@@ -39,312 +34,289 @@ void NakamaManager::Init()
 
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(NakamaManager, HandleUpdate));
 
-    SendEvent(
-            E_CONSOLE_COMMAND_ADD,
-            ConsoleCommandAdd::P_NAME, "nakama_login",
-            ConsoleCommandAdd::P_EVENT, "#nakama_login",
-            ConsoleCommandAdd::P_DESCRIPTION, "Log with the nakama server",
-            ConsoleCommandAdd::P_OVERWRITE, true
-    );
-    SubscribeToEvent("#nakama_login", [&](StringHash eventType, VariantMap& eventData) {
-        URHO3D_LOGINFO("Authenticating with nakama");
-        StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.size() != 3) {
-            URHO3D_LOGERROR("You must provide email and password");
-            return;
-        }
-        LogIn(params[1], params[2]);
-    });
-
-    SendEvent(
-            E_CONSOLE_COMMAND_ADD,
-            ConsoleCommandAdd::P_NAME, "nakama_command",
-            ConsoleCommandAdd::P_EVENT, "#nakama_command",
-            ConsoleCommandAdd::P_DESCRIPTION, "nakama_command",
-            ConsoleCommandAdd::P_OVERWRITE, true
-    );
-    SubscribeToEvent("#nakama_command", [&](StringHash eventType, VariantMap& eventData) {
-        URHO3D_LOGINFO("Requesting nakama command");
-        StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.size() != 2) {
-            URHO3D_LOGERROR("You must provide RPC command");
-            return;
-        }
-        ea::string command = "get_pokemon";
-        ea::string payload = "{\"PokemonName\":\"" + params[1] + "\"}";
-        URHO3D_LOGINFOF("Sending RPC command '%s %s'", command.CString(), payload.CString());
-        client_->rpc(session_, command.CString(), payload.CString(), [&](const NRpc& nRpc) {
-            URHO3D_LOGINFOF("RPC command sent!%s %s", nRpc.id.c_str(), nRpc.payload.c_str());
-        }, [&](const NError& error) {
-            URHO3D_LOGERRORF("RPC command error: %s", error.message.c_str());
+    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "nakama_login", ConsoleCommandAdd::P_EVENT,
+        "#nakama_login", ConsoleCommandAdd::P_DESCRIPTION, "Log with the nakama server", ConsoleCommandAdd::P_OVERWRITE,
+        true);
+    SubscribeToEvent("#nakama_login",
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            URHO3D_LOGINFO("Authenticating with nakama");
+            StringVector params = eventData["Parameters"].GetStringVector();
+            if (params.size() != 3)
+            {
+                URHO3D_LOGERROR("You must provide email and password");
+                return;
+            }
+            LogIn(params[1], params[2]);
         });
-    });
 
-    SendEvent(
-            E_CONSOLE_COMMAND_ADD,
-            ConsoleCommandAdd::P_NAME, "nakama_login1",
-            ConsoleCommandAdd::P_EVENT, "#nakama_login1",
-            ConsoleCommandAdd::P_DESCRIPTION, "Log with the nakama server",
-            ConsoleCommandAdd::P_OVERWRITE, true
-    );
-    SubscribeToEvent("#nakama_login1", [&](StringHash eventType, VariantMap& eventData) {
-        URHO3D_LOGINFO("Authenticating with nakama");
-        LogIn("hello@example.com", "somesupersecretpassword");
-    });
-
-    SendEvent(
-            E_CONSOLE_COMMAND_ADD,
-            ConsoleCommandAdd::P_NAME, "nakama_login2",
-            ConsoleCommandAdd::P_EVENT, "#nakama_login2",
-            ConsoleCommandAdd::P_DESCRIPTION, "Log with the nakama server",
-            ConsoleCommandAdd::P_OVERWRITE, true
-    );
-    SubscribeToEvent("#nakama_login2", [&](StringHash eventType, VariantMap& eventData) {
-        URHO3D_LOGINFO("Authenticating with nakama");
-        LogIn("test@test.lv", "password");
-    });
-
-    SendEvent(
-            E_CONSOLE_COMMAND_ADD,
-            ConsoleCommandAdd::P_NAME, "nakama_register",
-            ConsoleCommandAdd::P_EVENT, "#nakama_register",
-            ConsoleCommandAdd::P_DESCRIPTION, "Register in nakama server",
-            ConsoleCommandAdd::P_OVERWRITE, true
-    );
-    SubscribeToEvent("#nakama_register", [&](StringHash eventType, VariantMap& eventData) {
-        URHO3D_LOGINFO("Authenticating with nakama");
-        StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.size() != 4) {
-            URHO3D_LOGERROR("You must provide email, password and username");
-            return;
-        }
-        Register(params[1], params[2], params[3]);
-    });
-
-    SendEvent(
-            E_CONSOLE_COMMAND_ADD,
-            ConsoleCommandAdd::P_NAME, "nakama_read",
-            ConsoleCommandAdd::P_EVENT, "#nakama_read",
-            ConsoleCommandAdd::P_DESCRIPTION, "Read user data from nakama",
-            ConsoleCommandAdd::P_OVERWRITE, true
-    );
-    SubscribeToEvent("#nakama_read", [&](StringHash eventType, VariantMap& eventData) {
-        StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.size() != 2) {
-            URHO3D_LOGERROR("You must specify the key name");
-            return;
-        }
-        if (!session_ || session_->isExpired()) {
-            URHO3D_LOGERROR("You must login into nakama server first!");
-            return;
-        }
-        URHO3D_LOGINFO("Reading data from nakama server");
-        auto readFailed = [&](const NError& error)
+    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "nakama_command", ConsoleCommandAdd::P_EVENT,
+        "#nakama_command", ConsoleCommandAdd::P_DESCRIPTION, "nakama_command", ConsoleCommandAdd::P_OVERWRITE, true);
+    SubscribeToEvent("#nakama_command",
+        [&](StringHash eventType, VariantMap& eventData)
         {
-            URHO3D_LOGWARNING("Failed to read from storage");
-            SendEvent(E_LOGIN_FAILED);
-        };
-
-        auto readSuccess = [&](const NStorageObjects& storageObjects)
-        {
-            URHO3D_LOGINFO("Storage read succeeded");
-            for (auto it = storageObjects.begin(); it != storageObjects.end(); ++it) {
-                ea::string collection((*it).collection.c_str());
-                ea::string key((*it).key.c_str());
-                ea::string value((*it).value.c_str());
-                URHO3D_LOGINFOF("Key: %s", (*it).key.c_str());
-                URHO3D_LOGINFOF("Value: %s", (*it).value.c_str());
-                if (storage_.Contains(collection)) {
-                    VariantMap data = storage_[collection].GetVariantMap();
-                    data[key] = value;
-                    storage_[collection] = data;
-                } else {
-                    VariantMap data;
-                    data[key] = value;
-                    storage_[collection] = data;
-                }
-
+            URHO3D_LOGINFO("Requesting nakama command");
+            StringVector params = eventData["Parameters"].GetStringVector();
+            if (params.size() != 2)
+            {
+                URHO3D_LOGERROR("You must provide RPC command");
+                return;
             }
-        };
+            ea::string command = "get_pokemon";
+            ea::string payload = "{\"PokemonName\":\"" + params[1] + "\"}";
+            URHO3D_LOGINFOF("Sending RPC command '%s %s'", command.c_str(), payload.c_str());
+            client_->rpc(
+                session_, command.c_str(), payload.c_str(),
+                [&](const NRpc& nRpc)
+                { URHO3D_LOGINFOF("RPC command sent!%s %s", nRpc.id.c_str(), nRpc.payload.c_str()); },
+                [&](const NError& error) { URHO3D_LOGERRORF("RPC command error: %s", error.message.c_str()); });
+        });
 
-        std::vector<NReadStorageObjectId> objectIds;
-        objectIds.push_back({"collection", params[1].CString(), session_->getUserId()});
-        client_->readStorageObjects(session_, objectIds, readSuccess, readFailed);
-    });
-
-    SendEvent(
-            E_CONSOLE_COMMAND_ADD,
-            ConsoleCommandAdd::P_NAME, "nakama_create_match",
-            ConsoleCommandAdd::P_EVENT, "#nakama_create_match",
-            ConsoleCommandAdd::P_DESCRIPTION, "Create a match",
-            ConsoleCommandAdd::P_OVERWRITE, true
-    );
-    SubscribeToEvent("#nakama_create_match", [&](StringHash eventType, VariantMap& eventData) {
-        StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.size() != 1) {
-            URHO3D_LOGERROR("This command doesn't take any arguments!");
-            return;
-        }
-        CreateMatch();
-    });
-
-    SendEvent(
-            E_CONSOLE_COMMAND_ADD,
-            ConsoleCommandAdd::P_NAME, "nakama_join_match",
-            ConsoleCommandAdd::P_EVENT, "#nakama_join_match",
-            ConsoleCommandAdd::P_DESCRIPTION, "Join a match",
-            ConsoleCommandAdd::P_OVERWRITE, true
-    );
-    SubscribeToEvent("#nakama_join_match", [&](StringHash eventType, VariantMap& eventData) {
-        StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.size() != 2) {
-            URHO3D_LOGERROR("You must specify match id");
-            return;
-        }
-        JoinMatch(params[1]);
-    });
-
-    SendEvent(
-            E_CONSOLE_COMMAND_ADD,
-            ConsoleCommandAdd::P_NAME, "nakama_matchmaker",
-            ConsoleCommandAdd::P_EVENT, "#nakama_matchmaker",
-            ConsoleCommandAdd::P_DESCRIPTION, "Create matchmaker",
-            ConsoleCommandAdd::P_OVERWRITE, true
-    );
-    SubscribeToEvent("#nakama_matchmaker", [&](StringHash eventType, VariantMap& eventData) {
-        StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.size() != 1) {
-            URHO3D_LOGERROR("You must specify match id");
-            return;
-        }
-        auto successCallback = [](const NMatchmakerTicket& ticket)
+    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "nakama_login1", ConsoleCommandAdd::P_EVENT,
+        "#nakama_login1", ConsoleCommandAdd::P_DESCRIPTION, "Log with the nakama server",
+        ConsoleCommandAdd::P_OVERWRITE, true);
+    SubscribeToEvent("#nakama_login1",
+        [&](StringHash eventType, VariantMap& eventData)
         {
-            URHO3D_LOGINFOF("Matchmaker ticket %s", ticket.ticket.c_str());
-        };
+            URHO3D_LOGINFO("Authenticating with nakama");
+            LogIn("hello@example.com", "somesupersecretpassword");
+        });
 
-        int32_t minCount = 2;
-        int32_t maxCount = 4;
-        std::string query = "*";
-        NStringMap stringProperties;
-        NStringDoubleMap numericProperties;
+    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "nakama_login2", ConsoleCommandAdd::P_EVENT,
+        "#nakama_login2", ConsoleCommandAdd::P_DESCRIPTION, "Log with the nakama server",
+        ConsoleCommandAdd::P_OVERWRITE, true);
+    SubscribeToEvent("#nakama_login2",
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            URHO3D_LOGINFO("Authenticating with nakama");
+            LogIn("test@test.lv", "password");
+        });
 
-        stringProperties.emplace("region", "europe");
-        numericProperties.emplace("rank", 8.0);
-
-        rtClient_->addMatchmaker(
-                minCount,
-                maxCount,
-                query,
-                stringProperties,
-                numericProperties,
-                successCallback);
-    });
-
-    SendEvent(
-            E_CONSOLE_COMMAND_ADD,
-            ConsoleCommandAdd::P_NAME, "nakama_send_match_data",
-            ConsoleCommandAdd::P_EVENT, "#nakama_send_match_data",
-            ConsoleCommandAdd::P_DESCRIPTION, "Send match data",
-            ConsoleCommandAdd::P_OVERWRITE, true
-    );
-    SubscribeToEvent("#nakama_send_match_data", [&](StringHash eventType, VariantMap& eventData) {
-        StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.size() != 2) {
-            URHO3D_LOGERROR("You must specify match data opcode");
-            return;
-        }
-        if (rtClient_) {
-            VectorBuffer buffer;
-            buffer.WriteVector3(Vector3(1, 2, 3));
-            SendData(ToInt(params[1]), buffer);
-        }
-    });
-
-    SendEvent(
-            E_CONSOLE_COMMAND_ADD,
-            ConsoleCommandAdd::P_NAME, "nakama_send_message",
-            ConsoleCommandAdd::P_EVENT, "#nakama_send_message",
-            ConsoleCommandAdd::P_DESCRIPTION, "Send chat message",
-            ConsoleCommandAdd::P_OVERWRITE, true
-    );
-    SubscribeToEvent("#nakama_send_message", [&](StringHash eventType, VariantMap& eventData) {
-        StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.size() == 1) {
-            URHO3D_LOGERROR("You have to specify a message you want to send!");
-            return;
-        }
-        if (rtClient_) {
-            ea::string message;
-            for (int i = 1; i < params.size(); i++) {
-                if (!message.empty()) {
-                    message += " ";
-                }
-                message += params[i];
+    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "nakama_register", ConsoleCommandAdd::P_EVENT,
+        "#nakama_register", ConsoleCommandAdd::P_DESCRIPTION, "Register in nakama server",
+        ConsoleCommandAdd::P_OVERWRITE, true);
+    SubscribeToEvent("#nakama_register",
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            URHO3D_LOGINFO("Authenticating with nakama");
+            StringVector params = eventData["Parameters"].GetStringVector();
+            if (params.size() != 4)
+            {
+                URHO3D_LOGERROR("You must provide email, password and username");
+                return;
             }
-            SendChatMessage(message);
-        }
-    });
+            Register(params[1], params[2], params[3]);
+        });
 
-    SendEvent(
-            E_CONSOLE_COMMAND_ADD,
-            ConsoleCommandAdd::P_NAME, "nakama_leave_match",
-            ConsoleCommandAdd::P_EVENT, "#nakama_leave_match",
-            ConsoleCommandAdd::P_DESCRIPTION, "Leave match",
-            ConsoleCommandAdd::P_OVERWRITE, true
-    );
-    SubscribeToEvent("#nakama_leave_match", [&](StringHash eventType, VariantMap& eventData) {
-        StringVector params = eventData["Parameters"].GetStringVector();
-        if (params.size() != 1) {
-            URHO3D_LOGERROR("This command doesn't take any arguments!");
-            return;
-        }
-        LeaveMatch();
-    });
+    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "nakama_read", ConsoleCommandAdd::P_EVENT,
+        "#nakama_read", ConsoleCommandAdd::P_DESCRIPTION, "Read user data from nakama", ConsoleCommandAdd::P_OVERWRITE,
+        true);
+    SubscribeToEvent("#nakama_read",
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            StringVector params = eventData["Parameters"].GetStringVector();
+            if (params.size() != 2)
+            {
+                URHO3D_LOGERROR("You must specify the key name");
+                return;
+            }
+            if (!session_ || session_->isExpired())
+            {
+                URHO3D_LOGERROR("You must login into nakama server first!");
+                return;
+            }
+            URHO3D_LOGINFO("Reading data from nakama server");
+            auto readFailed = [&](const NError& error)
+            {
+                URHO3D_LOGWARNING("Failed to read from storage");
+                SendEvent(E_LOGIN_FAILED);
+            };
 
+            auto readSuccess = [&](const NStorageObjects& storageObjects)
+            {
+                URHO3D_LOGINFO("Storage read succeeded");
+                for (auto it = storageObjects.begin(); it != storageObjects.end(); ++it)
+                {
+                    ea::string collection((*it).collection.c_str());
+                    ea::string key((*it).key.c_str());
+                    ea::string value((*it).value.c_str());
+                    URHO3D_LOGINFOF("Key: %s", (*it).key.c_str());
+                    URHO3D_LOGINFOF("Value: %s", (*it).value.c_str());
+                    if (storage_.Contains(collection))
+                    {
+                        VariantMap data = storage_[collection].GetVariantMap();
+                        data[key] = value;
+                        storage_[collection] = data;
+                    }
+                    else
+                    {
+                        VariantMap data;
+                        data[key] = value;
+                        storage_[collection] = data;
+                    }
+                }
+            };
+
+            std::vector<NReadStorageObjectId> objectIds;
+            objectIds.push_back({"collection", params[1].c_str(), session_->getUserId()});
+            client_->readStorageObjects(session_, objectIds, readSuccess, readFailed);
+        });
+
+    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "nakama_create_match", ConsoleCommandAdd::P_EVENT,
+        "#nakama_create_match", ConsoleCommandAdd::P_DESCRIPTION, "Create a match", ConsoleCommandAdd::P_OVERWRITE,
+        true);
+    SubscribeToEvent("#nakama_create_match",
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            StringVector params = eventData["Parameters"].GetStringVector();
+            if (params.size() != 1)
+            {
+                URHO3D_LOGERROR("This command doesn't take any arguments!");
+                return;
+            }
+            CreateMatch();
+        });
+
+    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "nakama_join_match", ConsoleCommandAdd::P_EVENT,
+        "#nakama_join_match", ConsoleCommandAdd::P_DESCRIPTION, "Join a match", ConsoleCommandAdd::P_OVERWRITE, true);
+    SubscribeToEvent("#nakama_join_match",
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            StringVector params = eventData["Parameters"].GetStringVector();
+            if (params.size() != 2)
+            {
+                URHO3D_LOGERROR("You must specify match id");
+                return;
+            }
+            JoinMatch(params[1]);
+        });
+
+    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "nakama_matchmaker", ConsoleCommandAdd::P_EVENT,
+        "#nakama_matchmaker", ConsoleCommandAdd::P_DESCRIPTION, "Create matchmaker", ConsoleCommandAdd::P_OVERWRITE,
+        true);
+    SubscribeToEvent("#nakama_matchmaker",
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            StringVector params = eventData["Parameters"].GetStringVector();
+            if (params.size() != 1)
+            {
+                URHO3D_LOGERROR("You must specify match id");
+                return;
+            }
+            auto successCallback = [](const NMatchmakerTicket& ticket)
+            { URHO3D_LOGINFOF("Matchmaker ticket %s", ticket.ticket.c_str()); };
+
+            int32_t minCount = 2;
+            int32_t maxCount = 4;
+            std::string query = "*";
+            NStringMap stringProperties;
+            NStringDoubleMap numericProperties;
+
+            stringProperties.emplace("region", "europe");
+            numericProperties.emplace("rank", 8.0);
+
+            rtClient_->addMatchmaker(minCount, maxCount, query, stringProperties, numericProperties, successCallback);
+        });
+
+    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "nakama_send_match_data", ConsoleCommandAdd::P_EVENT,
+        "#nakama_send_match_data", ConsoleCommandAdd::P_DESCRIPTION, "Send match data", ConsoleCommandAdd::P_OVERWRITE,
+        true);
+    SubscribeToEvent("#nakama_send_match_data",
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            StringVector params = eventData["Parameters"].GetStringVector();
+            if (params.size() != 2)
+            {
+                URHO3D_LOGERROR("You must specify match data opcode");
+                return;
+            }
+            if (rtClient_)
+            {
+                VectorBuffer buffer;
+                buffer.WriteVector3(Vector3(1, 2, 3));
+                SendData(ToInt(params[1]), buffer);
+            }
+        });
+
+    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "nakama_send_message", ConsoleCommandAdd::P_EVENT,
+        "#nakama_send_message", ConsoleCommandAdd::P_DESCRIPTION, "Send chat message", ConsoleCommandAdd::P_OVERWRITE,
+        true);
+    SubscribeToEvent("#nakama_send_message",
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            StringVector params = eventData["Parameters"].GetStringVector();
+            if (params.size() == 1)
+            {
+                URHO3D_LOGERROR("You have to specify a message you want to send!");
+                return;
+            }
+            if (rtClient_)
+            {
+                ea::string message;
+                for (int i = 1; i < params.size(); i++)
+                {
+                    if (!message.empty())
+                    {
+                        message += " ";
+                    }
+                    message += params[i];
+                }
+                SendChatMessage(message);
+            }
+        });
+
+    SendEvent(E_CONSOLE_COMMAND_ADD, ConsoleCommandAdd::P_NAME, "nakama_leave_match", ConsoleCommandAdd::P_EVENT,
+        "#nakama_leave_match", ConsoleCommandAdd::P_DESCRIPTION, "Leave match", ConsoleCommandAdd::P_OVERWRITE, true);
+    SubscribeToEvent("#nakama_leave_match",
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            StringVector params = eventData["Parameters"].GetStringVector();
+            if (params.size() != 1)
+            {
+                URHO3D_LOGERROR("This command doesn't take any arguments!");
+                return;
+            }
+            LeaveMatch();
+        });
 }
 
 void NakamaManager::SetupRTCClient()
 {
     rtClient_ = client_->createRtClient();
-    rtclistener_.setConnectCallback([this]()
-    {
-        URHO3D_LOGINFO(">>>> Socket connected");
-
-        rtClient_->updateStatus("Enjoying music", []()
+    rtclistener_.setConnectCallback(
+        [this]()
         {
-            URHO3D_LOGINFO(">>> Status updated");
-        });
+            URHO3D_LOGINFO(">>>> Socket connected");
 
-        rtClient_->joinChat("global", NChannelType::ROOM, true, false, [&](NChannelPtr channel) {
-            globalChatChannel_ = channel;
-            ChannelJoined(channel);
+            rtClient_->updateStatus("Enjoying music", []() { URHO3D_LOGINFO(">>> Status updated"); });
+
+            rtClient_->joinChat("global", NChannelType::ROOM, true, false,
+                [&](NChannelPtr channel)
+                {
+                    globalChatChannel_ = channel;
+                    ChannelJoined(channel);
+                });
         });
-    });
-    rtclistener_.setChannelMessageCallback([&](const NChannelMessage& message) {
-        ChannelMessageReceived(message);
-    });
-    rtclistener_.setMatchDataCallback([&](const NMatchData& data) {
-        MatchDataReceived(data);
-    });
-    rtclistener_.setMatchmakerMatchedCallback([&](NMatchmakerMatchedPtr matched) {
-        MatchmakerMatched(matched);
-    });
-    rtclistener_.setMatchPresenceCallback([&](const NMatchPresenceEvent& event) {
-        MatchPresence(event);
-    });
+    rtclistener_.setChannelMessageCallback([&](const NChannelMessage& message) { ChannelMessageReceived(message); });
+    rtclistener_.setMatchDataCallback([&](const NMatchData& data) { MatchDataReceived(data); });
+    rtclistener_.setMatchmakerMatchedCallback([&](NMatchmakerMatchedPtr matched) { MatchmakerMatched(matched); });
+    rtclistener_.setMatchPresenceCallback([&](const NMatchPresenceEvent& event) { MatchPresence(event); });
     rtClient_->setListener(&rtclistener_);
 }
 
 void NakamaManager::HandleUpdate(StringHash eventType, VariantMap& eventData)
 {
-    if (updateTimer_.GetMSec(false) < 100) {
+    if (updateTimer_.GetMSec(false) < 100)
+    {
         return;
     }
     updateTimer_.Reset();
-    if (client_) {
+    if (client_)
+    {
         client_->tick();
     }
-    if (rtClient_) {
+    if (rtClient_)
+    {
         rtClient_->tick();
     }
 }
@@ -371,7 +343,8 @@ void NakamaManager::LogIn(const ea::string& email, const ea::string& password)
         rtClient_->connect(session_, true);
     };
 
-    client_->authenticateEmail(email.CString(), password.CString(), "", true, {}, loginSucceededCallback, loginFailedCallback);
+    client_->authenticateEmail(
+        email.c_str(), password.c_str(), "", true, {}, loginSucceededCallback, loginFailedCallback);
 }
 
 void NakamaManager::Register(const ea::string& email, const ea::string& password, const ea::string& username)
@@ -396,7 +369,8 @@ void NakamaManager::Register(const ea::string& email, const ea::string& password
         rtClient_->connect(session_, true);
     };
 
-    client_->authenticateEmail(email.CString(), password.CString(), username.CString(), true, {}, loginSucceededCallback, loginFailedCallback);
+    client_->authenticateEmail(
+        email.c_str(), password.c_str(), username.c_str(), true, {}, loginSucceededCallback, loginFailedCallback);
 }
 
 void NakamaManager::ChannelMessageReceived(const NChannelMessage& message)
@@ -406,58 +380,65 @@ void NakamaManager::ChannelMessageReceived(const NChannelMessage& message)
 
 void NakamaManager::CreateMatch()
 {
-    if (!rtClient_) {
+    if (!rtClient_)
+    {
         URHO3D_LOGERROR("You must login into nakama first!");
     }
-    rtClient_->createMatch([&](const NMatch& match)
-    {
-      URHO3D_LOGINFOF("Match created, ID=%s", match.matchId.c_str());
-        matchId_ = ea::string(match.matchId.c_str());
-    });
+    rtClient_->createMatch(
+        [&](const NMatch& match)
+        {
+            URHO3D_LOGINFOF("Match created, ID=%s", match.matchId.c_str());
+            matchId_ = ea::string(match.matchId.c_str());
+        });
 }
 
 void NakamaManager::JoinMatch(const ea::string& matchID)
 {
-    if (!matchId_.empty()) {
+    if (!matchId_.empty())
+    {
         URHO3D_LOGERROR("Already in a match!");
     }
-    if (!rtClient_) {
+    if (!rtClient_)
+    {
         URHO3D_LOGERROR("You must login into nakama first!");
     }
-    rtClient_->joinMatch(matchID.CString(), {}, [&](const NMatch& match)
-    {
-        URHO3D_LOGINFOF("Joined match! Listing users:");
-        matchId_ = match.matchId.c_str();
-        for (auto& presence : match.presences)
+    rtClient_->joinMatch(matchID.c_str(), {},
+        [&](const NMatch& match)
         {
-            if (presence.userId != match.self.userId)
+            URHO3D_LOGINFOF("Joined match! Listing users:");
+            matchId_ = match.matchId.c_str();
+            for (auto& presence : match.presences)
             {
-                URHO3D_LOGINFOF("User id=%s username=%s", presence.userId.c_str(), presence.username.c_str());
+                if (presence.userId != match.self.userId)
+                {
+                    URHO3D_LOGINFOF("User id=%s username=%s", presence.userId.c_str(), presence.username.c_str());
+                }
             }
-        }
-    });
+        });
 }
 
-void NakamaManager::MatchDataReceived(const NMatchData& data)
-{
-    packetHandler_.Handle(data);
-}
+void NakamaManager::MatchDataReceived(const NMatchData& data) { packetHandler_.Handle(data); }
 
 void NakamaManager::MatchmakerMatched(NMatchmakerMatchedPtr matched)
 {
-    if (!matched->token.empty()) {
-        rtClient_->joinMatchByToken(matched->token, [&](const NMatch& match) {
-        URHO3D_LOGINFOF("Joined match with token! Listing users:");
-        matchId_ = match.matchId.c_str();
-        for (auto& presence : match.presences)
-        {
-            if (presence.userId != match.self.userId)
+    if (!matched->token.empty())
+    {
+        rtClient_->joinMatchByToken(matched->token,
+            [&](const NMatch& match)
             {
-                URHO3D_LOGINFOF("User id=%s username=%s", presence.userId.c_str(), presence.username.c_str());
-            }
-        }
-    });
-    } else if (!matched->matchId.empty()) {
+                URHO3D_LOGINFOF("Joined match with token! Listing users:");
+                matchId_ = match.matchId.c_str();
+                for (auto& presence : match.presences)
+                {
+                    if (presence.userId != match.self.userId)
+                    {
+                        URHO3D_LOGINFOF("User id=%s username=%s", presence.userId.c_str(), presence.username.c_str());
+                    }
+                }
+            });
+    }
+    else if (!matched->matchId.empty())
+    {
         URHO3D_LOGINFOF("Joined match with match ID %s! Listing users:", matched->matchId.c_str());
         JoinMatch(ea::string(matched->matchId.c_str()));
     }
@@ -466,10 +447,12 @@ void NakamaManager::MatchmakerMatched(NMatchmakerMatchedPtr matched)
 void NakamaManager::MatchPresence(const NMatchPresenceEvent& event)
 {
     URHO3D_LOGINFO("MatchPresence");
-    for (auto it = event.joins.begin(); it != event.joins.end(); ++it) {
+    for (auto it = event.joins.begin(); it != event.joins.end(); ++it)
+    {
         URHO3D_LOGINFOF("User has entered match %s", (*it).username.c_str());
     }
-    for (auto it = event.leaves.begin(); it != event.leaves.end(); ++it) {
+    for (auto it = event.leaves.begin(); it != event.leaves.end(); ++it)
+    {
         URHO3D_LOGINFOF("User has exited match %s", (*it).username.c_str());
     }
 }
@@ -481,26 +464,29 @@ void NakamaManager::ChannelJoined(NChannelPtr channel)
 
 void NakamaManager::SendChatMessage(const ea::string& message)
 {
-    if (!globalChatChannel_) {
+    if (!globalChatChannel_)
+    {
         URHO3D_LOGERROR("You must join a chat first!");
         return;
     }
     ea::string content = "{\"content\":\"" + message + "\"}";
-    rtClient_->writeChatMessage(globalChatChannel_->id, content.CString());
+    rtClient_->writeChatMessage(globalChatChannel_->id, content.c_str());
 }
 
 void NakamaManager::SendData(int msgID, const VectorBuffer& data)
 {
-    if (rtClient_) {
+    if (rtClient_)
+    {
         NBytes content(reinterpret_cast<char const*>(data.GetBuffer().Buffer()), data.GetBuffer().size());
-        rtClient_->sendMatchData(matchId_.CString(), msgID, content);
+        rtClient_->sendMatchData(matchId_.c_str(), msgID, content);
     }
 }
 
 void NakamaManager::LeaveMatch()
 {
-    if (rtClient_) {
-        rtClient_->leaveMatch(matchId_.CString());
+    if (rtClient_)
+    {
+        rtClient_->leaveMatch(matchId_.c_str());
         matchId_.clear();
     }
 }

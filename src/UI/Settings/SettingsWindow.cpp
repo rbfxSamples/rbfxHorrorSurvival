@@ -73,11 +73,11 @@ namespace {
         }
 
         static Resolution FromString(const ea::string& s) {
-            auto tokens = s.Split('x');
+            auto tokens = s.split('x');
             if (tokens.size() > 2) {
                 return Resolution(ToInt(tokens[0], 0), ToInt(tokens[1], 0), ToInt(tokens[2], 0));
             } else if (tokens.size() == 2) {
-                auto rate_tokens = tokens[1].Split('@');
+                auto rate_tokens = tokens[1].split('@');
                 if (rate_tokens.size() > 1)
                     return Resolution(ToInt(tokens[0], 0), ToInt(rate_tokens[0]), ToInt(rate_tokens[1]));
                 return Resolution(ToInt(tokens[0], 0), ToInt(tokens[1], 0));
@@ -359,7 +359,7 @@ void SettingsWindow::CreateVideoTab()
         }
 
         for (int i = 0; i < options.size(); i++) {
-            if (ToInt(options.At(i)) == currentFps) {
+            if (ToInt(options.at(i)) == currentFps) {
                 opt_fpslimit_->SetOptionIndex(i);
             }
         }
@@ -1085,7 +1085,7 @@ void SettingsWindow::HandleOptionChanged(StringHash eventType, VariantMap& event
     // Audio settings
     if (option->HasTag("audio")) {
         ea::string type = option->GetVar("AudioType").GetString();
-        URHO3D_LOGINFOF("Audio: %s", type.CString());
+        URHO3D_LOGINFOF("Audio: %s", type.c_str());
         if (!type.empty()) {
             GetSubsystem<Audio>()->SetMasterGain(type, audio_settings_[type]->GetValue());
             GetSubsystem<ConfigManager>()->Set("audio", type, audio_settings_[type]->GetValue());

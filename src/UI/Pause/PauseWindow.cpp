@@ -1,20 +1,20 @@
-#include <Urho3D/Input/Input.h>
-#include <Urho3D/Resource/Localization.h>
-#include <Urho3D/UI/UIEvents.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/UI/Text.h>
-#include <Urho3D/UI/Font.h>
-#include <Urho3D/Core/CoreEvents.h>
 #include "PauseWindow.h"
+#include "../../Globals/GUIDefines.h"
 #include "../../LevelManagerEvents.h"
 #include "../WindowEvents.h"
-#include "../../Globals/GUIDefines.h"
+#include <Urho3D/Core/CoreEvents.h>
+#include <Urho3D/Input/Input.h>
+#include <Urho3D/Resource/Localization.h>
+#include <Urho3D/Resource/ResourceCache.h>
+#include <Urho3D/UI/Font.h>
+#include <Urho3D/UI/Text.h>
+#include <Urho3D/UI/UIEvents.h>
 
 using namespace LevelManagerEvents;
 using namespace WindowEvents;
 
-PauseWindow::PauseWindow(Context* context) :
-    BaseWindow(context)
+PauseWindow::PauseWindow(Context* context)
+    : BaseWindow(context)
 {
 }
 
@@ -36,7 +36,8 @@ void PauseWindow::Init()
 void PauseWindow::Create()
 {
     Input* input = GetSubsystem<Input>();
-    if (!input->IsMouseVisible()) {
+    if (!input->IsMouseVisible())
+    {
         input->SetMouseVisible(true);
     }
 
@@ -51,46 +52,47 @@ void PauseWindow::Create()
     continueButton_ = CreateButton(localization->Get("CONTINUE"), 200, IntVector2(0, 20));
     continueButton_->SetAlignment(HA_CENTER, VA_TOP);
 
-    SubscribeToEvent(continueButton_, E_RELEASED, [&](StringHash eventType, VariantMap& eventData) {
-        SendEvent(E_CLOSE_ALL_WINDOWS);
-    });
+    SubscribeToEvent(continueButton_, E_RELEASED,
+        [&](StringHash eventType, VariantMap& eventData) { SendEvent(E_CLOSE_ALL_WINDOWS); });
 
     mainMenuButton_ = CreateButton(localization->Get("RETURN_TO_MENU"), 200, IntVector2(0, 60));
     mainMenuButton_->SetAlignment(HA_CENTER, VA_TOP);
 
-    SubscribeToEvent(mainMenuButton_, E_RELEASED, [&](StringHash eventType, VariantMap& eventData) {
-        VariantMap& data = GetEventDataMap();
-        data["Name"] = "PauseWindow";
-        SendEvent(E_CLOSE_WINDOW, data);
+    SubscribeToEvent(mainMenuButton_, E_RELEASED,
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            VariantMap& data = GetEventDataMap();
+            data["Name"] = "PauseWindow";
+            SendEvent(E_CLOSE_WINDOW, data);
 
-        data["Name"] = "MainMenu";
-        SendEvent(E_SET_LEVEL, data);
-    });
+            data["Name"] = "MainMenu";
+            SendEvent(E_SET_LEVEL, data);
+        });
 
     settingsButton_ = CreateButton(localization->Get("SETTINGS"), 200, IntVector2(0, 100));
     settingsButton_->SetAlignment(HA_CENTER, VA_TOP);
 
-    SubscribeToEvent(settingsButton_, E_RELEASED, [&](StringHash eventType, VariantMap& eventData) {
-        VariantMap& data = GetEventDataMap();
-        data["Name"] = "SettingsWindow";
-        SendEvent(E_OPEN_WINDOW, data);
-    });
+    SubscribeToEvent(settingsButton_, E_RELEASED,
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            VariantMap& data = GetEventDataMap();
+            data["Name"] = "SettingsWindow";
+            SendEvent(E_OPEN_WINDOW, data);
+        });
 
     exitButton_ = CreateButton(localization->Get("EXIT_GAME"), 200, IntVector2(0, 140));
     exitButton_->SetAlignment(HA_CENTER, VA_TOP);
 
-    SubscribeToEvent(exitButton_, E_RELEASED, [&](StringHash eventType, VariantMap& eventData) {
-        VariantMap& data = GetEventDataMap();
-        data["Name"] = "QuitConfirmationWindow";
-        SendEvent(E_OPEN_WINDOW, data);
-    });
-
+    SubscribeToEvent(exitButton_, E_RELEASED,
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            VariantMap& data = GetEventDataMap();
+            data["Name"] = "QuitConfirmationWindow";
+            SendEvent(E_OPEN_WINDOW, data);
+        });
 }
 
-void PauseWindow::SubscribeToEvents()
-{
-    SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(PauseWindow, HandleUpdate));
-}
+void PauseWindow::SubscribeToEvents() { SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(PauseWindow, HandleUpdate)); }
 
 Button* PauseWindow::CreateButton(const ea::string& text, int width, IntVector2 position)
 {
@@ -111,12 +113,15 @@ Button* PauseWindow::CreateButton(const ea::string& text, int width, IntVector2 
     return button;
 }
 
-void PauseWindow::HandleUpdate(StringHash eventType, VariantMap& eventData) {
-    Input *input = GetSubsystem<Input>();
-    if (!input->IsMouseVisible()) {
+void PauseWindow::HandleUpdate(StringHash eventType, VariantMap& eventData)
+{
+    Input* input = GetSubsystem<Input>();
+    if (!input->IsMouseVisible())
+    {
         input->SetMouseVisible(true);
     }
-    if (input->GetKeyPress(KEY_BACKSPACE)) {
+    if (input->GetKeyPress(KEY_BACKSPACE))
+    {
         UnsubscribeFromEvent(E_UPDATE);
         SendEvent(E_CLOSE_ALL_WINDOWS);
     }

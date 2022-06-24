@@ -1,28 +1,28 @@
-#include <Urho3D/UI/UI.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Graphics/Texture2D.h>
+#include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Graphics/Graphics.h>
 #include <Urho3D/Graphics/GraphicsEvents.h>
+#include <Urho3D/Graphics/Texture2D.h>
+#include <Urho3D/Input/Input.h>
+#include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Scene/ObjectAnimation.h>
 #include <Urho3D/Scene/ValueAnimation.h>
-#include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/Input/Input.h>
+#include <Urho3D/UI/UI.h>
 
 #if !defined(__EMSCRIPTEN__)
-#include <Urho3D/Network/Network.h>
+    #include <Urho3D/Network/Network.h>
 #endif
 
+#include "../Config/ConfigManager.h"
+#include "../LevelManagerEvents.h"
+#include "../Messages/Achievements.h"
+#include "../Network/NetworkEvents.h"
+#include "../SceneManager.h"
+#include "../SceneManagerEvents.h"
+#include "Loading.h"
+#include <Urho3D/Engine/Engine.h>
+#include <Urho3D/IO/Log.h>
 #include <Urho3D/Network/NetworkEvents.h>
 #include <Urho3D/Resource/Localization.h>
-#include <Urho3D/IO/Log.h>
-#include <Urho3D/Engine/Engine.h>
-#include "Loading.h"
-#include "../Messages/Achievements.h"
-#include "../SceneManager.h"
-#include "../Config/ConfigManager.h"
-#include "../SceneManagerEvents.h"
-#include "../LevelManagerEvents.h"
-#include "../Network/NetworkEvents.h"
 
 using namespace Levels;
 using namespace SceneManagerEvents;
@@ -31,19 +31,14 @@ using namespace NetworkEvents;
 
 const int SERVER_PORT = 4545;
 
-Loading::Loading(Context* context) :
-    BaseLevel(context)
+Loading::Loading(Context* context)
+    : BaseLevel(context)
 {
 }
 
-Loading::~Loading()
-{
-}
+Loading::~Loading() {}
 
-void Loading::RegisterObject(Context* context)
-{
-    context->RegisterFactory<Loading>();
-}
+void Loading::RegisterObject(Context* context) { context->RegisterFactory<Loading>(); }
 
 void Loading::Init()
 {
@@ -62,53 +57,57 @@ void Loading::Init()
     SetGlobalVar("PACKET_LIMIT", 10000);
 #if !defined(__EMSCRIPTEN__)
     GetSubsystem<Network>()->RegisterRemoteEvent(E_REMOTE_CLIENT_ID);
-    if (data_.contains("StartServer") && data_["StartServer"].GetBool()) {
-        SendEvent(E_REGISTER_LOADING_STEP,
-                  RegisterLoadingStep::P_NAME, "Starting server",
-                  RegisterLoadingStep::P_REMOVE_ON_FINISH, true,
-                  RegisterLoadingStep::P_EVENT, "StartServer");
-        SubscribeToEvent("StartServer", [&](StringHash eventType, VariantMap &eventData) {
-            SendEvent(E_ACK_LOADING_STEP,
-                      RegisterLoadingStep::P_EVENT, "StartServer");
-            GetSubsystem<Network>()->StartServer(SERVER_PORT);
+    if (data_.contains("StartServer") && data_["StartServer"].GetBool())
+    {
+        SendEvent(E_REGISTER_LOADING_STEP, RegisterLoadingStep::P_NAME, "Starting server",
+            RegisterLoadingStep::P_REMOVE_ON_FINISH, true, RegisterLoadingStep::P_EVENT, "StartServer");
+        SubscribeToEvent("StartServer",
+            [&](StringHash eventType, VariantMap& eventData)
+            {
+                SendEvent(E_ACK_LOADING_STEP, RegisterLoadingStep::P_EVENT, "StartServer");
+                GetSubsystem<Network>()->StartServer(SERVER_PORT);
 
-            SendEvent(E_LOADING_STEP_FINISHED,
-                      RegisterLoadingStep::P_EVENT, "StartServer");
-        });
+                SendEvent(E_LOADING_STEP_FINISHED, RegisterLoadingStep::P_EVENT, "StartServer");
+            });
     }
 #endif
 
-    if (data_.contains("ConnectServer") && !data_["ConnectServer"].GetString().empty()) {
+    if (data_.contains("ConnectServer") && !data_["ConnectServer"].GetString().empty())
+    {
         StringVector dependsOn;
         dependsOn.push_back("ConnectServer");
-        SendEvent(E_REGISTER_LOADING_STEP,
-                  RegisterLoadingStep::P_NAME, "Retrieving player data",
-                  RegisterLoadingStep::P_REMOVE_ON_FINISH, true,
-                  RegisterLoadingStep::P_DEPENDS_ON, dependsOn,
-                  RegisterLoadingStep::P_EVENT, "RetrievePlayerData");
-        SubscribeToEvent("RetrievePlayerData", [&](StringHash eventType, VariantMap &eventData) {
-            SendEvent(E_ACK_LOADING_STEP,
-                      RegisterLoadingStep::P_EVENT, "RetrievePlayerData");
-            searchPlayerNode_ = true;
-        });
-        SendEvent(E_REGISTER_LOADING_STEP,
-                  RegisterLoadingStep::P_NAME, "Connecting to server",
-                  RegisterLoadingStep::P_REMOVE_ON_FINISH, true,
-                  RegisterLoadingStep::P_EVENT, "ConnectServer");
-        SubscribeToEvent("ConnectServer", [&](StringHash eventType, VariantMap &eventData) {
-            SendEvent(E_ACK_LOADING_STEP,
-                      RegisterLoadingStep::P_EVENT, "ConnectServer");
+        SendEvent(E_REGISTER_LOADING_STEP, RegisterLoadingStep::P_NAME, "Retrieving player data",
+            RegisterLoadingStep::P_REMOVE_ON_FINISH, true, RegisterLoadingStep::P_DEPENDS_ON, dependsOn,
+            RegisterLoadingStep::P_EVENT, "RetrievePlayerData");
+        SubscribeToEvent("RetrievePlayerData",
+            [&](StringHash eventType, VariantMap& eventData)
+            {
+                SendEvent(E_ACK_LOADING_STEP, RegisterLoadingStep::P_EVENT, "RetrievePlayerData");
+                searchPlayerNode_ = true;
+            });
+        SendEvent(E_REGISTER_LOADING_STEP, RegisterLoadingStep::P_NAME, "Connecting to server",
+            RegisterLoadingStep::P_REMOVE_ON_FINISH, true, RegisterLoadingStep::P_EVENT, "ConnectServer");
+        SubscribeToEvent("ConnectServer",
+            [&](StringHash eventType, VariantMap& eventData)
+            {
+                SendEvent(E_ACK_LOADING_STEP, RegisterLoadingStep::P_EVENT, "ConnectServer");
 #if defined(__EMSCRIPTEN__)
-//            GetSubsystem<Network>()->WSConnect("ws://127.0.0.1:9090/ws", GetSubsystem<SceneManager>()->GetActiveScene());
-//            GetSubsystem<Network>()->WSConnect("wss://playground-server.arnis.dev/ws", GetSubsystem<SceneManager>()->GetActiveScene());
+//            GetSubsystem<Network>()->WSConnect("ws://127.0.0.1:9090/ws",
+//            GetSubsystem<SceneManager>()->GetActiveScene());
+//            GetSubsystem<Network>()->WSConnect("wss://playground-server.arnis.dev/ws",
+//            GetSubsystem<SceneManager>()->GetActiveScene());
 #else
             GetSubsystem<Network>()->Connect(data_["ConnectServer"].GetString(), SERVER_PORT, GetSubsystem<SceneManager>()->GetActiveScene());
-//            GetSubsystem<Network>()->Connect("192.168.8.107", SERVER_PORT, GetSubsystem<SceneManager>()->GetActiveScene());
-//            GetSubsystem<Network>()->Connect("playground-sample.frameskippers.com", 30333, GetSubsystem<SceneManager>()->GetActiveScene());
-//            GetSubsystem<Network>()->WSConnect("wss://playground-server.frameskippers.com/ws", GetSubsystem<SceneManager>()->GetActiveScene());
-//            GetSubsystem<Network>()->WSConnect("ws://127.0.0.1:9090/ws", GetSubsystem<SceneManager>()->GetActiveScene());
+//            GetSubsystem<Network>()->Connect("192.168.8.107", SERVER_PORT,
+//            GetSubsystem<SceneManager>()->GetActiveScene());
+//            GetSubsystem<Network>()->Connect("playground-sample.frameskippers.com", 30333,
+//            GetSubsystem<SceneManager>()->GetActiveScene());
+//            GetSubsystem<Network>()->WSConnect("wss://playground-server.frameskippers.com/ws",
+//            GetSubsystem<SceneManager>()->GetActiveScene());
+//            GetSubsystem<Network>()->WSConnect("ws://127.0.0.1:9090/ws",
+//            GetSubsystem<SceneManager>()->GetActiveScene());
 #endif
-        });
+            });
 
         SubscribeToEvent(E_REMOTE_CLIENT_ID, URHO3D_HANDLER(Loading, HandleRemoteClientID));
         SubscribeToEvent(E_LOADING_STEP_TIMED_OUT, URHO3D_HANDLER(Loading, HandleLoadingStepFailed));
@@ -119,23 +118,25 @@ void Loading::Init()
     }
 
     statusMessage_ = GetSubsystem<SceneManager>()->GetStatusMessage();
-    SubscribeToEvent(E_LOADING_STATUS_UPDATE, [&](StringHash eventType, VariantMap& eventData) {
-        using namespace LoadingStatusUpdate;
-        statusMessage_ = eventData[P_NAME].GetString();
-        UpdateStatusMesage();
-    });
+    SubscribeToEvent(E_LOADING_STATUS_UPDATE,
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            using namespace LoadingStatusUpdate;
+            statusMessage_ = eventData[P_NAME].GetString();
+            UpdateStatusMesage();
+        });
 
-    if (data_.contains("Map")) {
+    if (data_.contains("Map"))
+    {
         GetSubsystem<SceneManager>()->LoadScene(data_["Map"].GetString());
-    } else {
+    }
+    else
+    {
         GetSubsystem<SceneManager>()->LoadScene("Scenes/Flat.xml");
     }
 }
 
-void Loading::CreateScene()
-{
-    return;
-}
+void Loading::CreateScene() { return; }
 
 void Loading::CreateUI()
 {
@@ -150,7 +151,8 @@ void Loading::CreateUI()
 
     auto* graphics = GetSubsystem<Graphics>();
 
-    if (!graphics) {
+    if (!graphics)
+    {
         return;
     }
 
@@ -167,7 +169,6 @@ void Loading::CreateUI()
 
     // Set random rotation in degrees and random scale
     sprite->SetRotation(Random() * 360.0f);
-
 
     // Add as a child of the root UI element
     ui->GetRoot()->AddChild(sprite);
@@ -196,7 +197,6 @@ void Loading::CreateUI()
     status_->SetColor(Color(0.8f, 0.8f, 0.2f));
     status_->SetBringToBack(true);
 
-
     SharedPtr<ObjectAnimation> animation(new ObjectAnimation(context_));
     SharedPtr<ValueAnimation> colorAnimation(new ValueAnimation(context_));
     // Use spline interpolation method
@@ -220,10 +220,12 @@ void Loading::SubscribeToEvents()
 void Loading::UpdateStatusMesage()
 {
     float progress = GetSubsystem<SceneManager>()->GetProgress();
-    if (!GetSubsystem<Engine>()->IsHeadless()) {
-        status_->SetText(
-                ea::string((int) (progress * 100)) + "% "
-                                                 "" + statusMessage_ + "...");
+    if (!GetSubsystem<Engine>()->IsHeadless())
+    {
+        status_->SetText(ea::to_string((int)(progress * 100))
+            + "% "
+              ""
+            + statusMessage_ + "...");
     }
 }
 
@@ -231,25 +233,30 @@ void Loading::HandleUpdate(StringHash eventType, VariantMap& eventData)
 {
 
     Input* input = GetSubsystem<Input>();
-    if (input->IsMouseVisible()) {
+    if (input->IsMouseVisible())
+    {
         input->SetMouseVisible(false);
     }
 
     float progress = GetSubsystem<SceneManager>()->GetProgress();
 
-    if (searchPlayerNode_) {
+    if (searchPlayerNode_)
+    {
         SearchPlayerNode();
     }
 
-    if (!GetSubsystem<Engine>()->IsHeadless()) {
+    if (!GetSubsystem<Engine>()->IsHeadless())
+    {
         UpdateStatusMesage();
 
-        if (loadingBar_) {
+        if (loadingBar_)
+        {
             loadingBar_->SetWidth(
-                    progress * (GetSubsystem<Graphics>()->GetWidth() / GetSubsystem<UI>()->GetScale() - 20));
+                progress * (GetSubsystem<Graphics>()->GetWidth() / GetSubsystem<UI>()->GetScale() - 20));
         }
     }
-    if (progress >= 1.0f) {
+    if (progress >= 1.0f)
+    {
         SendEvent("EndLoading");
         UnsubscribeFromEvent(E_UPDATE);
     }
@@ -257,14 +264,15 @@ void Loading::HandleUpdate(StringHash eventType, VariantMap& eventData)
 
 void Loading::SearchPlayerNode()
 {
-    if (GetSubsystem<SceneManager>()->GetActiveScene()) {
+    if (GetSubsystem<SceneManager>()->GetActiveScene())
+    {
         using namespace RemoteClientId;
         int nodeID = data_[P_NODE_ID].GetInt();
         auto node = GetSubsystem<SceneManager>()->GetActiveScene()->GetNode(nodeID);
-        if (node) {
+        if (node)
+        {
             searchPlayerNode_ = false;
-            SendEvent(E_LOADING_STEP_FINISHED,
-                      LoadingStepFinished::P_EVENT, "RetrievePlayerData");
+            SendEvent(E_LOADING_STEP_FINISHED, LoadingStepFinished::P_EVENT, "RetrievePlayerData");
         }
     }
 }
@@ -280,14 +288,15 @@ void Loading::HandleEndLoading(StringHash eventType, VariantMap& eventData)
 
 void Loading::CreateProgressBar()
 {
-    if (GetSubsystem<ConfigManager>()->GetBool("game", "ShowProgressBar", true)) {
-        UI *ui = GetSubsystem<UI>();
-        ResourceCache *cache = GetSubsystem<ResourceCache>();
-        auto *progressBarTexture = cache->GetResource<Texture2D>("Textures/Loading.png");
+    if (GetSubsystem<ConfigManager>()->GetBool("game", "ShowProgressBar", true))
+    {
+        UI* ui = GetSubsystem<UI>();
+        ResourceCache* cache = GetSubsystem<ResourceCache>();
+        auto* progressBarTexture = cache->GetResource<Texture2D>("Textures/Loading.png");
         loadingBar_ = ui->GetRoot()->CreateChild<Sprite>();
         loadingBar_->SetTexture(progressBarTexture);
-        auto *graphics = GetSubsystem<Graphics>();
-        auto height = (float) graphics->GetHeight() / GetSubsystem<UI>()->GetScale();
+        auto* graphics = GetSubsystem<Graphics>();
+        auto height = (float)graphics->GetHeight() / GetSubsystem<UI>()->GetScale();
         loadingBar_->SetPosition(10, height - 30);
         loadingBar_->SetSize(0, 20);
 
@@ -303,11 +312,13 @@ void Loading::CreateProgressBar()
         loadingBar_->SetObjectAnimation(animation);
 
         // Reposition loading bar when screen is resized (mostly for web platform)
-        SubscribeToEvent(E_SCREENMODE, [&](StringHash eventType, VariantMap& eventData) {
-            auto *graphics = GetSubsystem<Graphics>();
-            auto height = (float) graphics->GetHeight() / GetSubsystem<UI>()->GetScale();
-            loadingBar_->SetPosition(10, height - 30);
-        });
+        SubscribeToEvent(E_SCREENMODE,
+            [&](StringHash eventType, VariantMap& eventData)
+            {
+                auto* graphics = GetSubsystem<Graphics>();
+                auto height = (float)graphics->GetHeight() / GetSubsystem<UI>()->GetScale();
+                loadingBar_->SetPosition(10, height - 30);
+            });
     }
 }
 
@@ -324,7 +335,8 @@ void Loading::HandleSceneLoadFailed(StringHash eventType, VariantMap& eventData)
 {
 #if !defined(__EMSCRIPTEN__)
     UnsubscribeFromEvent(E_SERVERDISCONNECTED);
-    if (GetSubsystem<Network>() && GetSubsystem<Network>()->GetServerConnection()) {
+    if (GetSubsystem<Network>() && GetSubsystem<Network>()->GetServerConnection())
+    {
         GetSubsystem<Network>()->Disconnect(200);
         auto localization = GetSubsystem<Localization>();
         VariantMap data;
@@ -347,9 +359,8 @@ void Loading::HandleConnectFailed(StringHash eventType, VariantMap& eventData)
 void Loading::HandleServerConnected(StringHash eventType, VariantMap& eventData)
 {
     using namespace LoadingStepProgress;
-    SendEvent(E_LOADING_STEP_PROGRESS,
-              LoadingStepProgress::P_EVENT, "ConnectServer",
-              LoadingStepProgress::P_PROGRESS, 0.5f);
+    SendEvent(
+        E_LOADING_STEP_PROGRESS, LoadingStepProgress::P_EVENT, "ConnectServer", LoadingStepProgress::P_PROGRESS, 0.5f);
 }
 
 void Loading::HandleRemoteClientID(StringHash eventType, VariantMap& eventData)
@@ -359,18 +370,19 @@ void Loading::HandleRemoteClientID(StringHash eventType, VariantMap& eventData)
     data_[P_PLAYER_ID] = eventData[P_PLAYER_ID];
     URHO3D_LOGINFOF("Remote node ID=%d received", eventData[P_NODE_ID].GetInt());
     GetSubsystem<SceneManager>()->GetActiveScene()->SetUpdateEnabled(true);
-    SendEvent(E_LOADING_STEP_FINISHED,
-              LoadingStepFinished::P_EVENT, "ConnectServer");
+    SendEvent(E_LOADING_STEP_FINISHED, LoadingStepFinished::P_EVENT, "ConnectServer");
 }
 
 void Loading::HandleLoadingStepFailed(StringHash eventType, VariantMap& eventData)
 {
     using namespace LoadingStepCriticalFail;
     auto localization = GetSubsystem<Localization>();
-    if (eventData[P_EVENT].GetString() == "RetrievePlayerData") {
+    if (eventData[P_EVENT].GetString() == "RetrievePlayerData")
+    {
 #if !defined(__EMSCRIPTEN__)
         UnsubscribeFromEvent(E_SERVERDISCONNECTED);
-        if (GetSubsystem<Network>() && GetSubsystem<Network>()->GetServerConnection()) {
+        if (GetSubsystem<Network>() && GetSubsystem<Network>()->GetServerConnection())
+        {
             GetSubsystem<Network>()->Disconnect(200);
         }
         VariantMap& data = GetEventDataMap();

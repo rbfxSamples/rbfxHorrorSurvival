@@ -26,7 +26,7 @@ void BehaviourTree::Init(const ea::string& config)
 
 void BehaviourTree::LoadConfig(const ea::string& config)
 {
-    //    URHO3D_LOGINFOF("Loading behaviour tree: %s", config.CString());
+    //    URHO3D_LOGINFOF("Loading behaviour tree: %s", config.c_str());
     auto json = GetSubsystem<ResourceCache>()->GetResource<JSONFile>(config);
     JSONValue& content = json->GetRoot();
 
@@ -34,7 +34,7 @@ void BehaviourTree::LoadConfig(const ea::string& config)
     {
         for (auto it = content.Begin(); it != content.End(); ++it)
         {
-            // URHO3D_LOGWARNINGF("JSON: %s", (*it).first.CString());
+            // URHO3D_LOGWARNINGF("JSON: %s", (*it).first.c_str());
             auto field = (*it).first;
             auto value = (*it).second;
 

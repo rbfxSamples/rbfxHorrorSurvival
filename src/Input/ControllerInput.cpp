@@ -1,22 +1,22 @@
-#include <Urho3D/Core/Context.h>
-#include <Urho3D/Engine/DebugHud.h>
-#include <Urho3D/Input/Input.h>
-#include <Urho3D/IO/Log.h>
 #include "ControllerInput.h"
+#include "ControlDefines.h"
+#include "ControllerEvents.h"
+#include "Controllers/JoystickInput.h"
 #include "Controllers/KeyboardInput.h"
 #include "Controllers/MouseInput.h"
-#include "Controllers/JoystickInput.h"
 #include "Controllers/ScreenJoystickInput.h"
-#include "ControllerEvents.h"
-#include "ControlDefines.h"
+#include <Urho3D/Core/Context.h>
+#include <Urho3D/IO/Log.h>
+#include <Urho3D/Input/Input.h>
+#include <Urho3D/SystemUI/DebugHud.h>
 
 using namespace Urho3D;
 using namespace ControllerEvents;
 
-ControllerInput::ControllerInput(Context* context) :
-    Object(context),
-    multipleControllerSupport_(true),
-    activeAction_(-1)
+ControllerInput::ControllerInput(Context* context)
+    : Object(context)
+    , multipleControllerSupport_(true)
+    , activeAction_(-1)
 {
 
     context_->RegisterFactory<BaseInput>();
@@ -30,15 +30,15 @@ ControllerInput::ControllerInput(Context* context) :
     inputHandlers_[ControllerType::JOYSTICK] = context_->CreateObject<JoystickInput>();
     inputHandlers_[ControllerType::SCREEN_JOYSTICK] = context_->CreateObject<ScreenJoystickInput>();
 
-    controlMapNames_[CTRL_FORWARD]  = "Move forward";
-    controlMapNames_[CTRL_BACK]     = "Move backward";
-    controlMapNames_[CTRL_LEFT]     = "Strafe left";
-    controlMapNames_[CTRL_RIGHT]    = "Strafe right";
-    controlMapNames_[CTRL_JUMP]     = "Jump";
-    controlMapNames_[CTRL_ACTION]   = "Primary action";
+    controlMapNames_[CTRL_FORWARD] = "Move forward";
+    controlMapNames_[CTRL_BACK] = "Move backward";
+    controlMapNames_[CTRL_LEFT] = "Strafe left";
+    controlMapNames_[CTRL_RIGHT] = "Strafe right";
+    controlMapNames_[CTRL_JUMP] = "Jump";
+    controlMapNames_[CTRL_ACTION] = "Primary action";
     controlMapNames_[CTRL_SECONDARY] = "Secondary action";
-    controlMapNames_[CTRL_SPRINT]   = "Sprint";
-    controlMapNames_[CTRL_UP]       = "Move up";
+    controlMapNames_[CTRL_SPRINT] = "Sprint";
+    controlMapNames_[CTRL_UP] = "Move up";
     controlMapNames_[CTRL_SCREENSHOT] = "Take screenshot";
     controlMapNames_[CTRL_DETECT] = "Detect";
     controlMapNames_[CTRL_CHANGE_ITEM] = "Change item";
@@ -46,9 +46,7 @@ ControllerInput::ControllerInput(Context* context) :
     Init();
 }
 
-ControllerInput::~ControllerInput()
-{
-}
+ControllerInput::~ControllerInput() {}
 
 void ControllerInput::Init()
 {
@@ -58,7 +56,8 @@ void ControllerInput::Init()
     // there must be at least one controller available at start
     controls_[0] = Controls();
 
-    if (GetSubsystem<DebugHud>()) {
+    if (GetSubsystem<DebugHud>())
+    {
         GetSubsystem<DebugHud>()->SetAppStats("Controls", controls_.size());
     }
 }
@@ -78,25 +77,30 @@ void ControllerInput::LoadConfig()
     inputHandlers_[ControllerType::MOUSE]->SetKeyToAction(MOUSEB_RIGHT, CTRL_SECONDARY);
 #endif
 
-    for (auto it = controlMapNames_.begin(); it != controlMapNames_.end(); ++it) {
+    for (auto it = controlMapNames_.begin(); it != controlMapNames_.end(); ++it)
+    {
         ea::string controlName = (*it).second;
-        controlName.Replace(" ", "_");
+        controlName.replace(" ", "_");
         int controlCode = (*it).first;
-        if (GetSubsystem<ConfigManager>()->GetInt("keyboard", controlName, -1) != -1) {
+        if (GetSubsystem<ConfigManager>()->GetInt("keyboard", controlName, -1) != -1)
+        {
             int key = GetSubsystem<ConfigManager>()->GetInt("keyboard", controlName, 0);
             inputHandlers_[ControllerType::KEYBOARD]->SetKeyToAction(key, controlCode);
         }
-        if (GetSubsystem<ConfigManager>()->GetInt("mouse", controlName, -1) != -1) {
+        if (GetSubsystem<ConfigManager>()->GetInt("mouse", controlName, -1) != -1)
+        {
             int key = GetSubsystem<ConfigManager>()->GetInt("mouse", controlName, 0);
             inputHandlers_[ControllerType::MOUSE]->SetKeyToAction(key, controlCode);
         }
-        if (GetSubsystem<ConfigManager>()->GetInt("joystick", controlName, -1) != -1) {
+        if (GetSubsystem<ConfigManager>()->GetInt("joystick", controlName, -1) != -1)
+        {
             int key = GetSubsystem<ConfigManager>()->GetInt("joystick", controlName, 0);
             inputHandlers_[ControllerType::JOYSTICK]->SetKeyToAction(key, controlCode);
         }
     }
 
-    for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it) {
+    for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it)
+    {
         (*it).second->LoadConfig();
     }
 
@@ -109,16 +113,18 @@ void ControllerInput::LoadConfig()
 
 void ControllerInput::SaveConfig()
 {
-    for (auto it = controlMapNames_.begin(); it != controlMapNames_.end(); ++it) {
+    for (auto it = controlMapNames_.begin(); it != controlMapNames_.end(); ++it)
+    {
         ea::string controlName = (*it).second;
-        controlName.Replace(" ", "_");
+        controlName.replace(" ", "_");
         int controlCode = (*it).first;
         GetSubsystem<ConfigManager>()->Set("keyboard", controlName, "-1");
         GetSubsystem<ConfigManager>()->Set("mouse", controlName, "-1");
         GetSubsystem<ConfigManager>()->Set("joystick", controlName, "-1");
     }
 
-    for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it) {
+    for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it)
+    {
         ea::hash_map<int, int> configMap = (*it).second->GetConfigMap();
         int type = (*it).first;
         ea::string typeName;
@@ -127,13 +133,15 @@ void ControllerInput::SaveConfig()
         map[ControllerType::MOUSE] = "mouse";
         map[ControllerType::JOYSTICK] = "joystick";
 
-        for (auto it2 = configMap.begin(); it2 != configMap.end(); ++it2) {
+        for (auto it2 = configMap.begin(); it2 != configMap.end(); ++it2)
+        {
             int controlCode = (*it2).first;
-             int keyCode = (*it2).second;
-             if (controlMapNames_.contains(controlCode) && !controlMapNames_[controlCode].empty()) {
+            int keyCode = (*it2).second;
+            if (controlMapNames_.contains(controlCode) && !controlMapNames_[controlCode].empty())
+            {
                 ea::string controlName = controlMapNames_[controlCode];
-                controlName.Replace(" ", "_");
-                ea::string value = ea::string(keyCode);
+                controlName.replace(" ", "_");
+                ea::string value = ea::to_string(keyCode);
                 GetSubsystem<ConfigManager>()->Set(map[type], controlName, value);
             }
         }
@@ -153,7 +161,8 @@ void ControllerInput::SubscribeToEvents()
 void ControllerInput::ReleaseConfiguredKey(int key, int action)
 {
     // Clear all input handler mappings against key and actions
-    for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it) {
+    for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it)
+    {
         (*it).second->ReleaseAction(action);
         (*it).second->ReleaseKey(key);
     }
@@ -164,18 +173,22 @@ void ControllerInput::SetConfiguredKey(int action, int key, ea::string controlle
     // Clear previously assigned key and/or action
     ReleaseConfiguredKey(key, action);
     auto* input = GetSubsystem<Input>();
-    if (controller == "keyboard") {
+    if (controller == "keyboard")
+    {
         inputHandlers_[ControllerType::KEYBOARD]->SetKeyToAction(key, action);
     }
-    if (controller == "mouse") {
+    if (controller == "mouse")
+    {
         inputHandlers_[ControllerType::MOUSE]->SetKeyToAction(key, action);
     }
-    if (controller == "joystick") {
+    if (controller == "joystick")
+    {
         inputHandlers_[ControllerType::JOYSTICK]->SetKeyToAction(key, action);
     }
 
     // Stop listening for keyboard key mapping
-    for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it) {
+    for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it)
+    {
         (*it).second->StopMappingAction();
         activeAction_ = -1;
     }
@@ -201,7 +214,8 @@ void ControllerInput::StopInputMapping()
 
     activeAction_ = -1;
     // Stop listening for keyboard key mapping
-    for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it) {
+    for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it)
+    {
         (*it).second->StopMappingAction();
     }
 
@@ -213,21 +227,27 @@ void ControllerInput::StopInputMapping()
 void ControllerInput::HandleStartInputListening(StringHash eventType, VariantMap& eventData)
 {
     using namespace StartInputMapping;
-    if (eventData[P_CONTROL_ACTION].GetType() == VAR_INT) {
+    if (eventData[P_CONTROL_ACTION].GetType() == VAR_INT)
+    {
         activeAction_ = eventData[P_CONTROL_ACTION].GetInt();
     }
-    if (eventData[P_CONTROL_ACTION].GetType() == VAR_STRING) {
+    if (eventData[P_CONTROL_ACTION].GetType() == VAR_STRING)
+    {
         ea::string control = eventData[P_CONTROL_ACTION].GetString();
-        for (auto it = controlMapNames_.begin(); it != controlMapNames_.end(); ++it) {
-            if ((*it).second == control) {
+        for (auto it = controlMapNames_.begin(); it != controlMapNames_.end(); ++it)
+        {
+            if ((*it).second == control)
+            {
                 activeAction_ = (*it).first;
             }
         }
     }
 
-    if (activeAction_ >= 0) {
+    if (activeAction_ >= 0)
+    {
         // Prepare all input handlers for key mapping against specific action
-        for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it) {
+        for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it)
+        {
             (*it).second->StartMappingAction(activeAction_);
         }
         URHO3D_LOGINFO("Starting to map action!");
@@ -246,7 +266,8 @@ void ControllerInput::RegisterConsoleCommands()
 void ControllerInput::HandleStartInputListeningConsole(StringHash eventType, VariantMap& eventData)
 {
     StringVector parameters = eventData["Parameters"].GetStringVector();
-    if (parameters.size() == 2) {
+    if (parameters.size() == 2)
+    {
         using namespace StartInputMapping;
         VariantMap& data = GetEventDataMap();
         data[P_CONTROL_ACTION] = parameters[1];
@@ -259,10 +280,12 @@ void ControllerInput::HandleStartInputListeningConsole(StringHash eventType, Var
 
 Controls ControllerInput::GetControls(int index)
 {
-    if (!multipleControllerSupport_) {
+    if (!multipleControllerSupport_)
+    {
         index = 0;
     }
-    if (!controls_.contains(index)) {
+    if (!controls_.contains(index))
+    {
         return Controls();
     }
     return controls_[index];
@@ -270,7 +293,8 @@ Controls ControllerInput::GetControls(int index)
 
 void ControllerInput::UpdateYaw(float yaw, int index)
 {
-    if (!multipleControllerSupport_) {
+    if (!multipleControllerSupport_)
+    {
         index = 0;
     }
     const float MOUSE_SENSITIVITY = 0.1f;
@@ -279,7 +303,8 @@ void ControllerInput::UpdateYaw(float yaw, int index)
 
 void ControllerInput::UpdatePitch(float pitch, int index)
 {
-    if (!multipleControllerSupport_) {
+    if (!multipleControllerSupport_)
+    {
         index = 0;
     }
     const float MOUSE_SENSITIVITY = 0.1f;
@@ -289,27 +314,31 @@ void ControllerInput::UpdatePitch(float pitch, int index)
 
 void ControllerInput::CreateController(int controllerIndex)
 {
-    if (!multipleControllerSupport_) {
+    if (!multipleControllerSupport_)
+    {
         return;
     }
     using namespace ControllerAdded;
     controls_[controllerIndex] = Controls();
-    VariantMap& data           = GetEventDataMap();
-    data[P_INDEX]              = controllerIndex;
+    VariantMap& data = GetEventDataMap();
+    data[P_INDEX] = controllerIndex;
     SendEvent(E_CONTROLLER_ADDED, data);
 
-    if (GetSubsystem<DebugHud>()) {
+    if (GetSubsystem<DebugHud>())
+    {
         GetSubsystem<DebugHud>()->SetAppStats("Controls", controls_.size());
     }
 }
 
 void ControllerInput::DestroyController(int controllerIndex)
 {
-    if (!multipleControllerSupport_) {
+    if (!multipleControllerSupport_)
+    {
         return;
     }
     // Don't allow destroying first input controller
-    if (controllerIndex > 0) {
+    if (controllerIndex > 0)
+    {
         controls_.erase(controllerIndex);
 
         using namespace ControllerRemoved;
@@ -318,23 +347,24 @@ void ControllerInput::DestroyController(int controllerIndex)
         data[P_INDEX] = controllerIndex;
         SendEvent(E_CONTROLLER_REMOVED, data);
     }
-    if (GetSubsystem<DebugHud>()) {
+    if (GetSubsystem<DebugHud>())
+    {
         GetSubsystem<DebugHud>()->SetAppStats("Controls", controls_.size());
     }
 }
 
-ea::hash_map<int, ea::string> ControllerInput::GetControlNames()
-{
-    return controlMapNames_;
-}
+ea::hash_map<int, ea::string> ControllerInput::GetControlNames() { return controlMapNames_; }
 
 ea::string ControllerInput::GetActionKeyName(int action)
 {
-    if (action == activeAction_) {
+    if (action == activeAction_)
+    {
         return "...";
     }
-    for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it) {
-        if ((*it).second->IsActionUsed(action)) {
+    for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it)
+    {
+        if ((*it).second->IsActionUsed(action))
+        {
             ea::string keyName = (*it).second->GetActionKeyName(action);
             return keyName;
         }
@@ -345,21 +375,26 @@ ea::string ControllerInput::GetActionKeyName(int action)
 
 void ControllerInput::SetActionState(int action, bool active, int index, float strength)
 {
-    if (!multipleControllerSupport_) {
+    if (!multipleControllerSupport_)
+    {
         index = 0;
     }
 
     // Mapped control is about to change, send out events
-    if (controls_[index].IsDown(action) != active) {
-        if (active) {
+    if (controls_[index].IsDown(action) != active)
+    {
+        if (active)
+        {
             using namespace MappedControlPressed;
-            VariantMap &data = GetEventDataMap();
+            VariantMap& data = GetEventDataMap();
             data[P_ACTION] = action;
             data[P_CONTROLLER] = index;
             SendEvent(E_MAPPED_CONTROL_PRESSED, data);
-        } else {
+        }
+        else
+        {
             using namespace MappedControlReleased;
-            VariantMap &data = GetEventDataMap();
+            VariantMap& data = GetEventDataMap();
             data[P_ACTION] = action;
             data[P_CONTROLLER] = index;
             SendEvent(E_MAPPED_CONTROL_RELEASED, data);
@@ -372,36 +407,34 @@ void ControllerInput::SetActionState(int action, bool active, int index, float s
 ea::vector<int> ControllerInput::GetControlIndexes()
 {
     ea::vector<int> indexes;
-    if (!multipleControllerSupport_) {
+    if (!multipleControllerSupport_)
+    {
         indexes.push_back(0);
         return indexes;
     }
 
-    for (auto it = controls_.begin(); it != controls_.end(); ++it) {
+    for (auto it = controls_.begin(); it != controls_.end(); ++it)
+    {
         indexes.push_back((*it).first);
     }
 
-    if (indexes.empty()) {
+    if (indexes.empty())
+    {
         indexes.push_back(0);
     }
     return indexes;
 }
 
-void ControllerInput::SetMultipleControllerSupport(bool enabled)
-{
-    multipleControllerSupport_ = enabled;
-}
+void ControllerInput::SetMultipleControllerSupport(bool enabled) { multipleControllerSupport_ = enabled; }
 
-bool ControllerInput::IsMappingInProgress()
-{
-    return activeAction_ >= 0 || mappingTimer_.GetMSec(false) < 20;
-}
+bool ControllerInput::IsMappingInProgress() { return activeAction_ >= 0 || mappingTimer_.GetMSec(false) < 20; }
 
 void ControllerInput::SetJoystickAsFirstController(bool enabled)
 {
     BaseInput* input = inputHandlers_[ControllerType::JOYSTICK];
     JoystickInput* joystickInput = input->Cast<JoystickInput>();
-    if (joystickInput) {
+    if (joystickInput)
+    {
         joystickInput->SetJoystickAsFirstController(enabled);
     }
 }
@@ -410,7 +443,8 @@ bool ControllerInput::GetJoystickAsFirstController()
 {
     BaseInput* input = inputHandlers_[ControllerType::JOYSTICK];
     JoystickInput* joystickInput = input->Cast<JoystickInput>();
-    if (joystickInput) {
+    if (joystickInput)
+    {
         return joystickInput->GetJoystickAsFirstController();
     }
 
@@ -419,89 +453,66 @@ bool ControllerInput::GetJoystickAsFirstController()
 
 void ControllerInput::SetInvertX(bool enabled, int controller)
 {
-    switch (controller) {
-    case ControllerType::MOUSE:
-        inputHandlers_[ControllerType::MOUSE]->SetInvertX(enabled);
-        break;
-    case ControllerType::JOYSTICK:
-        inputHandlers_[ControllerType::JOYSTICK]->SetInvertX(enabled);
-        break;
+    switch (controller)
+    {
+    case ControllerType::MOUSE: inputHandlers_[ControllerType::MOUSE]->SetInvertX(enabled); break;
+    case ControllerType::JOYSTICK: inputHandlers_[ControllerType::JOYSTICK]->SetInvertX(enabled); break;
     }
-
-
 }
 
 bool ControllerInput::GetInvertX(int controller)
 {
-    switch (controller) {
-    case ControllerType::MOUSE:
-        return inputHandlers_[ControllerType::MOUSE]->GetInvertX();
-        break;
-    case ControllerType::JOYSTICK:
-        return inputHandlers_[ControllerType::JOYSTICK]->GetInvertX();
-        break;
+    switch (controller)
+    {
+    case ControllerType::MOUSE: return inputHandlers_[ControllerType::MOUSE]->GetInvertX(); break;
+    case ControllerType::JOYSTICK: return inputHandlers_[ControllerType::JOYSTICK]->GetInvertX(); break;
     }
     return false;
 }
 
 void ControllerInput::SetInvertY(bool enabled, int controller)
 {
-    switch (controller) {
-    case ControllerType::MOUSE:
-        inputHandlers_[ControllerType::MOUSE]->SetInvertY(enabled);
-        break;
-    case ControllerType::JOYSTICK:
-        inputHandlers_[ControllerType::JOYSTICK]->SetInvertY(enabled);
-        break;
+    switch (controller)
+    {
+    case ControllerType::MOUSE: inputHandlers_[ControllerType::MOUSE]->SetInvertY(enabled); break;
+    case ControllerType::JOYSTICK: inputHandlers_[ControllerType::JOYSTICK]->SetInvertY(enabled); break;
     }
 }
 
 bool ControllerInput::GetInvertY(int controller)
 {
-    switch (controller) {
-    case ControllerType::MOUSE:
-        return inputHandlers_[ControllerType::MOUSE]->GetInvertY();
-        break;
-    case ControllerType::JOYSTICK:
-        return inputHandlers_[ControllerType::JOYSTICK]->GetInvertY();
-        break;
+    switch (controller)
+    {
+    case ControllerType::MOUSE: return inputHandlers_[ControllerType::MOUSE]->GetInvertY(); break;
+    case ControllerType::JOYSTICK: return inputHandlers_[ControllerType::JOYSTICK]->GetInvertY(); break;
     }
     return false;
 }
 
 void ControllerInput::SetSensitivityX(float value, int controller)
 {
-    switch (controller) {
-    case ControllerType::MOUSE:
-        inputHandlers_[ControllerType::MOUSE]->SetSensitivityX(value);
-        break;
-    case ControllerType::JOYSTICK:
-        inputHandlers_[ControllerType::JOYSTICK]->SetSensitivityX(value);
-        break;
+    switch (controller)
+    {
+    case ControllerType::MOUSE: inputHandlers_[ControllerType::MOUSE]->SetSensitivityX(value); break;
+    case ControllerType::JOYSTICK: inputHandlers_[ControllerType::JOYSTICK]->SetSensitivityX(value); break;
     }
 }
 
 void ControllerInput::SetSensitivityY(float value, int controller)
 {
-    switch (controller) {
-    case ControllerType::MOUSE:
-        inputHandlers_[ControllerType::MOUSE]->SetSensitivityY(value);
-        break;
-    case ControllerType::JOYSTICK:
-        inputHandlers_[ControllerType::JOYSTICK]->SetSensitivityY(value);
-        break;
+    switch (controller)
+    {
+    case ControllerType::MOUSE: inputHandlers_[ControllerType::MOUSE]->SetSensitivityY(value); break;
+    case ControllerType::JOYSTICK: inputHandlers_[ControllerType::JOYSTICK]->SetSensitivityY(value); break;
     }
 }
 
 float ControllerInput::GetSensitivityX(int controller)
 {
-    switch (controller) {
-    case ControllerType::MOUSE:
-        return inputHandlers_[ControllerType::MOUSE]->GetSensitivityX();
-        break;
-    case ControllerType::JOYSTICK:
-        return inputHandlers_[ControllerType::JOYSTICK]->GetSensitivityX();
-        break;
+    switch (controller)
+    {
+    case ControllerType::MOUSE: return inputHandlers_[ControllerType::MOUSE]->GetSensitivityX(); break;
+    case ControllerType::JOYSTICK: return inputHandlers_[ControllerType::JOYSTICK]->GetSensitivityX(); break;
     }
 
     return 0.0f;
@@ -509,34 +520,19 @@ float ControllerInput::GetSensitivityX(int controller)
 
 float ControllerInput::GetSensitivityY(int controller)
 {
-    switch (controller) {
-    case ControllerType::MOUSE:
-        return inputHandlers_[ControllerType::MOUSE]->GetSensitivityY();
-        break;
-    case ControllerType::JOYSTICK:
-        return inputHandlers_[ControllerType::JOYSTICK]->GetSensitivityY();
-        break;
+    switch (controller)
+    {
+    case ControllerType::MOUSE: return inputHandlers_[ControllerType::MOUSE]->GetSensitivityY(); break;
+    case ControllerType::JOYSTICK: return inputHandlers_[ControllerType::JOYSTICK]->GetSensitivityY(); break;
     }
 
     return 0.0f;
 }
 
-void ControllerInput::SetJoystickDeadzone(float value)
-{
-    inputHandlers_[ControllerType::JOYSTICK]->SetDeadzone(value);
-}
+void ControllerInput::SetJoystickDeadzone(float value) { inputHandlers_[ControllerType::JOYSTICK]->SetDeadzone(value); }
 
-float ControllerInput::GetJoystickDeadzone()
-{
-    return inputHandlers_[ControllerType::JOYSTICK]->GetDeadzone();
-}
+float ControllerInput::GetJoystickDeadzone() { return inputHandlers_[ControllerType::JOYSTICK]->GetDeadzone(); }
 
-void ControllerInput::ShowOnScreenJoystick()
-{
-    inputHandlers_[ControllerType::SCREEN_JOYSTICK]->Show();
-}
+void ControllerInput::ShowOnScreenJoystick() { inputHandlers_[ControllerType::SCREEN_JOYSTICK]->Show(); }
 
-void ControllerInput::HideOnScreenJoystick()
-{
-    inputHandlers_[ControllerType::SCREEN_JOYSTICK]->Hide();
-}
+void ControllerInput::HideOnScreenJoystick() { inputHandlers_[ControllerType::SCREEN_JOYSTICK]->Hide(); }

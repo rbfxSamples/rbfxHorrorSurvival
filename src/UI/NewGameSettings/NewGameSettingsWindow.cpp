@@ -1,16 +1,16 @@
-#include <Urho3D/Resource/Localization.h>
-#include <Urho3D/UI/UIEvents.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/UI/Font.h>
-#include <Urho3D/UI/Text.h>
+#include "NewGameSettingsWindow.h"
+#include "../../Globals/GUIDefines.h"
+#include "../../LevelManagerEvents.h"
+#include "../../SceneManager.h"
+#include "../WindowEvents.h"
 #include <Urho3D/Graphics/Texture2D.h>
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/Resource/JSONFile.h>
-#include "NewGameSettingsWindow.h"
-#include "../../LevelManagerEvents.h"
-#include "../WindowEvents.h"
-#include "../../SceneManager.h"
-#include "../../Globals/GUIDefines.h"
+#include <Urho3D/Resource/Localization.h>
+#include <Urho3D/Resource/ResourceCache.h>
+#include <Urho3D/UI/Font.h>
+#include <Urho3D/UI/Text.h>
+#include <Urho3D/UI/UIEvents.h>
 
 static const int BUTTON_HEIGHT = 40;
 static const int MARGIN = 10;
@@ -19,8 +19,8 @@ static const int IMAGE_SIZE = 200;
 using namespace LevelManagerEvents;
 using namespace WindowEvents;
 
-NewGameSettingsWindow::NewGameSettingsWindow(Context* context) :
-    BaseWindow(context)
+NewGameSettingsWindow::NewGameSettingsWindow(Context* context)
+    : BaseWindow(context)
 {
 }
 
@@ -40,17 +40,18 @@ void NewGameSettingsWindow::Init()
 void NewGameSettingsWindow::Create()
 {
     auto maps = GetSubsystem<SceneManager>()->GetAvailableMaps();
-    if (maps.size() == 1) {
+    if (maps.size() == 1)
+    {
         // TODO: only one map available, automatically start it
         auto it = maps.begin();
         VariantMap& data = GetEventDataMap();
         data["Name"] = "Loading";
-        data["Map"] =  (*it).map;
+        data["Map"] = (*it).map;
         data["Commands"] = (*it).commands;
-//#ifndef __EMSCRIPTEN__
-//        data["StartServer"] = startServer_->IsChecked();
-//#endif
-//        data["ConnectServer"] = connectServer_->IsChecked() && !startServer_->IsChecked() ? "127.0.0.1" : "";
+        //#ifndef __EMSCRIPTEN__
+        //        data["StartServer"] = startServer_->IsChecked();
+        //#endif
+        //        data["ConnectServer"] = connectServer_->IsChecked() && !startServer_->IsChecked() ? "127.0.0.1" : "";
         SendEvent(E_SET_LEVEL, data);
         return;
     }
@@ -64,7 +65,7 @@ void NewGameSettingsWindow::Create()
     baseWindow_->GetParent()->SetPriority(baseWindow_->GetParent()->GetPriority() + 1000);
 
     // Create Window 'titlebar' container
-    UIElement* titleBar =baseWindow_->CreateChild<UIElement>();
+    UIElement* titleBar = baseWindow_->CreateChild<UIElement>();
     titleBar->SetVerticalAlignment(VA_TOP);
     titleBar->SetLayoutMode(LM_HORIZONTAL);
     titleBar->SetLayoutBorder(IntRect(0, 4, 0, 4));
@@ -92,11 +93,13 @@ void NewGameSettingsWindow::Create()
     windowTitle->SetStyleAuto();
     buttonClose->SetStyle("CloseButton");
 
-    SubscribeToEvent(buttonClose, E_RELEASED, [&](StringHash eventType, VariantMap& eventData) {
-        VariantMap& data = GetEventDataMap();
-        data["Name"] = "NewGameSettingsWindow";
-        SendEvent(E_CLOSE_WINDOW, data);
-    });
+    SubscribeToEvent(buttonClose, E_RELEASED,
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            VariantMap& data = GetEventDataMap();
+            data["Name"] = "NewGameSettingsWindow";
+            SendEvent(E_CLOSE_WINDOW, data);
+        });
 
     CreateLevelSelection();
 
@@ -111,9 +114,7 @@ void NewGameSettingsWindow::Create()
     titleBar->SetFixedSize(levelSelection_->GetWidth(), 24);
 }
 
-void NewGameSettingsWindow::SubscribeToEvents()
-{
-}
+void NewGameSettingsWindow::SubscribeToEvents() {}
 
 CheckBox* NewGameSettingsWindow::CreateCheckbox(const ea::string& label)
 {
@@ -127,7 +128,7 @@ CheckBox* NewGameSettingsWindow::CreateCheckbox(const ea::string& label)
     return checkBox;
 }
 
-Button* NewGameSettingsWindow::CreateButton(UIElement *parent, const ea::string& text, int width, IntVector2 position)
+Button* NewGameSettingsWindow::CreateButton(UIElement* parent, const ea::string& text, int width, IntVector2 position)
 {
     auto* cache = GetSubsystem<ResourceCache>();
     auto* font = cache->GetResource<Font>(APPLICATION_FONT);
@@ -138,8 +139,9 @@ Button* NewGameSettingsWindow::CreateButton(UIElement *parent, const ea::string&
     button->SetFixedHeight(BUTTON_HEIGHT);
     button->SetPosition(position);
 
-    if (!text.empty()) {
-        auto *buttonText = button->CreateChild<Text>();
+    if (!text.empty())
+    {
+        auto* buttonText = button->CreateChild<Text>();
         buttonText->SetFont(font, 16);
         buttonText->SetAlignment(HA_CENTER, VA_CENTER);
         buttonText->SetText(text);
@@ -160,9 +162,10 @@ void NewGameSettingsWindow::CreateLevelSelection()
 
     auto maps = GetSubsystem<SceneManager>()->GetAvailableMaps();
 
-    for (auto it = maps.begin(); it != maps.end(); ++it) {
+    for (auto it = maps.begin(); it != maps.end(); ++it)
+    {
 
-        UIElement *mapView = levelSelection_->CreateChild<UIElement>();
+        UIElement* mapView = levelSelection_->CreateChild<UIElement>();
         mapView->SetLayout(LayoutMode::LM_VERTICAL, 5);
 
         auto button = CreateButton(mapView, "", IMAGE_SIZE, IntVector2(0, 0));
@@ -171,20 +174,22 @@ void NewGameSettingsWindow::CreateLevelSelection()
         button->SetVar("Commands", (*it).commands);
         button->SetStyle("MapSelection");
 
-        SubscribeToEvent(button, E_RELEASED, [&](StringHash eventType, VariantMap& eventData) {
-            using namespace Released;
-            Button* button = static_cast<Button*>(eventData[P_ELEMENT].GetPtr());
+        SubscribeToEvent(button, E_RELEASED,
+            [&](StringHash eventType, VariantMap& eventData)
+            {
+                using namespace Released;
+                Button* button = static_cast<Button*>(eventData[P_ELEMENT].GetPtr());
 
-            VariantMap& data = GetEventDataMap();
-            data["Name"] = "Loading";
-            data["Map"] = button->GetVar("Map");
-            data["Commands"] = button->GetVar("Commands");
+                VariantMap& data = GetEventDataMap();
+                data["Name"] = "Loading";
+                data["Map"] = button->GetVar("Map");
+                data["Commands"] = button->GetVar("Commands");
 #ifndef __EMSCRIPTEN__
-            data["StartServer"] = startServer_->IsChecked();
+                data["StartServer"] = startServer_->IsChecked();
 #endif
-            data["ConnectServer"] = connectServer_->IsChecked() && !startServer_->IsChecked() ? "127.0.0.1" : "";
-            SendEvent(E_SET_LEVEL, data);
-        });
+                data["ConnectServer"] = connectServer_->IsChecked() && !startServer_->IsChecked() ? "127.0.0.1" : "";
+                SendEvent(E_SET_LEVEL, data);
+            });
 
         auto sprite = button->CreateChild<Sprite>();
         sprite->SetFixedHeight(IMAGE_SIZE - MARGIN);

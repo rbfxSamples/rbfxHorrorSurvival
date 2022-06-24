@@ -128,7 +128,7 @@ void SceneManager::CleanupLoadingSteps()
 {
     for (auto it = loadingSteps_.begin(); it != loadingSteps_.end(); ++it) {
         if ((*it).second.autoRemove) {
-            URHO3D_LOGINFOF("Auto removing loading step %s", (*it).second.name.CString());
+            URHO3D_LOGINFOF("Auto removing loading step %s", (*it).second.name.c_str());
             loadingSteps_.erase(it);
             it--;
         }
@@ -327,7 +327,7 @@ void SceneManager::HandleAddMap(StringHash eventType, VariantMap &eventData)
     ea::string map = eventData[P_MAP].GetString();
 
     if (GetMap(map)) {
-        URHO3D_LOGWARNINGF("Map '%s' already added to the list", map.CString());
+        URHO3D_LOGWARNINGF("Map '%s' already added to the list", map.c_str());
         return;
     }
 
@@ -341,7 +341,7 @@ void SceneManager::HandleAddMap(StringHash eventType, VariantMap &eventData)
     mapData.startNode = eventData[P_START_NODE].GetString();
     availableMaps_.push_back(mapData);
 
-    URHO3D_LOGINFOF("Map '%s' added to the list", map.CString());
+    URHO3D_LOGINFOF("Map '%s' added to the list", map.c_str());
 }
 
 bool SceneManager::CanLoadingStepRun(LoadingStep& loadingStep)

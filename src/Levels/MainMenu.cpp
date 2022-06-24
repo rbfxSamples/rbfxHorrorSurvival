@@ -1,27 +1,27 @@
+#include <Urho3D/Core/CoreEvents.h>
+#include <Urho3D/Engine/Engine.h>
+#include <Urho3D/Graphics/Model.h>
+#include <Urho3D/Graphics/Octree.h>
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/Resource/Localization.h>
-#include <Urho3D/UI/UIEvents.h>
 #include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Graphics/Octree.h>
-#include <Urho3D/Graphics/Model.h>
-#include <Urho3D/UI/UI.h>
-#include <Urho3D/UI/Font.h>
-#include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Resource/XMLFile.h>
-#include <Urho3D/Engine/Engine.h>
+#include <Urho3D/UI/Font.h>
+#include <Urho3D/UI/UI.h>
+#include <Urho3D/UI/UIEvents.h>
 #ifdef URHO3D_ANGELSCRIPT
-#include <Urho3D/AngelScript/Script.h>
+    #include <Urho3D/AngelScript/Script.h>
 #endif
-#include "MainMenu.h"
-#include "../CustomEvents.h"
-#include "../Messages/Achievements.h"
+#include "../AndroidEvents/AndroidDefines.h"
 #include "../AndroidEvents/ServiceCmd.h"
+#include "../AndroidEvents/ServiceEvents.h"
+#include "../CustomEvents.h"
+#include "../Globals/GUIDefines.h"
 #include "../Input/ControllerInput.h"
 #include "../LevelManagerEvents.h"
+#include "../Messages/Achievements.h"
 #include "../UI/WindowEvents.h"
-#include "../AndroidEvents/ServiceEvents.h"
-#include "../AndroidEvents/AndroidDefines.h"
-#include "../Globals/GUIDefines.h"
+#include "MainMenu.h"
 
 using namespace Levels;
 using namespace LevelManagerEvents;
@@ -31,19 +31,14 @@ using namespace ServiceEvents;
 
 const static int BUTTON_FONT_SIZE = 20;
 
-MainMenu::MainMenu(Context* context) :
-        BaseLevel(context)
+MainMenu::MainMenu(Context* context)
+    : BaseLevel(context)
 {
 }
 
-MainMenu::~MainMenu()
-{
-}
+MainMenu::~MainMenu() {}
 
-void MainMenu::RegisterObject(Context* context)
-{
-    context->RegisterFactory<MainMenu>();
-}
+void MainMenu::RegisterObject(Context* context) { context->RegisterFactory<MainMenu>(); }
 
 void MainMenu::Init()
 {
@@ -69,12 +64,11 @@ void MainMenu::CreateScene()
 
     InitCamera();
 
-    SubscribeToEvent(E_VIDEO_SETTINGS_CHANGED, [&](StringHash eventType, VariantMap& eventData) {
-        InitCamera();
-    });
+    SubscribeToEvent(E_VIDEO_SETTINGS_CHANGED, [&](StringHash eventType, VariantMap& eventData) { InitCamera(); });
 
 #ifdef URHO3D_ANGELSCRIPT
-    if (GetSubsystem<Script>()) {
+    if (GetSubsystem<Script>())
+    {
         GetSubsystem<Script>()->SetDefaultScene(scene_);
     }
 #endif
@@ -85,7 +79,8 @@ void MainMenu::InitCamera()
     CreateSingleCamera();
     ApplyPostProcessEffects();
 
-    if (GetSubsystem<Engine>()->IsHeadless()) {
+    if (GetSubsystem<Engine>()->IsHeadless())
+    {
         return;
     }
 
@@ -97,7 +92,8 @@ void MainMenu::InitCamera()
 
 void MainMenu::SubscribeToEvents()
 {
-    if (GetSubsystem<Engine>()->IsHeadless()) {
+    if (GetSubsystem<Engine>()->IsHeadless())
+    {
         return;
     }
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(MainMenu, HandleUpdate));
@@ -106,11 +102,13 @@ void MainMenu::SubscribeToEvents()
 void MainMenu::CreateUI()
 {
     Input* input = GetSubsystem<Input>();
-    if (!input->IsMouseVisible()) {
+    if (!input->IsMouseVisible())
+    {
         input->SetMouseVisible(true);
     }
 
-    if (data_.contains("Message")) {
+    if (data_.contains("Message"))
+    {
         auto* localization = GetSubsystem<Localization>();
 
         VariantMap& data = GetEventDataMap();
@@ -139,33 +137,40 @@ void MainMenu::CreateUI()
 
     // Load dynamic buttons
     VariantMap buttons = GetGlobalVar("MenuButtons").GetVariantMap();
-    for (auto it = buttons.begin(); it != buttons.end(); ++it) {
+    for (auto it = buttons.begin(); it != buttons.end(); ++it)
+    {
         VariantMap item = (*it).second.GetVariantMap();
         SharedPtr<Button> button(CreateButton(item["Name"].GetString()));
         button->SetVar("EventToCall", item["EventToCall"].GetString());
         button->SetVar("Data", item["Data"].GetVariantMap());
         dynamicButtons_.push_back(button);
-        SubscribeToEvent(button, E_RELEASED, [&](StringHash eventType, VariantMap& eventData) {
-            using namespace Released;
-            Button* button = static_cast<Button*>(eventData[P_ELEMENT].GetPtr());
-            VariantMap data = button->GetVar("Data").GetVariantMap();
-            SendEvent(button->GetVar("EventToCall").GetString(), data);
-        });
+        SubscribeToEvent(button, E_RELEASED,
+            [&](StringHash eventType, VariantMap& eventData)
+            {
+                using namespace Released;
+                Button* button = static_cast<Button*>(eventData[P_ELEMENT].GetPtr());
+                VariantMap data = button->GetVar("Data").GetVariantMap();
+                SendEvent(button->GetVar("EventToCall").GetString(), data);
+            });
     }
 
     // Test Communication between the sample and android activity
     GetSubsystem<ServiceCmd>()->SendCmdMessage(ANDROID_AD_LOAD_INTERSTITIAL, 1);
 
-    SubscribeToEvent(E_SERVICE_MESSAGE, [&](StringHash eventType, VariantMap& eventData) {
-        using namespace ServiceMessage;
-        int eventId = eventData[P_COMMAND].GetInt();
-        if (eventId == ANDROID_AD_INTERSTITIAL_LOADED) {
-            GetSubsystem<ServiceCmd>()->SendCmdMessage(ANDROID_AD_SHOW_INTERSTITIAL, 1);
-        }
-    });
+    SubscribeToEvent(E_SERVICE_MESSAGE,
+        [&](StringHash eventType, VariantMap& eventData)
+        {
+            using namespace ServiceMessage;
+            int eventId = eventData[P_COMMAND].GetInt();
+            if (eventId == ANDROID_AD_INTERSTITIAL_LOADED)
+            {
+                GetSubsystem<ServiceCmd>()->SendCmdMessage(ANDROID_AD_SHOW_INTERSTITIAL, 1);
+            }
+        });
 }
 
-void MainMenu::AddButton(const ea::string& buttonName, const ea::string& label, const ea::string& windowToOpen, const ea::string& eventToCall)
+void MainMenu::AddButton(const ea::string& buttonName, const ea::string& label, const ea::string& windowToOpen,
+    const ea::string& eventToCall)
 {
     VariantMap buttons = GetGlobalVar("MenuButtons").GetVariantMap();
 
@@ -203,8 +208,10 @@ void MainMenu::HandleUpdate(StringHash eventType, VariantMap& eventData)
 {
     using namespace Update;
     float timestep = eventData[P_TIMESTEP].GetFloat();
-    if (!GetSubsystem<ControllerInput>()->IsMappingInProgress()) {
-        if (GetSubsystem<Input>()->GetKeyPress(KEY_ESCAPE)) {
+    if (!GetSubsystem<ControllerInput>()->IsMappingInProgress())
+    {
+        if (GetSubsystem<Input>()->GetKeyPress(KEY_ESCAPE))
+        {
             SendEvent(E_CLOSE_ALL_WINDOWS);
         }
     }

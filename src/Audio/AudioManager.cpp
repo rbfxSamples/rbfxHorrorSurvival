@@ -1,22 +1,20 @@
 #include <Urho3D/Core/Object.h>
 
-#include "AudioManager.h"
-#include "AudioManagerDefs.h"
 #include "../Console/ConsoleHandlerEvents.h"
 #include "AudioEvents.h"
+#include "AudioManager.h"
+#include "AudioManagerDefs.h"
 
 using namespace Urho3D;
 using namespace AudioEvents;
 
-AudioManager::AudioManager(Context* context) :
-    Object(context)
+AudioManager::AudioManager(Context* context)
+    : Object(context)
 {
     Init();
 }
 
-AudioManager::~AudioManager()
-{
-}
+AudioManager::~AudioManager() {}
 
 void AudioManager::Init()
 {
@@ -64,29 +62,38 @@ void AudioManager::HandlePlaySound(StringHash eventType, VariantMap& eventData)
 {
     using namespace PlaySound;
     int index = -1;
-    if (eventData.contains(P_INDEX)) {
+    if (eventData.contains(P_INDEX))
+    {
         index = eventData[P_INDEX].GetInt();
     }
     ea::string type = eventData[P_TYPE].GetString();
 
     ea::string filename;
-    if (index >= 0) {
-        if (type == SOUND_EFFECT) {
+    if (index >= 0)
+    {
+        if (type == SOUND_EFFECT)
+        {
             filename = soundEffects_[index];
         }
-        if (type == SOUND_MASTER) {
+        if (type == SOUND_MASTER)
+        {
             // filename = soundEffects_[index];
         }
-        if (type == SOUND_AMBIENT) {
+        if (type == SOUND_AMBIENT)
+        {
             filename = ambientSounds_[index];
         }
-        if (type == SOUND_VOICE) {
+        if (type == SOUND_VOICE)
+        {
             // filename = soundEffects_[index];
         }
-        if (type == SOUND_MUSIC) {
+        if (type == SOUND_MUSIC)
+        {
             filename = music_[index];
         }
-    } else {
+    }
+    else
+    {
         filename = eventData[P_SOUND_FILE].GetString();
     }
     PlaySound(filename, type, index);
@@ -96,26 +103,29 @@ void AudioManager::HandleConsolePlaySound(StringHash eventType, VariantMap& even
 {
     URHO3D_LOGINFO("Handle console play sound");
     StringVector params = eventData["Parameters"].GetStringVector();
-    if (params.size() == 2) {
+    if (params.size() == 2)
+    {
         PlaySound(params[1], SOUND_EFFECT);
     }
 
-    else {
+    else
+    {
         URHO3D_LOGERROR("Invalid number of parameters");
     }
 }
 
 void AudioManager::PlaySound(ea::string filename, ea::string type, int index)
 {
-    //URHO3D_LOGINFO("Playing sound: " + filename + " [" + type + "]");
+    // URHO3D_LOGINFO("Playing sound: " + filename + " [" + type + "]");
     StringHash filenameHash(filename);
-    if (type == SOUND_EFFECT && effectsTimer_.contains(filenameHash) && effectsTimer_[filename].GetMSec(false) < 10) {
+    if (type == SOUND_EFFECT && effectsTimer_.contains(filenameHash) && effectsTimer_[filename].GetMSec(false) < 10)
+    {
         // Safeguard to disable same sound effect overlapping
         return;
     }
     effectsTimer_[filename].Reset();
 
-     // Get the sound resource
+    // Get the sound resource
     auto* cache = GetSubsystem<ResourceCache>();
     auto* sound = cache->GetResource<Sound>(filename);
 
@@ -126,19 +136,26 @@ void AudioManager::PlaySound(ea::string filename, ea::string type, int index)
         // non-positional audio, so its 3D position in the scene does not matter. For positional sounds the
         // SoundSource3D component would be used instead
         auto* soundSource = node->CreateComponent<SoundSource>();
-        if (type == SOUND_EFFECT || type == SOUND_VOICE) {
+        if (type == SOUND_EFFECT || type == SOUND_VOICE)
+        {
             // Component will automatically remove itself when the sound finished playing
             soundSource->SetAutoRemoveMode(REMOVE_NODE);
-        } else {
+        }
+        else
+        {
             sound->SetLooped(true);
-            if (type == SOUND_MUSIC) {
-                if (!multipleMusicTracks_) {
+            if (type == SOUND_MUSIC)
+            {
+                if (!multipleMusicTracks_)
+                {
                     musicNodes_.clear();
                 }
                 musicNodes_[index] = node;
             }
-            if (type == SOUND_AMBIENT) {
-                if (!multipleMusicTracks_) {
+            if (type == SOUND_AMBIENT)
+            {
+                if (!multipleMusicTracks_)
+                {
                     ambientNodes_.clear();
                 }
                 ambientNodes_[index] = node;
@@ -148,7 +165,7 @@ void AudioManager::PlaySound(ea::string filename, ea::string type, int index)
         soundSource->SetSoundType(type);
         soundSource->Play(sound);
         // In case we also play music, set the sound volume below maximum so that we don't clip the output
-        //soundSource->SetGain(0.75f);
+        // soundSource->SetGain(0.75f);
     }
 }
 
@@ -158,48 +175,48 @@ void AudioManager::HandleStopSound(StringHash eventType, VariantMap& eventData)
     int index = eventData[P_INDEX].GetInt();
     ea::string type = eventData[P_TYPE].GetString();
 
-    if (type == SOUND_EFFECT) {
-
+    if (type == SOUND_EFFECT)
+    {
     }
-    if (type == SOUND_MASTER) {
-
+    if (type == SOUND_MASTER)
+    {
     }
-    if (type == SOUND_AMBIENT) {
+    if (type == SOUND_AMBIENT)
+    {
         // Disable only specific music
-        if (ambientNodes_[index]) {
+        if (ambientNodes_[index])
+        {
             ambientNodes_.erase(index);
         }
 
         // Disable all music
-        if (index == -1) {
+        if (index == -1)
+        {
             ambientNodes_.clear();
         }
     }
-    if (type == SOUND_VOICE) {
-
+    if (type == SOUND_VOICE)
+    {
     }
-    if (type == SOUND_MUSIC) {
+    if (type == SOUND_MUSIC)
+    {
         // Disable only specific music
-        if (musicNodes_[index]) {
+        if (musicNodes_[index])
+        {
             musicNodes_.erase(index);
         }
 
         // Disable all music
-        if (index == -1) {
+        if (index == -1)
+        {
             musicNodes_.clear();
         }
     }
 }
 
-void AudioManager::AllowMultipleMusicTracks(bool enabled)
-{
-    multipleMusicTracks_ = enabled;
-}
+void AudioManager::AllowMultipleMusicTracks(bool enabled) { multipleMusicTracks_ = enabled; }
 
-void AudioManager::AllowMultipleAmbientTracks(bool enabled)
-{
-    multipleMusicTracks_ = enabled;
-}
+void AudioManager::AllowMultipleAmbientTracks(bool enabled) { multipleMusicTracks_ = enabled; }
 
 void AudioManager::HandleStopAllSounds(StringHash eventType, VariantMap& eventData)
 {
@@ -229,7 +246,8 @@ SoundSource3D* AudioManager::AddMusicToNode(Node* node, unsigned int index)
 
 SoundSource3D* AudioManager::CreateNodeSound(Node* node, const ea::string& filename, const ea::string& type)
 {
-    if (filename.empty()) {
+    if (filename.empty())
+    {
         return nullptr;
     }
     // Get the sound resource
@@ -238,7 +256,7 @@ SoundSource3D* AudioManager::CreateNodeSound(Node* node, const ea::string& filen
 
     if (sound)
     {
-        URHO3D_LOGINFOF("Adding sound [%s] to node [%i], type [%s]", filename.CString(), node->GetID(), type.CString());
+        URHO3D_LOGINFOF("Adding sound [%s] to node [%i], type [%s]", filename.c_str(), node->GetID(), type.c_str());
         auto* soundSource = node->CreateComponent<SoundSource3D>();
         soundSource->SetSoundType(type);
         soundSource->Play(sound);

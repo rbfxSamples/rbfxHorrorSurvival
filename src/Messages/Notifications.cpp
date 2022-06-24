@@ -1,25 +1,23 @@
-#include <Urho3D/Scene/ObjectAnimation.h>
-#include <Urho3D/Scene/ValueAnimation.h>
-#include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/UI/UI.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Graphics/Texture2D.h>
-#include <Urho3D/UI/Font.h>
-#include <Urho3D/IO/Log.h>
 #include "Notifications.h"
 #include "../Globals/GUIDefines.h"
+#include <Urho3D/Core/CoreEvents.h>
+#include <Urho3D/Graphics/Texture2D.h>
+#include <Urho3D/IO/Log.h>
+#include <Urho3D/Resource/ResourceCache.h>
+#include <Urho3D/Scene/ObjectAnimation.h>
+#include <Urho3D/Scene/ValueAnimation.h>
+#include <Urho3D/UI/Font.h>
+#include <Urho3D/UI/UI.h>
 
 static const int NOTIFICATION_OVERLAP_TIME = 1000;
 
-Notifications::Notifications(Context* context) :
-    Object(context)
+Notifications::Notifications(Context* context)
+    : Object(context)
 {
     Init();
 }
 
-Notifications::~Notifications()
-{
-}
+Notifications::~Notifications() {}
 
 void Notifications::Init()
 {
@@ -59,21 +57,27 @@ void Notifications::HandleNewNotification(StringHash eventType, VariantMap& even
     ea::string status = eventData["Status"].GetString();
     Color color(0.4f, 1.0f, 0.4f);
 
-    if (status == "Error") {
+    if (status == "Error")
+    {
         color = Color(1.0f, 0.4f, 0.4f);
-    } else if (status == "Warning") {
+    }
+    else if (status == "Warning")
+    {
         color = Color(1.0f, 1.0f, 0.4f);
     }
     NotificationData data;
     data.message = message;
     data.color = color;
 
-    if (timer_.GetMSec(false) < NOTIFICATION_OVERLAP_TIME) {
-        if (messageQueue_.size() >= 10) {
+    if (timer_.GetMSec(false) < NOTIFICATION_OVERLAP_TIME)
+    {
+        if (messageQueue_.size() >= 10)
+        {
             return;
         }
         messageQueue_.push_back(data);
-        URHO3D_LOGINFOF("Too many notification request, pushing notification on queue. Queue size %d", messageQueue_.size());
+        URHO3D_LOGINFOF(
+            "Too many notification request, pushing notification on queue. Queue size %d", messageQueue_.size());
         return;
     }
     CreateNewNotification(data);
@@ -103,7 +107,7 @@ void Notifications::CreateNewNotification(NotificationData data)
     messageElement->SetStyleAuto();
     messageElement->SetUseDerivedOpacity(true);
 
-    auto *font = cache->GetResource<Font>(APPLICATION_FONT);
+    auto* font = cache->GetResource<Font>(APPLICATION_FONT);
     messageElement->SetColor(data.color);
     messageElement->SetFont(font, fontSize);
 
@@ -117,28 +121,29 @@ void Notifications::HandleUpdate(StringHash eventType, VariantMap& eventData)
     using namespace Update;
 
     float timeStep = eventData[P_TIMESTEP].GetFloat();
-    for (auto it = messages_.begin(); it != messages_.end(); ++it) {
-        if (!(*it)) {
+    for (auto it = messages_.begin(); it != messages_.end(); ++it)
+    {
+        if (!(*it))
+        {
             messages_.erase(it);
             return;
         }
         float lifetime = (*it)->GetVar("Lifetime").GetFloat();
-        if (lifetime <= 0) {
+        if (lifetime <= 0)
+        {
             (*it)->Remove();
             messages_.erase(it);
-            return; 
+            return;
         }
         lifetime -= timeStep;
         (*it)->SetVar("Lifetime", lifetime);
     }
 
-    if (timer_.GetMSec(false) > 1000 && !messageQueue_.empty()) {
-        CreateNewNotification(messageQueue_.Front());
-        messageQueue_.PopFront();
+    if (timer_.GetMSec(false) > 1000 && !messageQueue_.empty())
+    {
+        CreateNewNotification(messageQueue_.front());
+        messageQueue_.pop_front();
     }
 }
 
-void Notifications::HandleGameEnd(StringHash eventType, VariantMap& eventData)
-{
-    messages_.clear();
-}
+void Notifications::HandleGameEnd(StringHash eventType, VariantMap& eventData) { messages_.clear(); }
