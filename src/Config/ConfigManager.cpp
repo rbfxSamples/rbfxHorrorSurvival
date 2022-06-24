@@ -398,7 +398,7 @@ bool ConfigManager::Load(ConfigFile& configFile, bool overwriteExisting) {
     const ConfigMap* map(configFile.GetMap());
 
     SettingsMap* section(nullptr);
-    for (ea::vector<ConfigSection>::ConstIterator itr(map->Begin()); itr != map->End(); ++itr) {
+    for (ea::vector<ConfigSection>::const_iterator itr(map->Begin()); itr != map->End(); ++itr) {
         if (itr->Begin() == itr->End()) {
             continue;
         }
@@ -412,7 +412,7 @@ bool ConfigManager::Load(ConfigFile& configFile, bool overwriteExisting) {
 
         const SettingsMap* section(GetSection(header, true));
 
-        for (ea::vector<ea::string>::ConstIterator section_itr = ++itr->Begin(); section_itr != itr->End(); ++section_itr) {
+        for (ea::vector<ea::string>::const_iterator section_itr = ++itr->Begin(); section_itr != itr->End(); ++section_itr) {
             const ea::string& line(*section_itr);
 
             ea::string parameter;
@@ -468,83 +468,83 @@ bool ConfigManager::Save(ConfigFile& configFile) {
 
 void ConfigManager::SaveSettingsMap(ea::string section, SettingsMap& map, ConfigFile& configFile) {
     // Save out parameters.
-    for (SettingsMap::Iterator itr(map.Begin()); itr != map.End(); ++itr) {
+    for (SettingsMap::Iterator itr(map.begin()); itr != map.end(); ++itr) {
         // Skip over sub-sections.
-        if (itr->second_.GetType() == VAR_VOIDPTR) {
+        if (itr->second.GetType() == VAR_VOIDPTR) {
             continue;
         }
 
-        ea::string value(itr->first_);
+        ea::string value(itr->first);
 
         // Set parameter.
-        if (itr->second_.GetType() == VAR_STRING) {
-            configFile.Set(section, value, itr->second_.GetString());
+        if (itr->second.GetType() == VAR_STRING) {
+            configFile.Set(section, value, itr->second.GetString());
         }
 
-        if (itr->second_.GetType() == VAR_INT) {
-            configFile.Set(section, value, ea::string(itr->second_.GetInt()));
+        if (itr->second.GetType() == VAR_INT) {
+            configFile.Set(section, value, ea::string(itr->second.GetInt()));
         }
 
-        if (itr->second_.GetType() == VAR_BOOL) {
-            configFile.Set(section, value, ea::string(itr->second_.GetBool()));
+        if (itr->second.GetType() == VAR_BOOL) {
+            configFile.Set(section, value, ea::string(itr->second.GetBool()));
         }
 
-        if (itr->second_.GetType() == VAR_FLOAT) {
-            configFile.Set(section, value, ea::string(itr->second_.GetFloat()));
+        if (itr->second.GetType() == VAR_FLOAT) {
+            configFile.Set(section, value, ea::string(itr->second.GetFloat()));
         }
 
-        if (itr->second_.GetType() == VAR_VECTOR2) {
-            configFile.Set(section, value, ea::string(itr->second_.GetVector2()));
+        if (itr->second.GetType() == VAR_VECTOR2) {
+            configFile.Set(section, value, ea::string(itr->second.GetVector2()));
         }
 
-        if (itr->second_.GetType() == VAR_VECTOR3) {
-            configFile.Set(section, value, ea::string(itr->second_.GetVector3()));
+        if (itr->second.GetType() == VAR_VECTOR3) {
+            configFile.Set(section, value, ea::string(itr->second.GetVector3()));
         }
 
-        if (itr->second_.GetType() == VAR_VECTOR4) {
-            configFile.Set(section, value, ea::string(itr->second_.GetVector4()));
+        if (itr->second.GetType() == VAR_VECTOR4) {
+            configFile.Set(section, value, ea::string(itr->second.GetVector4()));
         }
 
-        if (itr->second_.GetType() == VAR_QUATERNION) {
-            configFile.Set(section, value, ea::string(itr->second_.GetQuaternion()));
+        if (itr->second.GetType() == VAR_QUATERNION) {
+            configFile.Set(section, value, ea::string(itr->second.GetQuaternion()));
         }
 
-        if (itr->second_.GetType() == VAR_COLOR) {
-            configFile.Set(section, value, ea::string(itr->second_.GetColor()));
+        if (itr->second.GetType() == VAR_COLOR) {
+            configFile.Set(section, value, ea::string(itr->second.GetColor()));
         }
 
-        if (itr->second_.GetType() == VAR_INTRECT) {
-            configFile.Set(section, value, ea::string(itr->second_.GetIntRect()));
+        if (itr->second.GetType() == VAR_INTRECT) {
+            configFile.Set(section, value, ea::string(itr->second.GetIntRect()));
         }
 
-        if (itr->second_.GetType() == VAR_INTVECTOR2) {
-            configFile.Set(section, value, ea::string(itr->second_.GetIntVector2()));
+        if (itr->second.GetType() == VAR_INTVECTOR2) {
+            configFile.Set(section, value, ea::string(itr->second.GetIntVector2()));
         }
 
-        if (itr->second_.GetType() == VAR_MATRIX3) {
-            configFile.Set(section, value, ea::string(itr->second_.GetMatrix3()));
+        if (itr->second.GetType() == VAR_MATRIX3) {
+            configFile.Set(section, value, ea::string(itr->second.GetMatrix3()));
         }
 
-        if (itr->second_.GetType() == VAR_MATRIX3X4) {
-            configFile.Set(section, value, ea::string(itr->second_.GetMatrix3x4()));
+        if (itr->second.GetType() == VAR_MATRIX3X4) {
+            configFile.Set(section, value, ea::string(itr->second.GetMatrix3x4()));
         }
 
-        if (itr->second_.GetType() == VAR_MATRIX4) {
-            configFile.Set(section, value, ea::string(itr->second_.GetMatrix4()));
+        if (itr->second.GetType() == VAR_MATRIX4) {
+            configFile.Set(section, value, ea::string(itr->second.GetMatrix4()));
         }
     }
 
     // Save out sub-sections.
-    for (SettingsMap::ConstIterator itr(map.Begin()); itr != map.End(); ++itr) {
+    for (SettingsMap::const_iterator itr(map.begin()); itr != map.end(); ++itr) {
         // Skip over parameter.
-        if (itr->second_.GetType() != VAR_VOIDPTR) {
+        if (itr->second.GetType() != VAR_VOIDPTR) {
             continue;
         }
 
         ea::string path(section);
-        path.Append(itr->first_);
+        path.Append(itr->first);
 
-        SettingsMap* value = static_cast<SettingsMap*>(itr->second_.GetVoidPtr());
+        SettingsMap* value = static_cast<SettingsMap*>(itr->second.GetVoidPtr());
 
         if (value) {
             // Save sub-section
@@ -564,7 +564,7 @@ SettingsMap* ConfigManager::GetSection(const ea::string& section, bool create) {
 
     unsigned splitPos(0);
 
-    if (ConfigFile::ParseHeader(section).Empty()) {
+    if (ConfigFile::ParseHeader(section).empty()) {
         return &map_;
     }
 
@@ -573,14 +573,14 @@ SettingsMap* ConfigManager::GetSection(const ea::string& section, bool create) {
     while (splitPos != ea::string::NPOS) {
         // Find next comment split
         unsigned commentSplitPos(splitPos);
-        unsigned hashPos(section.Find("#", commentSplitPos));
-        unsigned slashesPos(section.Find("//", commentSplitPos));
+        unsigned hashPos(section.find("#", commentSplitPos));
+        unsigned slashesPos(section.find("//", commentSplitPos));
         commentSplitPos = (hashPos < slashesPos) ? hashPos : slashesPos;
 
         // Find next split.
         unsigned lastSplitPos(splitPos);
-        unsigned dotPos(section.Find(".", lastSplitPos));
-        unsigned slashPos(section.Find("/", lastSplitPos));
+        unsigned dotPos(section.find(".", lastSplitPos));
+        unsigned slashPos(section.find("/", lastSplitPos));
         splitPos = (dotPos < slashPos) ? dotPos : slashPos;
 
         // Ignore splits after comments.
@@ -594,19 +594,19 @@ SettingsMap* ConfigManager::GetSection(const ea::string& section, bool create) {
         ea::string sub = section.Substring(lastSplitPos, length);
 
         if (sub != ea::string::EMPTY) {
-            split.Push(sub);
+            split.push_back(sub);
         }
     }
 
     SettingsMap* currentMap(&map_);
-    for (ea::vector<ea::string>::ConstIterator itr(split.Begin()); itr != split.End(); ++itr) {
+    for (ea::vector<ea::string>::const_iterator itr(split.begin()); itr != split.end(); ++itr) {
         ea::string section(*itr);
 
         // Find section.
         SettingsMap* newMap(nullptr);
-        for (SettingsMap::ConstIterator map_itr(currentMap->Begin()); map_itr != currentMap->End(); ++map_itr) {
-            if (map_itr->first_ == section) {
-                newMap = static_cast<SettingsMap*>(map_itr->second_.GetVoidPtr());
+        for (SettingsMap::const_iterator map_itr(currentMap->Begin()); map_itr != currentMap->End(); ++map_itr) {
+            if (map_itr->first == section) {
+                newMap = static_cast<SettingsMap*>(map_itr->second.GetVoidPtr());
 
                 // Key exists, but is not a SettingsMap.
                 if (!newMap) {

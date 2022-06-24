@@ -45,19 +45,19 @@ void ConfigFile::RegisterObject(Context* context) {
 
 bool ConfigFile::BeginLoad(Deserializer& source) {
     unsigned dataSize(source.GetSize());
-    if (!dataSize && !source.GetName().Empty()) {
+    if (!dataSize && !source.GetName().empty()) {
         URHO3D_LOGERROR("Zero sized data in " + source.GetName());
         return false;
     }
 
-    configMap_.Push(ConfigSection());
+    configMap_.push_back(ConfigSection());
     ConfigSection* configSection(&configMap_.Back());
     while (!source.IsEof()) {
         ea::string line(source.ReadLine());
 
         // Parse headers.
         if (line.StartsWith("[") && line.EndsWith("]")) {
-            configMap_.Push(ConfigSection());
+            configMap_.push_back(ConfigSection());
             configSection = &configMap_.Back();
         }
 
@@ -73,13 +73,13 @@ bool ConfigFile::Save(Serializer& dest) const {
     ea::hash_map<ea::string, ea::string> processedConfig;
 
     // Iterate over all sections, printing out the header followed by the properties.
-    for (ea::vector<ConfigSection>::ConstIterator itr(configMap_.Begin()); itr != configMap_.End(); ++itr) {
+    for (ea::vector<ConfigSection>::const_iterator itr(configMap_.begin()); itr != configMap_.end(); ++itr) {
         if (itr->Begin() == itr->End()) {
             continue;
         }
 
         // Don't print section if there's nothing to print.
-        ea::vector<ea::string>::ConstIterator section_itr(itr->Begin());
+        ea::vector<ea::string>::const_iterator section_itr(itr->Begin());
         ea::string header(ParseHeader(*section_itr));
 
 
@@ -124,12 +124,12 @@ bool ConfigFile::Save(Serializer& dest, bool smartSave) const {
     ea::string activeSection;
 
     // Iterate over all sections, printing out the header followed by the properties.
-    for (ea::vector<ConfigSection>::ConstIterator itr(configMap_.Begin()); itr != configMap_.End(); ++itr) {
+    for (ea::vector<ConfigSection>::const_iterator itr(configMap_.begin()); itr != configMap_.end(); ++itr) {
         if (itr->Begin() == itr->End()) {
             continue;
         }
 
-        for (ea::vector<ea::string>::ConstIterator section_itr(itr->Begin()); section_itr != itr->End(); ++section_itr) {
+        for (ea::vector<ea::string>::const_iterator section_itr(itr->Begin()); section_itr != itr->End(); ++section_itr) {
             const ea::string line(*section_itr);
 
             if (wroteLine.contains(activeSection + line)) {
@@ -138,7 +138,7 @@ bool ConfigFile::Save(Serializer& dest, bool smartSave) const {
 
             wroteLine[activeSection + line] = true;
 
-            if (line.Empty()) {
+            if (line.empty()) {
                 continue;
             }
 
@@ -156,7 +156,7 @@ bool ConfigFile::Save(Serializer& dest, bool smartSave) const {
 }
 
 bool ConfigFile::FromString(const ea::string& source) {
-    if (source.Empty()) {
+    if (source.empty()) {
         return false;
     }
 
@@ -171,7 +171,7 @@ bool ConfigFile::Has(const ea::string& section, const ea::string& parameter) {
 const ea::string ConfigFile::GetString(const ea::string& section, const ea::string& parameter, const ea::string& defaultValue) {
     // Find the correct section.
     ConfigSection* configSection(nullptr);
-    for (ea::vector<ConfigSection>::Iterator itr(configMap_.Begin()); itr != configMap_.End(); ++itr) {
+    for (ea::vector<ConfigSection>::Iterator itr(configMap_.begin()); itr != configMap_.end(); ++itr) {
         if (itr->Begin() == itr->End()) {
             continue;
         }
@@ -195,7 +195,7 @@ const ea::string ConfigFile::GetString(const ea::string& section, const ea::stri
         return defaultValue;
     }
 
-    for (ea::vector<ea::string>::ConstIterator itr(configSection->Begin()); itr != configSection->End(); ++itr) {
+    for (ea::vector<ea::string>::const_iterator itr(configSection->Begin()); itr != configSection->End(); ++itr) {
         ea::string property;
         ea::string value;
         ParseProperty(*itr, property, value);
@@ -351,7 +351,7 @@ const Matrix4 ConfigFile::GetMatrix4(const ea::string& section, const ea::string
 void ConfigFile::Set(const ea::string& section, const ea::string& parameter, const ea::string& value) {
     // Find the correct section.
     ConfigSection* configSection(nullptr);
-    for (ea::vector<ConfigSection>::Iterator itr(configMap_.Begin()); itr != configMap_.End(); ++itr) {
+    for (ea::vector<ConfigSection>::Iterator itr(configMap_.begin()); itr != configMap_.end(); ++itr) {
         if (itr->Begin() == itr->End()) {
             continue;
         }
@@ -371,7 +371,7 @@ void ConfigFile::Set(const ea::string& section, const ea::string& parameter, con
     }
 
     if (section == ea::string::EMPTY) {
-        configSection = &(*configMap_.Begin());
+        configSection = &(*configMap_.begin());
     }
 
     // Section doesn't exist.
@@ -384,7 +384,7 @@ void ConfigFile::Set(const ea::string& section, const ea::string& parameter, con
         }
 
         // Create section.
-        configMap_.Push(ConfigSection());
+        configMap_.push_back(ConfigSection());
         configSection = &configMap_.Back();
 
         // Add header and blank line.
@@ -439,20 +439,20 @@ const ea::string ConfigFile::ParseHeader(ea::string line) {
     while (commentPos != ea::string::NPOS) {
         // Find next comment.
         unsigned lastCommentPos(commentPos);
-        unsigned commaPos(line.Find("//", commentPos));
-        unsigned hashPos(line.Find("#", commentPos));
+        unsigned commaPos(line.find("//", commentPos));
+        unsigned hashPos(line.find("#", commentPos));
         commentPos = (commaPos < hashPos) ? commaPos : hashPos;
 
         // Header is behind a comment.
-        if (line.Find("[", lastCommentPos) > commentPos) {
+        if (line.find("[", lastCommentPos) > commentPos) {
             // Stop parsing this line.
             break;
         }
 
         // Header is before a comment.
-        if (line.Find("[") < commentPos) {
-            unsigned startPos(line.Find("[") + 1);
-            unsigned l1(line.Find("]"));
+        if (line.find("[") < commentPos) {
+            unsigned startPos(line.find("[") + 1);
+            unsigned l1(line.find("]"));
             unsigned length(l1 - startPos);
             line = line.Substring(startPos, length);
             break;
@@ -468,9 +468,9 @@ const void ConfigFile::ParseProperty(ea::string line, ea::string& property, ea::
     line = ParseComments(line);
 
     // Find property separator.
-    unsigned separatorPos(line.Find("="));
+    unsigned separatorPos(line.find("="));
     if (separatorPos == ea::string::NPOS) {
-        separatorPos = line.Find(":");
+        separatorPos = line.find(":");
     }
 
     // Not a property.
@@ -489,7 +489,7 @@ const ea::string ConfigFile::ParseComments(ea::string line) {
     line.Replace("//", "#");
 
     // Strip comments.
-    unsigned commentPos(line.Find("#"));
+    unsigned commentPos(line.find("#"));
     if (commentPos != ea::string::NPOS) {
         line = line.Substring(0, commentPos);
     }

@@ -74,17 +74,17 @@ public:
 	 */
 	void ReleaseAction(int action)
 	{
-		for (auto it = mappedControlToKey_.Begin(); it != mappedControlToKey_.End(); ++it) {
-			int keyCode = (*it).second_;
-			int actionCode = (*it).first_;
+		for (auto it = mappedControlToKey_.begin(); it != mappedControlToKey_.end(); ++it) {
+			int keyCode = (*it).second;
+			int actionCode = (*it).first;
 			if (action == actionCode) {
 				mappedControlToKey_.Erase(actionCode);
 				mappedKeyToControl_.Erase(keyCode);
 			}
 		}
-		for (auto it = mappedKeyToControl_.Begin(); it != mappedKeyToControl_.End(); ++it) {
-			int keyCode = (*it).first_;
-			int actionCode = (*it).second_;
+		for (auto it = mappedKeyToControl_.begin(); it != mappedKeyToControl_.end(); ++it) {
+			int keyCode = (*it).first;
+			int actionCode = (*it).second;
 			if (action == actionCode) {
 				mappedKeyToControl_.Erase(keyCode);
 				mappedControlToKey_.Erase(actionCode);
@@ -97,17 +97,17 @@ public:
 	 */
 	void ReleaseKey(int key)
 	{
-		for (auto it = mappedKeyToControl_.Begin(); it != mappedKeyToControl_.End(); ++it) {
-			int keyCode = (*it).first_;
-			int actionCode = (*it).second_;
+		for (auto it = mappedKeyToControl_.begin(); it != mappedKeyToControl_.end(); ++it) {
+			int keyCode = (*it).first;
+			int actionCode = (*it).second;
 			if (key == keyCode) {
 				mappedKeyToControl_.Erase(keyCode);
 				mappedControlToKey_.Erase(actionCode);
 			}
 		}
-		for (auto it = mappedControlToKey_.Begin(); it != mappedControlToKey_.End(); ++it) {
-			int keyCode = (*it).second_;
-			int actionCode = (*it).first_;
+		for (auto it = mappedControlToKey_.begin(); it != mappedControlToKey_.end(); ++it) {
+			int keyCode = (*it).second;
+			int actionCode = (*it).first;
 			if (key == keyCode) {
 				mappedControlToKey_.Erase(actionCode);
 				mappedKeyToControl_.Erase(keyCode);

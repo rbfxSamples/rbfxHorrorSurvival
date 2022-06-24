@@ -276,7 +276,7 @@ void NakamaManager::Init()
         if (rtClient_) {
             ea::string message;
             for (int i = 1; i < params.size(); i++) {
-                if (!message.Empty()) {
+                if (!message.empty()) {
                     message += " ";
                 }
                 message += params[i];
@@ -418,7 +418,7 @@ void NakamaManager::CreateMatch()
 
 void NakamaManager::JoinMatch(const ea::string& matchID)
 {
-    if (!matchId_.Empty()) {
+    if (!matchId_.empty()) {
         URHO3D_LOGERROR("Already in a match!");
     }
     if (!rtClient_) {

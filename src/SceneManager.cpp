@@ -126,9 +126,9 @@ void SceneManager::HandleAsyncSceneLoadingFinished(StringHash eventType, Variant
 
 void SceneManager::CleanupLoadingSteps()
 {
-    for (auto it = loadingSteps_.Begin(); it != loadingSteps_.End(); ++it) {
-        if ((*it).second_.autoRemove) {
-            URHO3D_LOGINFOF("Auto removing loading step %s", (*it).second_.name.CString());
+    for (auto it = loadingSteps_.begin(); it != loadingSteps_.end(); ++it) {
+        if ((*it).second.autoRemove) {
+            URHO3D_LOGINFOF("Auto removing loading step %s", (*it).second.name.CString());
             loadingSteps_.Erase(it);
             it--;
         }
@@ -145,50 +145,50 @@ void SceneManager::HandleUpdate(StringHash eventType, VariantMap& eventData)
 
     float completed = 1;
     targetProgress_ = (float)completed / ( (float) loadingSteps_.size() + 1.0f );
-    for (auto it = loadingSteps_.Begin(); it != loadingSteps_.End(); ++it) {
-        if ((*it).second_.finished) {
+    for (auto it = loadingSteps_.begin(); it != loadingSteps_.end(); ++it) {
+        if ((*it).second.finished) {
             completed++;
         }
-        if ((*it).second_.ackSent && !(*it).second_.ack && (*it).second_.ackTimer.GetMSec(false) > LOADING_STEP_ACK_MAX_TIME) {
-            (*it).second_.finished = true;
-            (*it).second_.ack      = true;
+        if ((*it).second.ackSent && !(*it).second.ack && (*it).second.ackTimer.GetMSec(false) > LOADING_STEP_ACK_MAX_TIME) {
+            (*it).second.finished = true;
+            (*it).second.ack      = true;
         }
         targetProgress_ = (float)completed / ( (float) loadingSteps_.size() + 1.0f );
 
-        if (!(*it).second_.map.Empty() && (*it).second_.map != activeScene_->GetFileName()) {
-            (*it).second_.finished = true;
+        if (!(*it).second.map.empty() && (*it).second.map != activeScene_->GetFileName()) {
+            (*it).second.finished = true;
             continue;
         }
 
-        if (CanLoadingStepRun((*it).second_)) {
+        if (CanLoadingStepRun((*it).second)) {
 
             //TODO: implement fix for web builds as the loading steps might take longer to execute
             // due to the inactive browsers tabs where game is running in the background
             // Handle loading steps which take too much time to execute
-            if ((*it).second_.ackSent && (*it).second_.ackTimer.GetMSec(false) > LOADING_STEP_MAX_EXECUTION_TIME + LOADING_STEP_ACK_MAX_TIME) {
-                (*it).second_.finished = true;
-                (*it).second_.failed   = true;
-                URHO3D_LOGERROR("Loading step '" + (*it).second_.name + "' failed, took too long to execute!");
+            if ((*it).second.ackSent && (*it).second.ackTimer.GetMSec(false) > LOADING_STEP_MAX_EXECUTION_TIME + LOADING_STEP_ACK_MAX_TIME) {
+                (*it).second.finished = true;
+                (*it).second.failed   = true;
+                URHO3D_LOGERROR("Loading step '" + (*it).second.name + "' failed, took too long to execute!");
 
                 using namespace LoadingStepTimedOut;
                 VariantMap& data = GetEventDataMap();
-                data[P_EVENT] = (*it).second_.event;
+                data[P_EVENT] = (*it).second.event;
                 SendEvent(E_LOADING_STEP_TIMED_OUT, data);
-                URHO3D_LOGINFO("Loading step skipped, no ACK retrieved for " + (*it).second_.name);
+                URHO3D_LOGINFO("Loading step skipped, no ACK retrieved for " + (*it).second.name);
                 return;
 
                 // Note the the tasks could still succeed in the background, but the loading screen will move further without waiting it to finish
                 return;
             }
-            if (!(*it).second_.ackSent) {
+            if (!(*it).second.ackSent) {
 
-                if (loadingStatus_ != (*it).second_.name) {
-                    loadingStatus_ = (*it).second_.name;
+                if (loadingStatus_ != (*it).second.name) {
+                    loadingStatus_ = (*it).second.name;
                     // Delay loading step execution till the next frame
                     // to allow the status to be updated
                     using namespace LoadingStatusUpdate;
                     VariantMap data;
-                    data[P_NAME] = (*it).second_.name;
+                    data[P_NAME] = (*it).second.name;
                     SendEvent(E_LOADING_STATUS_UPDATE, data);
                     return;
                 }
@@ -196,15 +196,15 @@ void SceneManager::HandleUpdate(StringHash eventType, VariantMap& eventData)
                 VariantMap data;
                 data["Map"] = activeScene_->GetFileName();
                 // Send out event to start this loading step
-                SendEvent((*it).second_.event, data);
+                SendEvent((*it).second.event, data);
 
                 // We register that start event was sent out, loading step must send back ACK message
                 // to let us know that the loading step was started, otherwise it will be automatically
                 // marked as a finished job, to avoid app inifite loading
-                (*it).second_.ackSent = true;
-                (*it).second_.ackTimer.Reset();
+                (*it).second.ackSent = true;
+                (*it).second.ackTimer.Reset();
             }
-            completed += (*it).second_.progress;
+            completed += (*it).second.progress;
             targetProgress_ = (float)completed / ( (float) loadingSteps_.size() + 1.0f );
             return;
         }
@@ -232,11 +232,11 @@ void SceneManager::ResetProgress()
     progress_       = 0.0f;
     targetProgress_ = 0.0f;
 
-    for (auto it = loadingSteps_.Begin(); it != loadingSteps_.End(); ++it) {
-        (*it).second_.finished = false;
-        (*it).second_.ack      = false;
-        (*it).second_.ackSent  = false;
-        (*it).second_.progress = 0.0f;
+    for (auto it = loadingSteps_.begin(); it != loadingSteps_.end(); ++it) {
+        (*it).second.finished = false;
+        (*it).second.ack      = false;
+        (*it).second.ackSent  = false;
+        (*it).second.progress = 0.0f;
     }
 }
 
@@ -257,7 +257,7 @@ void SceneManager::HandleRegisterLoadingStep(StringHash eventType, VariantMap& e
     if (eventData.contains(P_REMOVE_ON_FINISH) && eventData[P_REMOVE_ON_FINISH].GetBool()) {
         step.autoRemove = true;
     }
-    if (step.name.Empty() || step.event.Empty()) {
+    if (step.name.empty() || step.event.empty()) {
         URHO3D_LOGERROR("Unable to register loading step " + step.name + ":" + step.event);
         return;
     }
@@ -313,7 +313,7 @@ void SceneManager::HandleSkipLoadingStep(StringHash eventType, VariantMap& event
 
 MapInfo* SceneManager::GetMap(const ea::string& filename)
 {
-    for (auto it = availableMaps_.Begin(); it != availableMaps_.End(); ++it) {
+    for (auto it = availableMaps_.begin(); it != availableMaps_.end(); ++it) {
         if ((*it).map == filename) {
             return &(*it);
         }
@@ -339,7 +339,7 @@ void SceneManager::HandleAddMap(StringHash eventType, VariantMap &eventData)
     mapData.startPoint = eventData[P_START_POINT].GetVector3();
     mapData.commands = eventData[P_COMMANDS].GetStringVector();
     mapData.startNode = eventData[P_START_NODE].GetString();
-    availableMaps_.Push(mapData);
+    availableMaps_.push_back(mapData);
 
     URHO3D_LOGINFOF("Map '%s' added to the list", map.CString());
 }
@@ -350,8 +350,8 @@ bool SceneManager::CanLoadingStepRun(LoadingStep& loadingStep)
         return false;
     }
 
-    if (!loadingStep.dependsOn.Empty()) {
-        for (auto it = loadingStep.dependsOn.Begin(); it != loadingStep.dependsOn.End(); ++it) {
+    if (!loadingStep.dependsOn.empty()) {
+        for (auto it = loadingStep.dependsOn.begin(); it != loadingStep.dependsOn.end(); ++it) {
             ea::string eventName = (*it);
             if (loadingSteps_.contains(eventName) && !loadingSteps_[eventName].finished) {
                 return false;
@@ -389,8 +389,8 @@ void SceneManager::LoadDefaultMaps()
         data[P_START_POINT] = Vector3(0, 1, 0);
 
         StringVector commands;
-        commands.Push("ambient_light 0.5 0.5 0.5");
-        commands.Push("fog 0 100'");
+        commands.push_back("ambient_light 0.5 0.5 0.5");
+        commands.push_back("fog 0 100'");
         data[P_COMMANDS] = commands;
         SendEvent(E_ADD_MAP, data);
     }
@@ -405,12 +405,12 @@ void SceneManager::LoadDefaultMaps()
         data[P_START_POINT] = Vector3(0, 1, 0);
 
         StringVector commands;
-        commands.Push("ambient_light 0.8 0.8 0.8");
-        commands.Push("fog 0 500'");
-//        commands.Push("noclip");
-//        commands.Push("chunk_visible_distance 1");
-//    commands.Push("debugger");
-//    commands.Push("debug_geometry");
+        commands.push_back("ambient_light 0.8 0.8 0.8");
+        commands.push_back("fog 0 500'");
+//        commands.push_back("noclip");
+//        commands.push_back("chunk_visible_distance 1");
+//    commands.push_back("debugger");
+//    commands.push_back("debug_geometry");
         data[P_COMMANDS] = commands;
         SendEvent(E_ADD_MAP, data);
     }

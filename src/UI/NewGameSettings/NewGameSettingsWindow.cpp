@@ -42,7 +42,7 @@ void NewGameSettingsWindow::Create()
     auto maps = GetSubsystem<SceneManager>()->GetAvailableMaps();
     if (maps.size() == 1) {
         // TODO: only one map available, automatically start it
-        auto it = maps.Begin();
+        auto it = maps.begin();
         VariantMap& data = GetEventDataMap();
         data["Name"] = "Loading";
         data["Map"] =  (*it).map;
@@ -138,7 +138,7 @@ Button* NewGameSettingsWindow::CreateButton(UIElement *parent, const ea::string&
     button->SetFixedHeight(BUTTON_HEIGHT);
     button->SetPosition(position);
 
-    if (!text.Empty()) {
+    if (!text.empty()) {
         auto *buttonText = button->CreateChild<Text>();
         buttonText->SetFont(font, 16);
         buttonText->SetAlignment(HA_CENTER, VA_CENTER);
@@ -160,7 +160,7 @@ void NewGameSettingsWindow::CreateLevelSelection()
 
     auto maps = GetSubsystem<SceneManager>()->GetAvailableMaps();
 
-    for (auto it = maps.Begin(); it != maps.End(); ++it) {
+    for (auto it = maps.begin(); it != maps.end(); ++it) {
 
         UIElement *mapView = levelSelection_->CreateChild<UIElement>();
         mapView->SetLayout(LayoutMode::LM_VERTICAL, 5);

@@ -245,25 +245,25 @@ void BaseApplication::LoadConfig(ea::string filename, ea::string prefix, bool is
     json.LoadFile(GetSubsystem<FileSystem>()->GetProgramDir() + filename);
     JSONValue& content = json.GetRoot();
     if (content.IsObject()) {
-        for (auto it = content.Begin(); it != content.End(); ++it) {
+        for (auto it = content.begin(); it != content.end(); ++it) {
 
             // If it's the main config file, we should only then register this
             // config parameter key for saving
             if (isMain) {
-                globalSettings_[StringHash((*it).first_)] = (*it).first_;
+                globalSettings_[StringHash((*it).first)] = (*it).first;
             }
-            if ((*it).second_.IsBool()) {
-                engine_->SetGlobalVar(prefix + (*it).first_, (*it).second_.GetBool());
+            if ((*it).second.IsBool()) {
+                engine_->SetGlobalVar(prefix + (*it).first, (*it).second.GetBool());
             }
-            if ((*it).second_.IsString()) {
-                engine_->SetGlobalVar(prefix + (*it).first_, (*it).second_.GetString());
+            if ((*it).second.IsString()) {
+                engine_->SetGlobalVar(prefix + (*it).first, (*it).second.GetString());
             }
-            if ((*it).second_.IsNumber()) {
-                if ((*it).second_.GetNumberType() == JSONNT_FLOAT_DOUBLE) {
-                    engine_->SetGlobalVar(prefix + (*it).first_, (*it).second_.GetFloat());
+            if ((*it).second.IsNumber()) {
+                if ((*it).second.GetNumberType() == JSONNT_FLOAT_DOUBLE) {
+                    engine_->SetGlobalVar(prefix + (*it).first, (*it).second.GetFloat());
                 }
-                if ((*it).second_.GetNumberType() == JSONNT_INT) {
-                    engine_->SetGlobalVar(prefix + (*it).first_, (*it).second_.GetInt());
+                if ((*it).second.GetNumberType() == JSONNT_INT) {
+                    engine_->SetGlobalVar(prefix + (*it).first, (*it).second.GetInt());
                 }
             }
         }
@@ -277,7 +277,7 @@ void BaseApplication::HandleLoadConfig(StringHash eventType, VariantMap& eventDa
 {
     ea::string filename = eventData["Filepath"].GetString();
     ea::string prefix = eventData["Prefix"].GetString();
-    if (!filename.Empty()) {
+    if (!filename.empty()) {
         LoadConfig(filename, prefix);
     }
 }
@@ -342,7 +342,7 @@ void BaseApplication::SubscribeToEvents()
 void BaseApplication::HandleAddConfig(StringHash eventType, VariantMap& eventData)
 {
     ea::string paramName = eventData["Name"].GetString();
-    if (!paramName.Empty()) {
+    if (!paramName.empty()) {
         globalSettings_[paramName] = paramName;
     }
 }
@@ -442,16 +442,16 @@ void BaseApplication::LoadTranslationFiles()
 
     // Get all the translations from packages
     auto packageFiles = GetSubsystem<ResourceCache>()->GetPackageFiles();
-    for (auto it = packageFiles.Begin(); it != packageFiles.End(); ++it) {
+    for (auto it = packageFiles.begin(); it != packageFiles.end(); ++it) {
         auto files = (*it)->GetEntryNames();
-        for (auto it2 = files.Begin(); it2 != files.End(); ++it2) {
+        for (auto it2 = files.begin(); it2 != files.end(); ++it2) {
             if ((*it2).StartsWith("Translations/") && (*it2).EndsWith(".json") && (*it2).Split('/')  .size() == 2) {
-                result.Push((*it2).Split('/').At(1));
+                result.push_back((*it2).Split('/').At(1));
             }
         }
     }
 
-    for (auto it = result.Begin(); it != result.End(); ++it) {
+    for (auto it = result.begin(); it != result.end(); ++it) {
         ea::string file = (*it);
 
         ea::string filepath = "Translations/" + file;

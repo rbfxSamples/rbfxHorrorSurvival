@@ -77,27 +77,27 @@ void ModLoader::LoadASMods()
     if (GetSubsystem<DebugHud>()) {
         GetSubsystem<DebugHud>()->SetAppStats("Package files", packageFiles.size());
     }
-    for (auto it = packageFiles.Begin(); it != packageFiles.End(); ++it) {
+    for (auto it = packageFiles.begin(); it != packageFiles.end(); ++it) {
         auto files = (*it)->GetEntryNames();
-        for (auto it2 = files.Begin(); it2 != files.End(); ++it2) {
+        for (auto it2 = files.begin(); it2 != files.end(); ++it2) {
             if ((*it2).StartsWith("Mods/") && (*it2).EndsWith(".as") && (*it2).Split('/')  .size() == 2) {
-                result.Push((*it2).Split('/').At(1));
+                result.push_back((*it2).Split('/').At(1));
             }
         }
     }
 
     // Load each of the *.as files and launch their Start() method
-    for (auto it = result.Begin(); it != result.End(); ++it) {
+    for (auto it = result.begin(); it != result.end(); ++it) {
         URHO3D_LOGINFO("Loading mod: " + (*it));
         SharedPtr<ScriptFile> scriptFile(GetSubsystem<ResourceCache>()->GetResource<ScriptFile>("Mods/" + (*it)));
         if (scriptFile) {
-            asMods_.Push(scriptFile);
+            asMods_.push_back(scriptFile);
             asScriptMap_["Mods/" + (*it)] = scriptFile;
         }
     }
 
     URHO3D_LOGINFO("Initializing all loaded AS mods");
-    for (auto it = asMods_.Begin(); it != asMods_.End(); ++it) {
+    for (auto it = asMods_.begin(); it != asMods_.end(); ++it) {
         if ((*it)->Execute("void Start()")) {
         }
     }
@@ -118,17 +118,17 @@ void ModLoader::LoadLuaMods()
     URHO3D_LOGINFO("Total LUA mods found: " + ea::string(luaMods_.size()));
 
     auto packageFiles = GetSubsystem<ResourceCache>()->GetPackageFiles();
-    for (auto it = packageFiles.Begin(); it != packageFiles.End(); ++it) {
+    for (auto it = packageFiles.begin(); it != packageFiles.end(); ++it) {
         auto files = (*it)->GetEntryNames();
-        for (auto it2 = files.Begin(); it2 != files.End(); ++it2) {
+        for (auto it2 = files.begin(); it2 != files.end(); ++it2) {
             if ((*it2).StartsWith("Mods/") && (*it2).EndsWith(".lua") && (*it2).Split('/')  .size() == 2) {
-                luaMods_.Push((*it2).Split('/').At(1));
+                luaMods_.push_back((*it2).Split('/').At(1));
             }
         }
     }
 
     // Load each of the *.lua files and launch their Start() method
-    for (auto it = luaMods_.Begin(); it != luaMods_.End(); ++it) {
+    for (auto it = luaMods_.begin(); it != luaMods_.end(); ++it) {
         URHO3D_LOGINFO("Loading mod: " + (*it));
         auto luaScript = GetSubsystem<LuaScript>();
         if (luaScript->ExecuteFile("Mods/" + (*it)))
@@ -163,7 +163,7 @@ void ModLoader::Reload()
 {
     #ifdef URHO3D_ANGELSCRIPT
     if (GetSubsystem<ConfigManager>()->GetBool("game", "LoadMods", true)) {
-        for (auto it = asMods_.Begin(); it != asMods_.End(); ++it) {
+        for (auto it = asMods_.begin(); it != asMods_.end(); ++it) {
             if ((*it)) {
                 (*it)->Execute("void Stop()");
                 (*it)->Execute("void Start()");
@@ -267,13 +267,13 @@ void ModLoader::CheckAllMods()
     ea::vector<ea::string> result;
     #ifdef URHO3D_ANGELSCRIPT
     result.Reserve(asMods_.size());
-    for (auto it = asMods_.Begin(); it != asMods_.End(); ++it) {
-        result.Push((*it)->GetName());
+    for (auto it = asMods_.begin(); it != asMods_.end(); ++it) {
+        result.push_back((*it)->GetName());
     }
     #endif
     #ifdef URHO3D_LUA
-    for (auto it = luaMods_.Begin(); it != luaMods_.End(); ++it) {
-        result.Push((*it));
+    for (auto it = luaMods_.begin(); it != luaMods_.end(); ++it) {
+        result.push_back((*it));
     }
     #endif
     VariantMap& data = GetEventDataMap();
@@ -321,7 +321,7 @@ void ModLoader::HandleReloadScript(StringHash eventType, VariantMap& eventData)
         // Scan Data/Mods directory for all *.as files
         GetSubsystem<FileSystem>()->ScanDir(result, GetSubsystem<FileSystem>()->GetProgramDir() + ea::string("/Data/Mods"), ea::string("*.as"), SCAN_FILES, false);
         VariantMap loadedMods;
-        for (auto it = result.Begin(); it != result.End(); ++it) {
+        for (auto it = result.begin(); it != result.end(); ++it) {
             loadedMods["Mods/" + (*it)] = true;
             // Check if reloaded file is in the mods directory
             if ("Mods/" + (*it) == filename) {
@@ -338,13 +338,13 @@ void ModLoader::HandleReloadScript(StringHash eventType, VariantMap& eventData)
                 }
             }
         }
-        for (auto it = asScriptMap_.Begin(); it != asScriptMap_.End(); ++it) {
-            if (!loadedMods.contains((*it).first_)) {
-                if (asScriptMap_[(*it).first_]->GetFunction("void Stop()")) {
-                    asScriptMap_[(*it).first_]->Execute("void Stop()");
+        for (auto it = asScriptMap_.begin(); it != asScriptMap_.end(); ++it) {
+            if (!loadedMods.contains((*it).first)) {
+                if (asScriptMap_[(*it).first]->GetFunction("void Stop()")) {
+                    asScriptMap_[(*it).first]->Execute("void Stop()");
                 }
-                URHO3D_LOGWARNING("Unloading mod '" + (*it).first_ + "'");
-                asScriptMap_.Erase((*it).first_);
+                URHO3D_LOGWARNING("Unloading mod '" + (*it).first + "'");
+                asScriptMap_.Erase((*it).first);
             }
         }
         CheckAllMods();

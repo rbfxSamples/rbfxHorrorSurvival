@@ -131,10 +131,10 @@ namespace {
             if (SDL_GetDisplayMode(monitor, i, &mode) != 0)
                 continue;
             if (rate == -1 || (rate != -1 && mode.refresh_rate == rate))
-                resolutions.Push(Resolution(mode.w, mode.h, mode.refresh_rate));
+                resolutions.push_back(Resolution(mode.w, mode.h, mode.refresh_rate));
         }
         // sort resolutions in descending order
-        Sort(resolutions.Begin(), resolutions.End(), greater());
+        Sort(resolutions.begin(), resolutions.end(), greater());
         return resolutions;
     }
 
@@ -145,8 +145,8 @@ namespace {
 
         ResolutionVector modes = GetFullscreenResolutions(monitor, -1);
         for (auto mode : modes) {
-            if (rates.Find(mode.refreshrate) == rates.End())
-                rates.Push(mode.refreshrate);
+            if (rates.find(mode.refreshrate) == rates.end())
+                rates.push_back(mode.refreshrate);
         }
         return rates;
     }
@@ -282,9 +282,9 @@ void SettingsWindow::CreateVideoTab()
     opt_fullscreen_->SetTags({ "video" });
 
     StringVector fullscreen_options;
-    fullscreen_options.Push(localization->Get("WINDOW"));
-    fullscreen_options.Push(localization->Get("BORDERLESS_WINDOW"));
-    fullscreen_options.Push(localization->Get("FULLSCREEN"));
+    fullscreen_options.push_back(localization->Get("WINDOW"));
+    fullscreen_options.push_back(localization->Get("BORDERLESS_WINDOW"));
+    fullscreen_options.push_back(localization->Get("FULLSCREEN"));
     opt_fullscreen_->SetStrings(fullscreen_options);
 
     opt_monitor_ = new UIMultiOption(context_);
@@ -343,14 +343,14 @@ void SettingsWindow::CreateVideoTab()
     opt_fpslimit_->SetTags({ "misc-video" });
     {
         StringVector options;
-        options.Push("Custom");
-        options.Push("Unlimited");
-        options.Push("30");
-        options.Push("60");
-        options.Push("75");
-        options.Push("100");
-        options.Push("144");
-        options.Push("240");
+        options.push_back("Custom");
+        options.push_back("Unlimited");
+        options.push_back("30");
+        options.push_back("60");
+        options.push_back("75");
+        options.push_back("100");
+        options.push_back("144");
+        options.push_back("240");
         opt_fpslimit_->SetStrings(options);
 
         int currentFps = GetSubsystem<Engine>()->GetMaxFps();
@@ -406,9 +406,9 @@ void SettingsWindow::CreateGraphicsTab()
     opt_texture_quality_->SetTags({ "graphics" });
 
     StringVector quality_options;
-    quality_options.Push(localization->Get("LOW"));
-    quality_options.Push(localization->Get("MEDIUM"));
-    quality_options.Push(localization->Get("HIGH"));
+    quality_options.push_back(localization->Get("LOW"));
+    quality_options.push_back(localization->Get("MEDIUM"));
+    quality_options.push_back(localization->Get("HIGH"));
     opt_texture_quality_->SetStrings(quality_options);
 
     opt_material_quality_ = new UIMultiOption(context_);
@@ -425,10 +425,10 @@ void SettingsWindow::CreateGraphicsTab()
     opt_shadows_->SetTags({ "graphics" });
     {
         StringVector options;
-        options.Push(localization->Get("OFF"));
-        options.Push(localization->Get("LOW"));
-        options.Push(localization->Get("MEDIUM"));
-        options.Push(localization->Get("HIGH"));
+        options.push_back(localization->Get("OFF"));
+        options.push_back(localization->Get("LOW"));
+        options.push_back(localization->Get("MEDIUM"));
+        options.push_back(localization->Get("HIGH"));
         opt_shadows_->SetStrings(options);
     }
 
@@ -439,18 +439,18 @@ void SettingsWindow::CreateGraphicsTab()
     opt_shadow_quality_->SetTags({ "graphics" });
     {
         StringVector options;
-        options.Push("Simple 16 bit");
-        options.Push("Simple 24 bit");
-        options.Push("PCF 16 bit");
-        options.Push("PCF 24 bit");
-        options.Push("VSM");
-        options.Push("Blur VSM");
+        options.push_back("Simple 16 bit");
+        options.push_back("Simple 24 bit");
+        options.push_back("PCF 16 bit");
+        options.push_back("PCF 24 bit");
+        options.push_back("VSM");
+        options.push_back("Blur VSM");
         opt_shadow_quality_->SetStrings(options);
     }
 
     StringVector options_bool;
-    options_bool.Push(localization->Get("OFF"));
-    options_bool.Push(localization->Get("ON"));
+    options_bool.push_back(localization->Get("OFF"));
+    options_bool.push_back(localization->Get("ON"));
 
     opt_occlusion_ = new UIMultiOption(context_);
     opt_occlusion_->SetName("OptOcclusion");
@@ -672,12 +672,12 @@ void SettingsWindow::CreateControlsTab()
     auto names = controllerInput->GetControlNames();
 
     // Loop trough all of the controls
-    for (auto it = names.Begin(); it != names.End(); ++it) {
-        int actionId = (*it).first_;
+    for (auto it = names.begin(); it != names.end(); ++it) {
+        int actionId = (*it).first;
         //controllerInput->GetActionKeyName(actionId)
         auto control = new UIOption(context_);
 
-        control->SetOptionName((*it).second_);
+        control->SetOptionName((*it).second);
         control->SetStyleAuto();
 
         auto button = control->GetControl()->CreateChild<Button>();
@@ -740,8 +740,8 @@ void SettingsWindow::RefreshControlsTab()
     auto names = controllerInput->GetControlNames();
 
     // Loop trough all of the controls and update their labels
-    for (auto it = names.Begin(); it != names.End(); ++it) {
-        int actionId = (*it).first_;
+    for (auto it = names.begin(); it != names.end(); ++it) {
+        int actionId = (*it).first;
         if (control_mappings_.contains(actionId) && control_mappings_[actionId]) {
             control_mappings_[actionId]->SetText(controllerInput->GetActionKeyName(actionId));
         }
@@ -762,7 +762,7 @@ void SettingsWindow::CreateGameTab()
 
     StringVector languages;
     for (unsigned int i = 0; i < localization->GetNumLanguages(); i++) {
-        languages.Push(localization->GetLanguage(i));
+        languages.push_back(localization->GetLanguage(i));
     }
     language_selection_->SetStrings(languages);
     language_selection_->SetOptionIndex(localization->GetLanguageIndex());
@@ -816,11 +816,11 @@ void SettingsWindow::CreateGameTab()
 void SettingsWindow::FillRates(int monitor) {
     auto rates = GetFullscreenRefreshRates(monitor);
     for (unsigned i = 0; i < rates.size() / 2; i++) {
-        Swap(*(rates.Begin() + i), *(rates.Begin() + rates.size() - 1 - i));
+        Swap(*(rates.begin() + i), *(rates.begin() + rates.size() - 1 - i));
     }
     StringVector res;
     for (auto r : rates) {
-        res.Push(ToString("%d", r));
+        res.push_back(ToString("%d", r));
     }
 
     opt_rate_->SetStrings(res);
@@ -830,11 +830,11 @@ void SettingsWindow::FillRates(int monitor) {
 void SettingsWindow::FillResolutions(int monitor, int rate) {
     ResolutionVector resolutions = GetFullscreenResolutions(monitor, rate);
     for (unsigned i = 0; i < resolutions.size() / 2; i++) {
-        Swap(*(resolutions.Begin() + i), *(resolutions.Begin() + resolutions.size() - 1 - i));
+        Swap(*(resolutions.begin() + i), *(resolutions.begin() + resolutions.size() - 1 - i));
     }
     StringVector res;
     for (auto r : resolutions) {
-        res.Push((r.ToString(false)));
+        res.push_back((r.ToString(false)));
     }
 
     opt_resolution_->SetStrings(res);
@@ -858,7 +858,7 @@ void SettingsWindow::RefreshVideoOptions() {
 
     StringVector monitor_names;
     for (int i = 0; i < GetMonitorCount(); i++) {
-        monitor_names.Push(SDL_GetDisplayName(i));
+        monitor_names.push_back(SDL_GetDisplayName(i));
     }
 
     opt_monitor_->SetStrings(monitor_names);
@@ -889,11 +889,11 @@ void SettingsWindow::RefreshVideoOptions() {
                 ToInt(opt_rate_->GetValue()));
         // reverse resolutions to low -> high
         for (unsigned i = 0; i < resolutions.size() / 2; i++) {
-            Swap(*(resolutions.Begin() + i), *(resolutions.Begin() + resolutions.size() - 1 - i));
+            Swap(*(resolutions.begin() + i), *(resolutions.begin() + resolutions.size() - 1 - i));
         }
 
         int i = 0;
-        for (auto it = resolutions.Begin(); it != resolutions.End(); ++it, ++i) {
+        for (auto it = resolutions.begin(); it != resolutions.end(); ++it, ++i) {
             if (it->width == graphics_size.x_ && it->height == graphics_size.y_ && it->refreshrate == refreshrate) {
                 res_index = i;
                 break;
@@ -1086,7 +1086,7 @@ void SettingsWindow::HandleOptionChanged(StringHash eventType, VariantMap& event
     if (option->HasTag("audio")) {
         ea::string type = option->GetVar("AudioType").GetString();
         URHO3D_LOGINFOF("Audio: %s", type.CString());
-        if (!type.Empty()) {
+        if (!type.empty()) {
             GetSubsystem<Audio>()->SetMasterGain(type, audio_settings_[type]->GetValue());
             GetSubsystem<ConfigManager>()->Set("audio", type, audio_settings_[type]->GetValue());
         }

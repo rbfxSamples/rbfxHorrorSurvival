@@ -47,8 +47,8 @@ void UpdateChunkState(const WorkItem* item, unsigned threadIndex)
     }
 
     int counter = 0;
-    for (auto chIt = world->chunks_.Begin(); chIt != world->chunks_.End(); ++chIt) {
-        if ((*chIt).second_ && (*chIt).second_->IsActive()) {
+    for (auto chIt = world->chunks_.begin(); chIt != world->chunks_.end(); ++chIt) {
+        if ((*chIt).second && (*chIt).second->IsActive()) {
             counter++;
         }
     }
@@ -60,14 +60,14 @@ void UpdateChunkState(const WorkItem* item, unsigned threadIndex)
     int savePerFrame = 0;
 
     ea::vector<Chunk*> chunks;
-    for (auto it = world->chunks_.Begin(); it != world->chunks_.End(); ++it) {
-        if ((*it).second_) {
-            chunks.Push((*it).second_.Get());
+    for (auto it = world->chunks_.begin(); it != world->chunks_.end(); ++it) {
+        if ((*it).second) {
+            chunks.push_back((*it).second.Get());
         }
     }
 
-    Sort(chunks.Begin(), chunks.End(), CompareChunks);
-    for (auto it = chunks.Begin(); it != chunks.End(); ++it) {
+    Sort(chunks.begin(), chunks.end(), CompareChunks);
+    for (auto it = chunks.begin(); it != chunks.end(); ++it) {
 
         if (world->reloadAllChunks_) {
             (*it)->MarkForGeometryCalculation();
@@ -78,7 +78,7 @@ void UpdateChunkState(const WorkItem* item, unsigned threadIndex)
             if (!world->GetSubsystem<Network>()->GetServerConnection()) {
                 (*it)->Load();
 //                for (int i = 0; i < 6; i++) {
-//                    auto neighbor = (*it).second_->GetNeighbor(static_cast<BlockSide>(i));
+//                    auto neighbor = (*it).second->GetNeighbor(static_cast<BlockSide>(i));
 //                    if (neighbor) {
 ////                        neighbor->CalculateLight();
 //                    }
@@ -94,7 +94,7 @@ void UpdateChunkState(const WorkItem* item, unsigned threadIndex)
 
         if (!(*it)->IsGeometryCalculated()) {
             (*it)->CalculateGeometry();
-//            URHO3D_LOGINFO("CalculateGeometry " + (*it).second_->GetPosition().ToString());
+//            URHO3D_LOGINFO("CalculateGeometry " + (*it).second->GetPosition().ToString());
         }
 
         if ((*it)->ShouldSave() && savePerFrame < 1) {
@@ -160,7 +160,7 @@ void VoxelWorld::Init()
         if(GetSubsystem<FileSystem>()->DirExists("World")) {
             ea::vector<ea::string> files;
             GetSubsystem<FileSystem>()->ScanDir(files, "World", "", SCAN_FILES, false);
-            for (auto it = files.Begin(); it != files.End(); ++it) {
+            for (auto it = files.begin(); it != files.end(); ++it) {
                 URHO3D_LOGINFO("Deleting file " + (*it));
                 GetSubsystem<FileSystem>()->Delete("World/" + (*it));
             }
@@ -191,14 +191,14 @@ void VoxelWorld::RegisterObject(Context* context)
 
 void VoxelWorld::AddObserver(SharedPtr<Node> observer)
 {
-    observers_.Push(observer);
+    observers_.push_back(observer);
     URHO3D_LOGINFO("Adding observer to voxel world!");
 }
 
 void VoxelWorld::RemoveObserver(SharedPtr<Node> observer)
 {
-    auto it = observers_.Find(observer);
-    if (it != observers_.End()) {
+    auto it = observers_.find(observer);
+    if (it != observers_.end()) {
         observers_.Erase(it);
         URHO3D_LOGINFO("Removing observer from voxel world!");
     }
@@ -207,7 +207,7 @@ void VoxelWorld::RemoveObserver(SharedPtr<Node> observer)
 void VoxelWorld::HandleUpdate(StringHash eventType, VariantMap& eventData)
 {
     int loadedChunkCounter = 0;
-    if (!removeBlocks_.Empty()) {
+    if (!removeBlocks_.empty()) {
         auto chunk = GetChunkByPosition(removeBlocks_.Front());
         if (chunk) {
             VariantMap& data = GetEventDataMap();
@@ -262,48 +262,48 @@ void VoxelWorld::LoadChunk(const Vector3& position)
 //        for (int z = -5; z < 5; z++) {
 //            Vector3 terrain = Vector3(fixedChunkPosition + Vector3::FORWARD * SIZE_Z * z + Vector3::LEFT * SIZE_X * x);
 //            terrain.y_ = GetSubsystem<ChunkGenerator>()->GetTerrainHeight(terrain);
-//            positions.Push(terrain);
-////            positions.Push(terrain + Vector3::UP * SIZE_Y);
-//            positions.Push(terrain + Vector3::DOWN * SIZE_Y);
+//            positions.push_back(terrain);
+////            positions.push_back(terrain + Vector3::UP * SIZE_Y);
+//            positions.push_back(terrain + Vector3::DOWN * SIZE_Y);
 //        }
 //    }
 //
 //    // Same
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::LEFT * SIZE_X));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::RIGHT * SIZE_X));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::FORWARD * SIZE_Z));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::BACK * SIZE_Z));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::LEFT * SIZE_X));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::RIGHT * SIZE_X));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::FORWARD * SIZE_Z));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::BACK * SIZE_Z));
 //
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::BACK * SIZE_Z + Vector3::LEFT * SIZE_X));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::BACK * SIZE_Z + Vector3::RIGHT * SIZE_X));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::FORWARD * SIZE_Z + Vector3::LEFT * SIZE_X));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::FORWARD * SIZE_Z + Vector3::RIGHT * SIZE_X));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::BACK * SIZE_Z + Vector3::LEFT * SIZE_X));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::BACK * SIZE_Z + Vector3::RIGHT * SIZE_X));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::FORWARD * SIZE_Z + Vector3::LEFT * SIZE_X));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::FORWARD * SIZE_Z + Vector3::RIGHT * SIZE_X));
 //
 //    // Up
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::UP * SIZE_Y + Vector3::LEFT * SIZE_X));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::UP * SIZE_Y + Vector3::RIGHT * SIZE_X));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::UP * SIZE_Y + Vector3::FORWARD * SIZE_Z));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::UP * SIZE_Y + Vector3::BACK * SIZE_Z));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::UP * SIZE_Y));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::UP * SIZE_Y + Vector3::LEFT * SIZE_X));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::UP * SIZE_Y + Vector3::RIGHT * SIZE_X));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::UP * SIZE_Y + Vector3::FORWARD * SIZE_Z));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::UP * SIZE_Y + Vector3::BACK * SIZE_Z));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::UP * SIZE_Y));
 //
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::UP * SIZE_Y + Vector3::BACK * SIZE_Z + Vector3::LEFT * SIZE_X));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::UP * SIZE_Y + Vector3::BACK * SIZE_Z + Vector3::RIGHT * SIZE_X));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::UP * SIZE_Y + Vector3::FORWARD * SIZE_Z + Vector3::LEFT * SIZE_X));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::UP * SIZE_Y + Vector3::FORWARD * SIZE_Z + Vector3::RIGHT * SIZE_X));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::UP * SIZE_Y + Vector3::BACK * SIZE_Z + Vector3::LEFT * SIZE_X));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::UP * SIZE_Y + Vector3::BACK * SIZE_Z + Vector3::RIGHT * SIZE_X));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::UP * SIZE_Y + Vector3::FORWARD * SIZE_Z + Vector3::LEFT * SIZE_X));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::UP * SIZE_Y + Vector3::FORWARD * SIZE_Z + Vector3::RIGHT * SIZE_X));
 //
 //    // Down
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::DOWN * SIZE_Y + Vector3::LEFT * SIZE_X));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::DOWN * SIZE_Y + Vector3::RIGHT * SIZE_X));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::DOWN * SIZE_Y + Vector3::FORWARD * SIZE_Z));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::DOWN * SIZE_Y + Vector3::BACK * SIZE_Z));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::DOWN * SIZE_Y));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::DOWN * SIZE_Y + Vector3::LEFT * SIZE_X));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::DOWN * SIZE_Y + Vector3::RIGHT * SIZE_X));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::DOWN * SIZE_Y + Vector3::FORWARD * SIZE_Z));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::DOWN * SIZE_Y + Vector3::BACK * SIZE_Z));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::DOWN * SIZE_Y));
 //
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::DOWN * SIZE_Y + Vector3::BACK * SIZE_Z + Vector3::LEFT * SIZE_X));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::DOWN * SIZE_Y + Vector3::BACK * SIZE_Z + Vector3::RIGHT * SIZE_X));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::DOWN * SIZE_Y + Vector3::FORWARD * SIZE_Z + Vector3::LEFT * SIZE_X));
-//    positions.Push(Vector3(fixedChunkPosition + Vector3::DOWN * SIZE_Y + Vector3::FORWARD * SIZE_Z + Vector3::RIGHT * SIZE_X));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::DOWN * SIZE_Y + Vector3::BACK * SIZE_Z + Vector3::LEFT * SIZE_X));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::DOWN * SIZE_Y + Vector3::BACK * SIZE_Z + Vector3::RIGHT * SIZE_X));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::DOWN * SIZE_Y + Vector3::FORWARD * SIZE_Z + Vector3::LEFT * SIZE_X));
+//    positions.push_back(Vector3(fixedChunkPosition + Vector3::DOWN * SIZE_Y + Vector3::FORWARD * SIZE_Z + Vector3::RIGHT * SIZE_X));
 //
-//    for (auto it = positions.Begin(); it != positions.End(); ++it) {
+//    for (auto it = positions.begin(); it != positions.end(); ++it) {
 //        if(!IsChunkLoaded((*it))) {
 //            CreateChunk((*it));
 //        }
@@ -319,7 +319,7 @@ Chunk* VoxelWorld::GetChunkByPosition(const Vector3& position)
 {
     Vector3 fixedPositon = GetWorldToChunkPosition(position);
     ea::string id = GetChunkIdentificator(fixedPositon);
-    if (chunks_.Find(id) != chunks_.End() && chunks_[id]) {
+    if (chunks_.find(id) != chunks_.end() && chunks_[id]) {
         return chunks_[id].Get();
     }
 
@@ -347,45 +347,45 @@ IntVector3 VoxelWorld::GetWorldToChunkBlockPosition(const Vector3& position)
 
 void VoxelWorld::RemoveBlockAtPosition(const Vector3& position)
 {
-    removeBlocks_.Push(position);
+    removeBlocks_.push_back(position);
 }
 
 void VoxelWorld::UpdateChunks()
 {
     if (!updateWorkItem_) {
-        if (!chunksToLoad_.Empty()) {
-            for (auto it = chunks_.Begin(); it != chunks_.End(); ++it) {
-                if ((*it).second_) {
-                    (*it).second_->MarkForDeletion(true);
-                    (*it).second_->SetDistance(-1);
+        if (!chunksToLoad_.empty()) {
+            for (auto it = chunks_.begin(); it != chunks_.end(); ++it) {
+                if ((*it).second) {
+                    (*it).second->MarkForDeletion(true);
+                    (*it).second->SetDistance(-1);
                 }
             }
         }
 
-        for (auto it = chunksToLoad_.Begin(); it != chunksToLoad_.End(); ++it) {
-            Vector3 position = (*it).first_;
+        for (auto it = chunksToLoad_.begin(); it != chunksToLoad_.end(); ++it) {
+            Vector3 position = (*it).first;
             ea::string id = GetChunkIdentificator(position);
-            auto chunkIterator = chunks_.Find(id);
-            if (chunkIterator != chunks_.End()) {
-                (*chunkIterator).second_->MarkForDeletion(false);
-                (*chunkIterator).second_->SetDistance((*it).second_);
+            auto chunkIterator = chunks_.find(id);
+            if (chunkIterator != chunks_.end()) {
+                (*chunkIterator).second->MarkForDeletion(false);
+                (*chunkIterator).second->SetDistance((*it).second);
             } else {
                 auto chunk = CreateChunk(position);
-                chunk->SetDistance((*it).second_);
+                chunk->SetDistance((*it).second);
             }
         }
 
         chunksToLoad_.Clear();
 
         MutexLock lock(mutex_);
-        for (auto it = chunks_.Begin(); it != chunks_.End(); ++it) {
-            if ((*it).second_) {
-                if ((*it).second_->IsMarkedForDeletion()) {
-                    int distance = (*it).second_->GetDistance();
+        for (auto it = chunks_.begin(); it != chunks_.end(); ++it) {
+            if ((*it).second) {
+                if ((*it).second->IsMarkedForDeletion()) {
+                    int distance = (*it).second->GetDistance();
 //                        URHO3D_LOGINFOF("Deleting chunk distance=%d ", distance);
                     it = chunks_.Erase(it);
                 }
-                if (chunks_.End() == it) {
+                if (chunks_.end() == it) {
                     break;
                 }
             }
@@ -405,10 +405,10 @@ void VoxelWorld::UpdateChunks()
 
     int renderedChunkCount = 0;
     int renderedChunkLimit = 1;
-    for (auto it = chunks_.Begin(); it != chunks_.End(); ++it) {
-        if ((*it).second_->ShouldRender()) {
-            bool rendered = (*it).second_->Render();
-//            URHO3D_LOGINFO("Rendering chunk " + (*it).second_->GetPosition().ToString());
+    for (auto it = chunks_.begin(); it != chunks_.end(); ++it) {
+        if ((*it).second->ShouldRender()) {
+            bool rendered = (*it).second->Render();
+//            URHO3D_LOGINFO("Rendering chunk " + (*it).second->GetPosition().ToString());
             if (rendered) {
                 renderedChunkCount++;
             }
@@ -437,8 +437,8 @@ VoxelBlock* VoxelWorld::GetBlockAt(Vector3 position)
 
 bool VoxelWorld::IsChunkValid(Chunk* chunk)
 {
-    for (auto it = chunks_.Begin(); it != chunks_.End(); ++it) {
-        if ((*it).second_.Get() == chunk) {
+    for (auto it = chunks_.begin(); it != chunks_.end(); ++it) {
+        if ((*it).second.Get() == chunk) {
             return true;
         }
     }
@@ -501,7 +501,7 @@ bool VoxelWorld::ProcessQueue()
 
     bool haveChanges = false;
 
-    for (auto it = observers_.Begin(); it != observers_.End(); ++it) {
+    for (auto it = observers_.begin(); it != observers_.end(); ++it) {
         Vector3 currentChunkPosition = GetWorldToChunkPosition((*it)->GetWorldPosition());
         if (!(*it)->GetVar("ChunkPosition").IsEmpty()) {
             Vector3 lastChunkPosition = (*it)->GetVar("ChunkPosition").GetVector3();
@@ -522,7 +522,7 @@ bool VoxelWorld::ProcessQueue()
         return false;
     }
 
-    for (auto it = observers_.Begin(); it != observers_.End(); ++it) {
+    for (auto it = observers_.begin(); it != observers_.end(); ++it) {
         AddChunkToQueue(((*it)->GetWorldPosition()));
     }
 
@@ -561,20 +561,20 @@ void VoxelWorld::HandleChunkReceived(StringHash eventType, VariantMap& eventData
     URHO3D_LOGINFO("Chunk received: " + position.ToString());
     PODVector<unsigned char>* data = reinterpret_cast<PODVector<unsigned char>*>(eventData[P_DATA].GetPtr());
     ea::string id = GetChunkIdentificator(position);
-    auto chunkIterator = chunks_.Find(id);
-    if (chunkIterator != chunks_.End()) {
+    auto chunkIterator = chunks_.find(id);
+    if (chunkIterator != chunks_.end()) {
         int index = 0;
         for (int x = 0; x < SIZE_X; x++) {
             for (int y = 0; y < SIZE_Y; y++) {
                 for (int z = 0; z < SIZE_Z; z++) {
                     int value = data->At(index);
                     BlockType type = static_cast<BlockType>(value);
-                    (*chunkIterator).second_->SetVoxel(x, y, z, type);
+                    (*chunkIterator).second->SetVoxel(x, y, z, type);
                 }
             }
         }
-        (*chunkIterator).second_->CalculateLight();
-        (*chunkIterator).second_->MarkForGeometryCalculation();
+        (*chunkIterator).second->CalculateLight();
+        (*chunkIterator).second->MarkForGeometryCalculation();
     }
 }
 

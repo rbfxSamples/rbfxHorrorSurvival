@@ -78,10 +78,10 @@ void ControllerInput::LoadConfig()
     inputHandlers_[ControllerType::MOUSE]->SetKeyToAction(MOUSEB_RIGHT, CTRL_SECONDARY);
 #endif
 
-    for (auto it = controlMapNames_.Begin(); it != controlMapNames_.End(); ++it) {
-        ea::string controlName = (*it).second_;
+    for (auto it = controlMapNames_.begin(); it != controlMapNames_.end(); ++it) {
+        ea::string controlName = (*it).second;
         controlName.Replace(" ", "_");
-        int controlCode = (*it).first_;
+        int controlCode = (*it).first;
         if (GetSubsystem<ConfigManager>()->GetInt("keyboard", controlName, -1) != -1) {
             int key = GetSubsystem<ConfigManager>()->GetInt("keyboard", controlName, 0);
             inputHandlers_[ControllerType::KEYBOARD]->SetKeyToAction(key, controlCode);
@@ -96,8 +96,8 @@ void ControllerInput::LoadConfig()
         }
     }
 
-    for (auto it = inputHandlers_.Begin(); it != inputHandlers_.End(); ++it) {
-        (*it).second_->LoadConfig();
+    for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it) {
+        (*it).second->LoadConfig();
     }
 
     // Single player mode, all the input is handled by single Controls object
@@ -109,28 +109,28 @@ void ControllerInput::LoadConfig()
 
 void ControllerInput::SaveConfig()
 {
-    for (auto it = controlMapNames_.Begin(); it != controlMapNames_.End(); ++it) {
-        ea::string controlName = (*it).second_;
+    for (auto it = controlMapNames_.begin(); it != controlMapNames_.end(); ++it) {
+        ea::string controlName = (*it).second;
         controlName.Replace(" ", "_");
-        int controlCode = (*it).first_;
+        int controlCode = (*it).first;
         GetSubsystem<ConfigManager>()->Set("keyboard", controlName, "-1");
         GetSubsystem<ConfigManager>()->Set("mouse", controlName, "-1");
         GetSubsystem<ConfigManager>()->Set("joystick", controlName, "-1");
     }
 
-    for (auto it = inputHandlers_.Begin(); it != inputHandlers_.End(); ++it) {
-        ea::hash_map<int, int> configMap = (*it).second_->GetConfigMap();
-        int type = (*it).first_;
+    for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it) {
+        ea::hash_map<int, int> configMap = (*it).second->GetConfigMap();
+        int type = (*it).first;
         ea::string typeName;
         ea::hash_map<int, ea::string> map;
         map[ControllerType::KEYBOARD] = "keyboard";
         map[ControllerType::MOUSE] = "mouse";
         map[ControllerType::JOYSTICK] = "joystick";
 
-        for (auto it2 = configMap.Begin(); it2 != configMap.End(); ++it2) {
-            int controlCode = (*it2).first_;
-             int keyCode = (*it2).second_;
-             if (controlMapNames_.contains(controlCode) && !controlMapNames_[controlCode].Empty()) {
+        for (auto it2 = configMap.begin(); it2 != configMap.end(); ++it2) {
+            int controlCode = (*it2).first;
+             int keyCode = (*it2).second;
+             if (controlMapNames_.contains(controlCode) && !controlMapNames_[controlCode].empty()) {
                 ea::string controlName = controlMapNames_[controlCode];
                 controlName.Replace(" ", "_");
                 ea::string value = ea::string(keyCode);
@@ -153,9 +153,9 @@ void ControllerInput::SubscribeToEvents()
 void ControllerInput::ReleaseConfiguredKey(int key, int action)
 {
     // Clear all input handler mappings against key and actions
-    for (auto it = inputHandlers_.Begin(); it != inputHandlers_.End(); ++it) {
-        (*it).second_->ReleaseAction(action);
-        (*it).second_->ReleaseKey(key);
+    for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it) {
+        (*it).second->ReleaseAction(action);
+        (*it).second->ReleaseKey(key);
     }
 }
 
@@ -175,8 +175,8 @@ void ControllerInput::SetConfiguredKey(int action, int key, ea::string controlle
     }
 
     // Stop listening for keyboard key mapping
-    for (auto it = inputHandlers_.Begin(); it != inputHandlers_.End(); ++it) {
-        (*it).second_->StopMappingAction();
+    for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it) {
+        (*it).second->StopMappingAction();
         activeAction_ = -1;
     }
 
@@ -201,8 +201,8 @@ void ControllerInput::StopInputMapping()
 
     activeAction_ = -1;
     // Stop listening for keyboard key mapping
-    for (auto it = inputHandlers_.Begin(); it != inputHandlers_.End(); ++it) {
-        (*it).second_->StopMappingAction();
+    for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it) {
+        (*it).second->StopMappingAction();
     }
 
     SendEvent(E_STOP_INPUT_MAPPING, data);
@@ -218,17 +218,17 @@ void ControllerInput::HandleStartInputListening(StringHash eventType, VariantMap
     }
     if (eventData[P_CONTROL_ACTION].GetType() == VAR_STRING) {
         ea::string control = eventData[P_CONTROL_ACTION].GetString();
-        for (auto it = controlMapNames_.Begin(); it != controlMapNames_.End(); ++it) {
-            if ((*it).second_ == control) {
-                activeAction_ = (*it).first_;
+        for (auto it = controlMapNames_.begin(); it != controlMapNames_.end(); ++it) {
+            if ((*it).second == control) {
+                activeAction_ = (*it).first;
             }
         }
     }
 
     if (activeAction_ >= 0) {
         // Prepare all input handlers for key mapping against specific action
-        for (auto it = inputHandlers_.Begin(); it != inputHandlers_.End(); ++it) {
-            (*it).second_->StartMappingAction(activeAction_);
+        for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it) {
+            (*it).second->StartMappingAction(activeAction_);
         }
         URHO3D_LOGINFO("Starting to map action!");
     }
@@ -333,9 +333,9 @@ ea::string ControllerInput::GetActionKeyName(int action)
     if (action == activeAction_) {
         return "...";
     }
-    for (auto it = inputHandlers_.Begin(); it != inputHandlers_.End(); ++it) {
-        if ((*it).second_->IsActionUsed(action)) {
-            ea::string keyName = (*it).second_->GetActionKeyName(action);
+    for (auto it = inputHandlers_.begin(); it != inputHandlers_.end(); ++it) {
+        if ((*it).second->IsActionUsed(action)) {
+            ea::string keyName = (*it).second->GetActionKeyName(action);
             return keyName;
         }
     }
@@ -373,16 +373,16 @@ ea::vector<int> ControllerInput::GetControlIndexes()
 {
     ea::vector<int> indexes;
     if (!multipleControllerSupport_) {
-        indexes.Push(0);
+        indexes.push_back(0);
         return indexes;
     }
 
-    for (auto it = controls_.Begin(); it != controls_.End(); ++it) {
-        indexes.Push((*it).first_);
+    for (auto it = controls_.begin(); it != controls_.end(); ++it) {
+        indexes.push_back((*it).first);
     }
 
-    if (indexes.Empty()) {
-        indexes.Push(0);
+    if (indexes.empty()) {
+        indexes.push_back(0);
     }
     return indexes;
 }

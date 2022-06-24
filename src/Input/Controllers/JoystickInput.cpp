@@ -208,9 +208,9 @@ void JoystickInput::HandleUpdate(StringHash eventType, VariantMap& eventData)
 {
     auto* controllerInput = GetSubsystem<ControllerInput>();
     auto* input = GetSubsystem<Input>();
-    for (auto it = axisPosition_.Begin(); it != axisPosition_.End(); ++it) {
-        controllerInput->UpdateYaw((*it).second_.x_ * sensitivityX_, (*it).first_);
-        controllerInput->UpdatePitch((*it).second_.y_ * sensitivityX_, (*it).first_);
+    for (auto it = axisPosition_.begin(); it != axisPosition_.end(); ++it) {
+        controllerInput->UpdateYaw((*it).second.x_ * sensitivityX_, (*it).first);
+        controllerInput->UpdatePitch((*it).second.y_ * sensitivityX_, (*it).first);
     }
 }
 

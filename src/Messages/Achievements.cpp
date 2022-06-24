@@ -62,13 +62,13 @@ void Achievements::HandleNewAchievement(StringHash eventType, VariantMap& eventD
     using namespace NewAchievement;
     ea::string message = eventData[P_MESSAGE].GetString();
 
-    if (!activeAchievements_.Empty() || !showAchievements_) {
-        achievementQueue_.Push(eventData);
+    if (!activeAchievements_.empty() || !showAchievements_) {
+        achievementQueue_.push_back(eventData);
         URHO3D_LOGINFO("Pushing achievement to the queue " + message);
         return;
     }
     
-    for (auto it = activeAchievements_.Begin(); it != activeAchievements_.End(); ++it) {
+    for (auto it = activeAchievements_.begin(); it != activeAchievements_.end(); ++it) {
         if ((*it)->GetMessage() == message) {
             URHO3D_LOGINFO("Achievement already visible!");
             return;
@@ -80,7 +80,7 @@ void Achievements::HandleNewAchievement(StringHash eventType, VariantMap& eventD
     SharedPtr<SingleAchievement> singleAchievement = context_->CreateObject<SingleAchievement>();
 
     ea::string imageName = eventData[P_IMAGE].GetString();
-    if (!imageName.Empty()) {
+    if (!imageName.empty()) {
         singleAchievement->SetImage(imageName);
     } else {
         singleAchievement->SetImage("Textures/UrhoIcon.png");
@@ -106,7 +106,7 @@ void Achievements::HandleNewAchievement(StringHash eventType, VariantMap& eventD
     singleAchievement->SetObjectAnimation(objAnimation);
     singleAchievement->SetVar("Lifetime", 5.0f);
 
-    activeAchievements_.Push(singleAchievement);
+    activeAchievements_.push_back(singleAchievement);
 
     using namespace AudioDefs;
     using namespace PlaySound;
@@ -125,17 +125,17 @@ void Achievements::HandleUpdate(StringHash eventType, VariantMap& eventData)
 {
     using namespace Update;
 
-    if (activeAchievements_.Empty() && !achievementQueue_.Empty() && showAchievements_) {
+    if (activeAchievements_.empty() && !achievementQueue_.empty() && showAchievements_) {
         HandleNewAchievement("", achievementQueue_.Front());
         achievementQueue_.PopFront();
     }
 
     float timeStep = eventData[P_TIMESTEP].GetFloat();
-    for (auto it = activeAchievements_.Begin(); it != activeAchievements_.End(); ++it) {
+    for (auto it = activeAchievements_.begin(); it != activeAchievements_.end(); ++it) {
         if (!(*it)) {
             activeAchievements_.Erase(it);
 
-            if (!achievementQueue_.Empty() && showAchievements_) {
+            if (!achievementQueue_.empty() && showAchievements_) {
                 HandleNewAchievement("", achievementQueue_.Front());
                 achievementQueue_.PopFront();
             }
@@ -147,7 +147,7 @@ void Achievements::HandleUpdate(StringHash eventType, VariantMap& eventData)
             // (*it)->Remove();
             activeAchievements_.Erase(it);
 
-            if (!achievementQueue_.Empty() && showAchievements_) {
+            if (!achievementQueue_.empty() && showAchievements_) {
                 HandleNewAchievement("", achievementQueue_.Front());
                 achievementQueue_.PopFront();
             }
@@ -223,7 +223,7 @@ void Achievements::HandleRegisteredEvent(StringHash eventType, VariantMap& event
 {
     bool processed = false;
     if (registeredAchievements_.contains(eventType)) {
-        for (auto it = registeredAchievements_[eventType].Begin(); it != registeredAchievements_[eventType].End(); ++it) {
+        for (auto it = registeredAchievements_[eventType].begin(); it != registeredAchievements_[eventType].end(); ++it) {
             if ((*it).deepCheck) {
                 // check if the event contains specified parameter and same value
                 if (eventData[(*it).parameterName] == (*it).parameterValue) {
@@ -266,9 +266,9 @@ void Achievements::HandleRegisteredEvent(StringHash eventType, VariantMap& event
 ea::list<AchievementRule> Achievements::GetAchievements()
 {
     achievements_.Clear();
-    for (auto it = registeredAchievements_.Begin(); it != registeredAchievements_.End(); ++it) {
-        for (auto it2 = (*it).second_.Begin(); it2 != (*it).second_.End(); ++it2) {
-            achievements_.Push((*it2));
+    for (auto it = registeredAchievements_.begin(); it != registeredAchievements_.end(); ++it) {
+        for (auto it2 = (*it).second.begin(); it2 != (*it).second.end(); ++it2) {
+            achievements_.push_back((*it2));
         }
     }
 
@@ -278,8 +278,8 @@ ea::list<AchievementRule> Achievements::GetAchievements()
 void Achievements::SaveProgress()
 {
     JSONFile file(context_);
-    for (auto it = registeredAchievements_.Begin(); it != registeredAchievements_.End(); ++it) {
-        for (auto achievement = (*it).second_.Begin(); achievement != (*it).second_.End(); ++achievement) {
+    for (auto it = registeredAchievements_.begin(); it != registeredAchievements_.end(); ++it) {
+        for (auto achievement = (*it).second.begin(); achievement != (*it).second.end(); ++achievement) {
             StringHash id = (*achievement).eventName + (*achievement).message;
             file.GetRoot()[id.ToString()] = (*achievement).current;
         }
@@ -309,16 +309,16 @@ void Achievements::LoadProgress()
 
     JSONValue value = configFile.GetRoot();
     if (value.IsObject()) {
-        for (auto it = value.Begin(); it != value.End(); ++it) {
-            progress_[(*it).first_] = (*it).second_.GetInt();
+        for (auto it = value.begin(); it != value.end(); ++it) {
+            progress_[(*it).first] = (*it).second.GetInt();
         }
     }
 }
 
 void Achievements::ClearAchievementsProgress()
 {
-    for (auto it = registeredAchievements_.Begin(); it != registeredAchievements_.End(); ++it) {
-        for (auto achievement = (*it).second_.Begin(); achievement != (*it).second_.End(); ++achievement) {
+    for (auto it = registeredAchievements_.begin(); it != registeredAchievements_.end(); ++it) {
+        for (auto achievement = (*it).second.begin(); achievement != (*it).second.end(); ++achievement) {
             achievement->current = 0;
             achievement->completed = false;
         }
@@ -342,7 +342,7 @@ void Achievements::AddAchievement(ea::string message,
     rule.threshold = threshold;
     rule.current = 0;
     rule.completed = false; 
-    if (!parameterName.Empty() && !parameterValue.IsEmpty()) {
+    if (!parameterName.empty() && !parameterValue.IsEmpty()) {
         rule.deepCheck = true;
     }
     else {
@@ -363,7 +363,7 @@ void Achievements::AddAchievement(ea::string message,
         }
     }    
 
-    registeredAchievements_[eventName].Push(rule);
+    registeredAchievements_[eventName].push_back(rule);
 
 //    URHO3D_LOGINFOF("Registering achievement [%s]", rule.message.CString());
 
@@ -396,8 +396,8 @@ void Achievements::HandleAddAchievement(StringHash eventType, VariantMap& eventD
 int Achievements::CountAchievements()
 {
     int count = 0;
-    for (auto it = registeredAchievements_.Begin(); it != registeredAchievements_.End(); ++it) {
-        count += (*it).second_.size();
+    for (auto it = registeredAchievements_.begin(); it != registeredAchievements_.end(); ++it) {
+        count += (*it).second.size();
     }
     return count;
 }

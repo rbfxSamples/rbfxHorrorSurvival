@@ -1282,7 +1282,7 @@ void Chunk::CreateNode()
 //        body->SetMass(0);
 //        body->SetCollisionLayerAndMask(COLLISION_MASK_GROUND, COLLISION_MASK_PLAYER | COLLISION_MASK_OBSTACLES);
 //        part->CreateComponent<CollisionShape>(LOCAL);
-//        parts_.Push(part);
+//        parts_.push_back(part);
 //    }
 
     SubscribeToEvent(node_, E_CHUNK_HIT, URHO3D_HANDLER(Chunk, HandleHit));

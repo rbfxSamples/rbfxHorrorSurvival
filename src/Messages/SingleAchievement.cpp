@@ -81,7 +81,7 @@ void SingleAchievement::OnAttributeAnimationAdded()
 
 void SingleAchievement::OnAttributeAnimationRemoved()
 {
-    if (attributeAnimationInfos_.Empty())
+    if (attributeAnimationInfos_.empty())
         UnsubscribeFromEvent(E_POSTUPDATE);
 }
 
@@ -92,6 +92,6 @@ void SingleAchievement::SetVar(StringHash key, const Variant& value)
 
 const Variant& SingleAchievement::GetVar(const StringHash& key) const
 {
-    VariantMap::ConstIterator i = vars_.Find(key);
-    return i != vars_.End() ? i->second_ : Variant::EMPTY;
+    VariantMap::const_iterator i = vars_.find(key);
+    return i != vars_.end() ? i->second : Variant::EMPTY;
 }

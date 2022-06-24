@@ -163,7 +163,7 @@ namespace Levels {
         SharedPtr<UIElement> line(creditsBase_->CreateChild<UIElement>());
         line->SetAlignment(HA_CENTER, VA_TOP);
         line->SetFixedHeight(height);
-        credits_.Push(line);
+        credits_.push_back(line);
         return line;
     }
 

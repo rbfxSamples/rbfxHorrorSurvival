@@ -107,7 +107,7 @@ void BaseLevel::HandleStart(StringHash eventType, VariantMap& eventData)
         if (data_.contains("Commands")) {
             URHO3D_LOGINFO("Calling map commands");
             StringVector commands = data_["Commands"].GetStringVector();
-            for (auto it = commands.Begin(); it != commands.End(); ++it) {
+            for (auto it = commands.begin(); it != commands.end(); ++it) {
                 using namespace ConsoleCommand;
                 SendEvent(
                         E_CONSOLECOMMAND,
@@ -210,9 +210,9 @@ void BaseLevel::HandleFovChange(StringHash eventType, VariantMap& eventData)
         if (value > 160) {
             value = 160;
         }
-        if (!cameras_.Empty()) {
-            for (auto it = cameras_.Begin(); it != cameras_.End(); ++it) {
-                Node* cameraNode = (*it).second_;
+        if (!cameras_.empty()) {
+            for (auto it = cameras_.begin(); it != cameras_.end(); ++it) {
+                Node* cameraNode = (*it).second;
                 cameraNode->GetComponent<Camera>()->SetFov(value);
                 SetGlobalVar("CameraFov", value);
             }
@@ -249,98 +249,98 @@ ea::vector<IntRect> BaseLevel::InitRects(int count)
     ea::vector<IntRect> rects;
     if (count == 1) {
         // whole screen
-        rects.Push(IntRect(0, 0, graphics->GetWidth(), graphics->GetHeight()));
+        rects.push_back(IntRect(0, 0, graphics->GetWidth(), graphics->GetHeight()));
     }
 
         // 2 players - split vertically
     else if (count == 2) {
         // Left
-        rects.Push(IntRect(0, 0, graphics->GetWidth() / 2, graphics->GetHeight()));
+        rects.push_back(IntRect(0, 0, graphics->GetWidth() / 2, graphics->GetHeight()));
         // Right
-        rects.Push(IntRect(graphics->GetWidth() / 2, 0, graphics->GetWidth(), graphics->GetHeight()));
+        rects.push_back(IntRect(graphics->GetWidth() / 2, 0, graphics->GetWidth(), graphics->GetHeight()));
     }
 
     else if (count == 3) {
 
         // player 1 - top left corner
-        rects.Push(IntRect(0, 0, graphics->GetWidth() / 2, graphics->GetHeight() / 2));
+        rects.push_back(IntRect(0, 0, graphics->GetWidth() / 2, graphics->GetHeight() / 2));
         // player 2 - top right corner
-        rects.Push(IntRect(graphics->GetWidth() / 2, 0, graphics->GetWidth(), graphics->GetHeight() / 2));
+        rects.push_back(IntRect(graphics->GetWidth() / 2, 0, graphics->GetWidth(), graphics->GetHeight() / 2));
         // player 3 - bottom
-        rects.Push(IntRect(0, graphics->GetHeight() / 2, graphics->GetWidth(), graphics->GetHeight()));
+        rects.push_back(IntRect(0, graphics->GetHeight() / 2, graphics->GetWidth(), graphics->GetHeight()));
     }
     else if (count == 4) {
         // split screen into 4 rectangles
         // Top left
-        rects.Push(IntRect(0, 0, graphics->GetWidth() / 2, graphics->GetHeight() / 2));
+        rects.push_back(IntRect(0, 0, graphics->GetWidth() / 2, graphics->GetHeight() / 2));
         // Top right
-        rects.Push(IntRect(graphics->GetWidth() / 2, 0, graphics->GetWidth(), graphics->GetHeight() / 2));
+        rects.push_back(IntRect(graphics->GetWidth() / 2, 0, graphics->GetWidth(), graphics->GetHeight() / 2));
         // Bottom left
-        rects.Push(IntRect(0, graphics->GetHeight() / 2, graphics->GetWidth() / 2, graphics->GetHeight()));
+        rects.push_back(IntRect(0, graphics->GetHeight() / 2, graphics->GetWidth() / 2, graphics->GetHeight()));
         // Bottom right
-        rects.Push(IntRect(graphics->GetWidth() / 2, graphics->GetHeight() / 2, graphics->GetWidth(), graphics->GetHeight()));
+        rects.push_back(IntRect(graphics->GetWidth() / 2, graphics->GetHeight() / 2, graphics->GetWidth(), graphics->GetHeight()));
     }
     else if (count == 5) {
         // split screen into 5 rectangles
         // Top left
-        rects.Push(IntRect(0, 0, graphics->GetWidth() / 2, graphics->GetHeight() / 2));
+        rects.push_back(IntRect(0, 0, graphics->GetWidth() / 2, graphics->GetHeight() / 2));
         // Top right
-        rects.Push(IntRect(graphics->GetWidth() / 2, 0, graphics->GetWidth(), graphics->GetHeight() / 2));
+        rects.push_back(IntRect(graphics->GetWidth() / 2, 0, graphics->GetWidth(), graphics->GetHeight() / 2));
 
         int width = graphics->GetWidth() / 3;
         int top = graphics->GetHeight() / 2;
         // Bottom left
-        rects.Push(IntRect(0, top, width, graphics->GetHeight()));
+        rects.push_back(IntRect(0, top, width, graphics->GetHeight()));
         // Bottom middle
-        rects.Push(IntRect(width, top, width * 2, graphics->GetHeight()));
+        rects.push_back(IntRect(width, top, width * 2, graphics->GetHeight()));
         // Bottom right
-        rects.Push(IntRect(width * 2, top, graphics->GetWidth(), graphics->GetHeight()));
+        rects.push_back(IntRect(width * 2, top, graphics->GetWidth(), graphics->GetHeight()));
     }
     else if (count == 6) {
         // split screen into 5 rectangles
         int width = graphics->GetWidth() / 3;
         // Top left
-        rects.Push(IntRect(0, 0, width, graphics->GetHeight() / 2));
+        rects.push_back(IntRect(0, 0, width, graphics->GetHeight() / 2));
         // Top middle
-        rects.Push(IntRect(width, 0, width * 2, graphics->GetHeight() / 2));
+        rects.push_back(IntRect(width, 0, width * 2, graphics->GetHeight() / 2));
         // Top right
-        rects.Push(IntRect(width * 2, 0, graphics->GetWidth(), graphics->GetHeight() / 2));
+        rects.push_back(IntRect(width * 2, 0, graphics->GetWidth(), graphics->GetHeight() / 2));
 
         int top = graphics->GetHeight() / 2;
         // Bottom left
-        rects.Push(IntRect(0, top, width, graphics->GetHeight()));
+        rects.push_back(IntRect(0, top, width, graphics->GetHeight()));
         // Bottom middle
-        rects.Push(IntRect(width, top, width * 2, graphics->GetHeight()));
+        rects.push_back(IntRect(width, top, width * 2, graphics->GetHeight()));
         // Bottom right
-        rects.Push(IntRect(width * 2, top, graphics->GetWidth(), graphics->GetHeight()));
+        rects.push_back(IntRect(width * 2, top, graphics->GetWidth(), graphics->GetHeight()));
     } else if (count == 7) {
         int width = graphics->GetWidth() / 3;
-        rects.Push(IntRect(0, 0, width, graphics->GetHeight() / 2));
+        rects.push_back(IntRect(0, 0, width, graphics->GetHeight() / 2));
         // Top middle
-        rects.Push(IntRect(width, 0, width * 2, graphics->GetHeight() / 2));
+        rects.push_back(IntRect(width, 0, width * 2, graphics->GetHeight() / 2));
         // Top right
-        rects.Push(IntRect(width * 2, 0, graphics->GetWidth(), graphics->GetHeight() / 2));
+        rects.push_back(IntRect(width * 2, 0, graphics->GetWidth(), graphics->GetHeight() / 2));
 
         width = graphics->GetWidth() / 4;
         int top = graphics->GetHeight() / 2;
-        rects.Push(IntRect(0, top, width, graphics->GetHeight()));
-        rects.Push(IntRect(width, top, width * 2, graphics->GetHeight()));
-        rects.Push(IntRect(width * 2, top, width * 3, graphics->GetHeight()));
-        rects.Push(IntRect(width * 3, top, graphics->GetWidth(), graphics->GetHeight()));
+        rects.push_back(IntRect(0, top, width, graphics->GetHeight()));
+        rects.push_back(IntRect(width, top, width * 2, graphics->GetHeight()));
+        rects.push_back(IntRect(width * 2, top, width * 3, graphics->GetHeight()));
+        rects.push_back(IntRect(width * 3, top, graphics->GetWidth(), graphics->GetHeight()));
     }
     else if (count == 8) {
         int width = graphics->GetWidth() / 4;
         int top = 0;
-        rects.Push(IntRect(0, top, width, graphics->GetHeight() / 2));
-        rects.Push(IntRect(width, top, width * 2, graphics->GetHeight() / 2));
-        rects.Push(IntRect(width * 2, top, width * 3, graphics->GetHeight() / 2));
-        rects.Push(IntRect(width * 3, top, graphics->GetWidth(), graphics->GetHeight() / 2));
+        rects.push_back(IntRect(0, top, width, graphics->GetHeight() / 2));
+        rects.push_back(IntRect(width, top, width * 2, graphics->GetHeight() / 2));
+        rects.push_back(IntRect(width * 2, top, width * 3, graphics->GetHeight() / 2));
+        rects.push_back(IntRect(width * 3, top, graphics->GetWidth(), graphics->GetHeight() / 2));
 
         top = graphics->GetHeight() / 2;
-        rects.Push(IntRect(0, top, width, graphics->GetHeight()));
-        rects.Push(IntRect(width, top, width * 2, graphics->GetHeight()));
-        rects.Push(IntRect(width * 2, top, width * 3, graphics->GetHeight()));
-        rects.Push(IntRect(width * 3, top, graphics->GetWidth(), graphics->GetHeight()));
+        rects.push_back(IntRect(0, top, width, graphics->GetHeight()));
+        rects.push_back(IntRect(width, top, width * 2, graphics->GetHeight()));
+        rects.push_back(IntRect(width * 2, top, width * 3, graphics->GetHeight()));
+        rects.push_back(IntRect(width * 3, top, graphics->GetWidth(), graphics->GetHeight()));
     }
 
     return rects;

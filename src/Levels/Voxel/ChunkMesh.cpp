@@ -54,7 +54,7 @@ void ChunkMesh::WriteToVertexBuffer()
     vb_->SetSize(vertices_.size(), elementMask, false);
     vb_->SetShadowed(true);
 
-    if (!vertices_.Empty()) {
+    if (!vertices_.empty()) {
         unsigned char *dest = (unsigned char *) vb_->Lock(0, vertices_.size(), true);
 
         if (dest) {
@@ -101,19 +101,19 @@ void ChunkMesh::WriteToVertexBuffer()
 
 void ChunkMesh::AddVertex(const MeshVertex& vertexData)
 {
-    vertices_.Push(vertexData);
+    vertices_.push_back(vertexData);
 }
 
 void ChunkMesh::AddIndice(short index)
 {
-    indices_.Push(index);
+    indices_.push_back(index);
 }
 
 void ChunkMesh::WriteToIndexBuffer()
 {
     ib_->SetShadowed(true);
     ib_->SetSize(indices_.size(), false);
-    if (!indices_.Empty()) {
+    if (!indices_.empty()) {
         ib_->SetData(indices_.Buffer());
     }
 }

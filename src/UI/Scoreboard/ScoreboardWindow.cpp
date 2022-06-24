@@ -77,8 +77,8 @@ void ScoreboardWindow::CreatePlayerScores()
     }
 
     VariantMap players = GetGlobalVar("Players").GetVariantMap();
-    for (auto it = players.Begin(); it != players.End(); ++it) {
-        VariantMap playerData = (*it).second_.GetVariantMap();
+    for (auto it = players.begin(); it != players.end(); ++it) {
+        VariantMap playerData = (*it).second.GetVariantMap();
         auto container = baseWindow_->CreateChild<UIElement>();
         container->SetAlignment(HA_LEFT, VA_TOP);
         container->SetLayout(LM_HORIZONTAL, 20);

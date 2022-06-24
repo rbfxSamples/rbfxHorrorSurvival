@@ -78,9 +78,9 @@ void Loading::Init()
     }
 #endif
 
-    if (data_.contains("ConnectServer") && !data_["ConnectServer"].GetString().Empty()) {
+    if (data_.contains("ConnectServer") && !data_["ConnectServer"].GetString().empty()) {
         StringVector dependsOn;
-        dependsOn.Push("ConnectServer");
+        dependsOn.push_back("ConnectServer");
         SendEvent(E_REGISTER_LOADING_STEP,
                   RegisterLoadingStep::P_NAME, "Retrieving player data",
                   RegisterLoadingStep::P_REMOVE_ON_FINISH, true,

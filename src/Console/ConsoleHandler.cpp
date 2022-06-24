@@ -45,14 +45,14 @@ void ConsoleHandler::Create()
     // Hack to hide interpretator DropDownList
     PODVector<UIElement*> elements;
     console_->GetBackground()->GetChildren(elements, true);
-    for (auto it = elements.Begin(); it != elements.End(); ++it) {
+    for (auto it = elements.begin(); it != elements.end(); ++it) {
         if ((*it)->GetType() == "DropDownList") {
             (*it)->SetVisible(false);
         }
     }
 
-    for (auto it = registeredConsoleCommands_.Begin(); it != registeredConsoleCommands_.End(); ++it) {
-        console_->AddAutoComplete((*it).first_);
+    for (auto it = registeredConsoleCommands_.begin(); it != registeredConsoleCommands_.end(); ++it) {
+        console_->AddAutoComplete((*it).first);
     }
 
     console_->SetVisible(false);
@@ -157,7 +157,7 @@ void ConsoleHandler::HandleConsoleCommand(StringHash eventType, VariantMap& even
 
 void ConsoleHandler::ParseCommand(ea::string input)
 {
-    if (input.Empty()) {
+    if (input.empty()) {
         return;
     }
     StringVector params = input.Split(' ', false);
@@ -182,8 +182,8 @@ void ConsoleHandler::HandleConsoleCommandHelp(StringHash eventType, VariantMap& 
     URHO3D_LOGINFO("");
     URHO3D_LOGINFO("------- All available (registered) commands -------");
     URHO3D_LOGINFO("-");
-    for (auto it = registeredConsoleCommands_.Begin(); it != registeredConsoleCommands_.End(); ++it) {
-        SingleConsoleCommand info = (*it).second_;
+    for (auto it = registeredConsoleCommands_.begin(); it != registeredConsoleCommands_.end(); ++it) {
+        SingleConsoleCommand info = (*it).second;
         URHO3D_LOGINFOF("- '%s' => '%s': %s", info.command.CString(), info.eventToCall.CString(), info.description.CString());
     }
     URHO3D_LOGINFO("-");

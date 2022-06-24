@@ -139,12 +139,12 @@ void MainMenu::CreateUI()
 
     // Load dynamic buttons
     VariantMap buttons = GetGlobalVar("MenuButtons").GetVariantMap();
-    for (auto it = buttons.Begin(); it != buttons.End(); ++it) {
-        VariantMap item = (*it).second_.GetVariantMap();
+    for (auto it = buttons.begin(); it != buttons.end(); ++it) {
+        VariantMap item = (*it).second.GetVariantMap();
         SharedPtr<Button> button(CreateButton(item["Name"].GetString()));
         button->SetVar("EventToCall", item["EventToCall"].GetString());
         button->SetVar("Data", item["Data"].GetVariantMap());
-        dynamicButtons_.Push(button);
+        dynamicButtons_.push_back(button);
         SubscribeToEvent(button, E_RELEASED, [&](StringHash eventType, VariantMap& eventData) {
             using namespace Released;
             Button* button = static_cast<Button*>(eventData[P_ELEMENT].GetPtr());

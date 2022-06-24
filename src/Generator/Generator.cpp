@@ -162,7 +162,7 @@ void Generator::GenerateTextures()
     stone.singleColor = true;
     stone.colors[0] = Color(0.41,0.41,0.41);
     stone.frame = Color(0.21,0.21,0.21);
-    textures.Push(stone);
+    textures.push_back(stone);
 
     TextureColors dirt;
     dirt.singleColor = false;
@@ -173,43 +173,43 @@ void Generator::GenerateTextures()
     dirt.colors[4] = Color(0.60,0.30,0.00);
     dirt.colors[5] = Color(0.60,0.30,0.00);
     dirt.frame = Color(0.00,0.10,0.05);
-    textures.Push(dirt);
+    textures.push_back(dirt);
 
     TextureColors sand;
     sand.singleColor = true;
     sand.colors[0] = Color(0.93,0.79,0.69);
     sand.frame = Color(0.73,0.59,0.49);
-    textures.Push(sand);
+    textures.push_back(sand);
 
     TextureColors coal;
     coal.singleColor = true;
     coal.colors[0] = Color(0.21,0.27,0.31);
     coal.frame = Color(0.53,0.39,0.29);
-    textures.Push(coal);
+    textures.push_back(coal);
 
     TextureColors light;
     light.singleColor = true;
     light.colors[0] = Color(0.9, 0.8, 0.1);
     light.frame = Color(0.8,0.7,0.1);
-    textures.Push(light);
+    textures.push_back(light);
 
     TextureColors wood;
     wood.singleColor = true;
     wood.colors[0] = Color(0.48,0.25,0.00);
     wood.frame = Color(0.28,0.15,0.00);
-    textures.Push(wood);
+    textures.push_back(wood);
 
     TextureColors leaves;
     leaves.singleColor = true;
     leaves.colors[0] = Color(0.24,0.57,0.25);
     leaves.frame = Color(0.14,0.37,0.15);
-    textures.Push(leaves);
+    textures.push_back(leaves);
 
     TextureColors water;
     water.singleColor = true;
     water.colors[0] = Color(0.64,0.96,0.98, 0.7);
     water.frame = Color(0.54,0.86,0.88, 0.7);
-    textures.Push(water);
+    textures.push_back(water);
 
     combined->SetSize(32 * 6, 32 * textures.size(), 4);
     int border = 1;

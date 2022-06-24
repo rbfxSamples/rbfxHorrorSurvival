@@ -72,7 +72,7 @@ void Notifications::HandleNewNotification(StringHash eventType, VariantMap& even
         if (messageQueue_.size() >= 10) {
             return;
         }
-        messageQueue_.Push(data);
+        messageQueue_.push_back(data);
         URHO3D_LOGINFOF("Too many notification request, pushing notification on queue. Queue size %d", messageQueue_.size());
         return;
     }
@@ -107,7 +107,7 @@ void Notifications::CreateNewNotification(NotificationData data)
     messageElement->SetColor(data.color);
     messageElement->SetFont(font, fontSize);
 
-    messages_.Push(messageContainer);
+    messages_.push_back(messageContainer);
 
     timer_.Reset();
 }
@@ -117,7 +117,7 @@ void Notifications::HandleUpdate(StringHash eventType, VariantMap& eventData)
     using namespace Update;
 
     float timeStep = eventData[P_TIMESTEP].GetFloat();
-    for (auto it = messages_.Begin(); it != messages_.End(); ++it) {
+    for (auto it = messages_.begin(); it != messages_.end(); ++it) {
         if (!(*it)) {
             messages_.Erase(it);
             return;
@@ -132,7 +132,7 @@ void Notifications::HandleUpdate(StringHash eventType, VariantMap& eventData)
         (*it)->SetVar("Lifetime", lifetime);
     }
 
-    if (timer_.GetMSec(false) > 1000 && !messageQueue_.Empty()) {
+    if (timer_.GetMSec(false) > 1000 && !messageQueue_.empty()) {
         CreateNewNotification(messageQueue_.Front());
         messageQueue_.PopFront();
     }

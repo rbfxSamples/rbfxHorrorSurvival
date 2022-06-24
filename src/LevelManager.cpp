@@ -74,12 +74,12 @@ void LevelManager::HandleSetLevelQueue(StringHash eventType, VariantMap& eventDa
         fade_status_ = 0;
     }
 
-    if (eventData["Name"].GetString().Empty()) {
+    if (eventData["Name"].GetString().empty()) {
         URHO3D_LOGERROR("Level manager failed to push level to queue, level name empty!");
         return;
     }
     // Push to queue
-    level_queue_.Push(eventData["Name"].GetString());
+    level_queue_.push_back(eventData["Name"].GetString());
     data_ = eventData;
 
     // Subscribe HandleUpdate() function for processing update events

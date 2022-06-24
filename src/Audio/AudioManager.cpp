@@ -229,7 +229,7 @@ SoundSource3D* AudioManager::AddMusicToNode(Node* node, unsigned int index)
 
 SoundSource3D* AudioManager::CreateNodeSound(Node* node, const ea::string& filename, const ea::string& type)
 {
-    if (filename.Empty()) {
+    if (filename.empty()) {
         return nullptr;
     }
     // Get the sound resource

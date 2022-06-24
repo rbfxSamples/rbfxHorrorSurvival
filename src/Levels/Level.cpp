@@ -159,7 +159,7 @@ void Level::Init()
     }
 
     if (!GetSubsystem<Engine>()->IsHeadless()) {
-        for (auto it = controlIndexes.Begin(); it != controlIndexes.End(); ++it) {
+        for (auto it = controlIndexes.begin(); it != controlIndexes.end(); ++it) {
             using namespace RemoteClientId;
             if (data_.contains(P_NODE_ID) && data_.contains(P_PLAYER_ID)) {
                 // We are the client, we have to lookup the node on the received scene
@@ -210,7 +210,7 @@ SharedPtr<Player> Level::CreatePlayer(int controllerId, bool controllable, const
 
     auto mapInfo = GetSubsystem<SceneManager>()->GetCurrentMapInfo();
     if (mapInfo) {
-        if (!mapInfo->startNode.Empty()) {
+        if (!mapInfo->startNode.empty()) {
             Node* startNode = scene_->GetChild(mapInfo->startNode, true);
             if (startNode) {
                 newPlayer->SetSpawnPoint(startNode->GetWorldPosition());
@@ -230,7 +230,7 @@ SharedPtr<Player> Level::CreatePlayer(int controllerId, bool controllable, const
     }
     newPlayer->SetControllable(controllable);
     newPlayer->SetControllerId(controllerId);
-    if (!name.Empty()) {
+    if (!name.empty()) {
         newPlayer->SetName(name);
     }
 
@@ -461,20 +461,20 @@ void Level::HandlePostUpdate(StringHash eventType, VariantMap& eventData)
     float timeStep = eventData[P_TIMESTEP].GetFloat();
 
     auto* controllerInput = GetSubsystem<ControllerInput>();
-    for (auto it = players_.Begin(); it != players_.End(); ++it) {
+    for (auto it = players_.begin(); it != players_.end(); ++it) {
 
-        int playerId = (*it).first_;
-        Controls controls = controllerInput->GetControls((*it).first_);
+        int playerId = (*it).first;
+        Controls controls = controllerInput->GetControls((*it).first);
         if (cameras_[playerId]) {
             Quaternion rotation(controls.pitch_, controls.yaw_, 0.0f);
             cameras_[playerId]->SetRotation(rotation);
 
-            Node* target = (*it).second_->GetCameraTarget();
+            Node* target = (*it).second->GetCameraTarget();
             if (target) {
                 // Move camera some distance away from the ball
                 cameras_[playerId]->SetPosition(target->GetPosition() +
                                                 cameras_[playerId]->GetRotation() * Vector3::BACK *
-                                                (*it).second_->GetCameraDistance());
+                                                (*it).second->GetCameraDistance());
             }
         }
 

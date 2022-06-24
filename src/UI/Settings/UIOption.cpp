@@ -249,7 +249,7 @@ namespace Urho3D {
     }
 
     void UIMultiOption::UpdateValue() {
-        if (!strings_.Empty() && index_ >= 0 && index_ < (int)strings_.size()) {
+        if (!strings_.empty() && index_ >= 0 && index_ < (int)strings_.size()) {
             if (lbl_value_)
                 lbl_value_->SetText(strings_[index_]);
             MarkDirty();
@@ -290,7 +290,7 @@ namespace Urho3D {
 
         strings_.resize(options_count_);
 
-        for (auto it = strings_.Begin(); it != strings_.End() && index < options.size(); ++it) {
+        for (auto it = strings_.begin(); it != strings_.end() && index < options.size(); ++it) {
             *it = options[index++].GetString();
         }
         UpdateValue();
@@ -299,16 +299,16 @@ namespace Urho3D {
     VariantVector UIMultiOption::GetOptionsAttr() const {
         VariantVector ret;
         ret.Reserve(options_count_ + 1);
-        ret.Push(options_count_);
+        ret.push_back(options_count_);
 
-        for (auto it = strings_.Begin(); it != strings_.End(); ++it) {
-            ret.Push(*it);
+        for (auto it = strings_.begin(); it != strings_.end(); ++it) {
+            ret.push_back(*it);
         }
         return ret;
     }
 
     ea::string UIMultiOption::GetValue() const {
-        if (strings_.Empty())
+        if (strings_.empty())
             return "";
         if (index_ >= 0 && index_ < (int)strings_.size())
             return strings_[index_];
@@ -492,7 +492,7 @@ namespace Urho3D {
 
         tab_names_.resize(tab_count_);
 
-        for (auto it = tab_names_.Begin(); it != tab_names_.End() && index < strings.size(); ++it) {
+        for (auto it = tab_names_.begin(); it != tab_names_.end() && index < strings.size(); ++it) {
             *it = strings[index++].GetString();
         }
 
@@ -522,10 +522,10 @@ namespace Urho3D {
     VariantVector UITabPanel::GetTabsAttribute() const {
         VariantVector ret;
         ret.Reserve(tab_count_ + 1);
-        ret.Push(tab_count_);
+        ret.push_back(tab_count_);
 
-        for (auto it = tab_names_.Begin(); it != tab_names_.End(); ++it) {
-            ret.Push(*it);
+        for (auto it = tab_names_.begin(); it != tab_names_.end(); ++it) {
+            ret.push_back(*it);
         }
         return ret;
     }
@@ -564,7 +564,7 @@ namespace Urho3D {
 
         body_->AddChild(tab.page);
 
-        tabs_.Push(tab);
+        tabs_.push_back(tab);
 
         if (tabs_.size() == 1) {
             tab.button->SetStyle("TransparentButton");
@@ -578,7 +578,7 @@ namespace Urho3D {
     void UITabPanel::RemoveTab(const ea::string& name) {
         auto index = -1;
         // find the tab index
-        for (auto it = tabs_.Begin(); it != tabs_.End(); ++it, ++index) {
+        for (auto it = tabs_.begin(); it != tabs_.end(); ++it, ++index) {
             if (it->name == name)
                 break;
         }
@@ -601,7 +601,7 @@ namespace Urho3D {
     }
 
     void UITabPanel::RemoveAllTabs() {
-        for (auto it = tabs_.Begin(); it != tabs_.End(); ++it) {
+        for (auto it = tabs_.begin(); it != tabs_.end(); ++it) {
             it->text->Remove();
             it->button->Remove();
             it->page->Remove();
