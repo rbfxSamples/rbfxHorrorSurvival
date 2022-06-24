@@ -1,0 +1,6 @@
+[submodule "rbfx"]
+	path = rbfx
+	url = https://github.com/rbfxSamples/rbfx
+[submodule "bin"]
+	path = bin
+	url = https://github.com/rbfxSamples/rbfxHorrorSurvivalAssets
