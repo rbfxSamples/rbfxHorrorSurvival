@@ -26,9 +26,9 @@ GameScreen::GameScreen(Urho3D::Context* context) :
 	SetMouseVisible(true);
 }
 
-void GameScreen::Activate(Urho3D::SingleStateApplication* application)
+void GameScreen::Activate(Urho3D::VariantMap& bundle)
 {
-	ApplicationState::Activate(application);
+	ApplicationState::Activate(bundle);
 }
 
 void GameScreen::Deactivate()

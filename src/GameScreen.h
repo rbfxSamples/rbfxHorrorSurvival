@@ -22,14 +22,14 @@
 
 #pragma once
 
-#include <Urho3D/Engine/SingleStateApplication.h>
+#include <Urho3D/Engine/StateManager.h>
 
 class GameScreen : public Urho3D::ApplicationState
 {
 public:
 	GameScreen(Urho3D::Context* context);
 
-    virtual void Activate(Urho3D::SingleStateApplication* application) override;
+    virtual void Activate(Urho3D::VariantMap& bundle) override;
 	void Deactivate() override;
 private:
     /// Scene.

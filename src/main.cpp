@@ -2,4 +2,4 @@
 
 using namespace Urho3D;
 
-URHO3D_DEFINE_APPLICATION_MAIN(HorrorSurvivalApp)
+URHO3D_DEFINE_PLUGIN_MAIN(HorrorSurvivalApp)

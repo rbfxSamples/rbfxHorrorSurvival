@@ -22,19 +22,21 @@
 
 #pragma once
 
-#include <Urho3D/Engine/SingleStateApplication.h>
+#include <Urho3D/Engine/PluginApplication.h>
 
-class HorrorSurvivalApp : public Urho3D::SingleStateApplication
+class HorrorSurvivalApp : public Urho3D::PluginApplication
 {
 public:
 	HorrorSurvivalApp(Urho3D::Context* context);
 
-	/// Setup before engine initialization. This is a chance to eg. modify the engine parameters. Call ErrorExit() to terminate without initializing the engine. Called by Application.
-	virtual void Setup() override;
+    /// Called when plugin is being loaded. Register all custom components and subscribe to events here.
+    virtual void Load() override;
+    /// Called when application is started. May be called multiple times but no earlier than before next Stop() call.
+    virtual void Start() override;
+    /// Called when application is stopped.
+    virtual void Stop() override;
+    /// Called when plugin is being unloaded. Unregister all custom components and unsubscribe from events here.
+    virtual void Unload() override;
 
-	/// Setup after engine initialization and before running the main loop. Call ErrorExit() to terminate without running the main loop. Called by Application.
-	virtual void Start()override;
-
-	/// Cleanup after the main loop. Called by Application.
-	virtual void Stop() override;
+    void HandleLogMessage(Urho3D::StringHash eventType, Urho3D::VariantMap& args);
 };
