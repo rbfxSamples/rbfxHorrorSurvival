@@ -168,6 +168,8 @@ void Achievements::LoadAchievementList()
     LoadProgress();
 
     auto configFile = GetSubsystem<ResourceCache>()->GetResource<JSONFile>("Config/Achievements.json");
+    if (!configFile)
+        return;
 
     JSONValue value = configFile->GetRoot();
     if (value.IsArray())

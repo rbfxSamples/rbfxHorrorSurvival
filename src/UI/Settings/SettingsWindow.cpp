@@ -156,7 +156,7 @@ ResolutionVector GetFullscreenResolutions(int monitor, int rate)
             resolutions.push_back(Resolution(mode.w, mode.h, mode.refresh_rate));
     }
     // sort resolutions in descending order
-    Sort(resolutions.begin(), resolutions.end(), greater());
+    ea::sort(resolutions.begin(), resolutions.end(), greater());
     return resolutions;
 }
 
@@ -708,7 +708,7 @@ void SettingsWindow::CreateControlsTab()
         auto button = control->GetControl()->CreateChild<Button>();
         button->SetVar("Action", actionId);
         button->SetStyleAuto();
-        button->SetName("Controls_" + ea::string(actionId));
+        button->SetName(Format("Controls_{}", actionId));
         button->SetStyle("TransparentButton");
 
         control_mappings_[actionId] = button->CreateChild<Text>();
@@ -856,7 +856,7 @@ void SettingsWindow::FillRates(int monitor)
     auto rates = GetFullscreenRefreshRates(monitor);
     for (unsigned i = 0; i < rates.size() / 2; i++)
     {
-        Swap(*(rates.begin() + i), *(rates.begin() + rates.size() - 1 - i));
+        ea::swap(*(rates.begin() + i), *(rates.begin() + rates.size() - 1 - i));
     }
     StringVector res;
     for (auto r : rates)
@@ -873,7 +873,7 @@ void SettingsWindow::FillResolutions(int monitor, int rate)
     ResolutionVector resolutions = GetFullscreenResolutions(monitor, rate);
     for (unsigned i = 0; i < resolutions.size() / 2; i++)
     {
-        Swap(*(resolutions.begin() + i), *(resolutions.begin() + resolutions.size() - 1 - i));
+        ea::swap(*(resolutions.begin() + i), *(resolutions.begin() + resolutions.size() - 1 - i));
     }
     StringVector res;
     for (auto r : resolutions)
@@ -938,7 +938,7 @@ void SettingsWindow::RefreshVideoOptions()
         // reverse resolutions to low -> high
         for (unsigned i = 0; i < resolutions.size() / 2; i++)
         {
-            Swap(*(resolutions.begin() + i), *(resolutions.begin() + resolutions.size() - 1 - i));
+            ea::swap(*(resolutions.begin() + i), *(resolutions.begin() + resolutions.size() - 1 - i));
         }
 
         int i = 0;
@@ -986,8 +986,8 @@ void SettingsWindow::ApplyVideoOptions()
         res.refreshrate = ToInt(opt_rate_->GetValue());
     }
 
-    graphics->SetMode(res.width, res.height, fullscreen == 2, fullscreen == 1, true, false,
-        !!opt_vsync_->GetOptionValue(), false, 0, opt_monitor_->GetOptionIndex(), res.refreshrate);
+    graphics->SetMode(res.width, res.height, fullscreen == 2, fullscreen == 1, true, false, !!opt_vsync_->GetOptionValue(),
+        false, 0, opt_monitor_->GetOptionIndex(), res.refreshrate, false);
 
     if (fullscreen == 0)
     {

@@ -60,7 +60,10 @@ void MainMenu::CreateScene()
     scene_ = new Scene(context_);
     scene_->CreateComponent<Octree>();
     auto xmlFile = GetSubsystem<ResourceCache>()->GetResource<XMLFile>("Scenes/Menu.xml");
-    scene_->LoadXML(xmlFile->GetRoot());
+    if (xmlFile)
+    {
+        scene_->LoadXML(xmlFile->GetRoot());
+    }
 
     InitCamera();
 

@@ -171,7 +171,11 @@ private:
         SharedPtr<Button> button;
         SharedPtr<Text> text;
         SharedPtr<ListView> page;
+
+        bool operator==(const Tab& b) const { return name == b.name; }
+        bool operator!=(const Tab& b) const { return !(*this == b); }
     };
+
     ea::vector<Tab> tabs_;
 
     SharedPtr<UIElement> header_;

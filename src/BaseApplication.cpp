@@ -412,12 +412,14 @@ void BaseApplication::LoadINIConfig(ea::string filename)
     SetEngineParameter("Music", GetSubsystem<ConfigManager>()->GetFloat("audio", "Music", 1.0));
 
     Audio* audio = GetSubsystem<Audio>();
-
-    audio->SetMasterGain(SOUND_MASTER, engine_->GetGlobalVar("Master").GetFloat());
-    audio->SetMasterGain(SOUND_EFFECT, engine_->GetGlobalVar("Effect").GetFloat());
-    audio->SetMasterGain(SOUND_AMBIENT, engine_->GetGlobalVar("Ambient").GetFloat());
-    audio->SetMasterGain(SOUND_VOICE, engine_->GetGlobalVar("Voice").GetFloat());
-    audio->SetMasterGain(SOUND_MUSIC, engine_->GetGlobalVar("Music").GetFloat());
+    if (audio)
+    {
+        audio->SetMasterGain(SOUND_MASTER, engine_->GetGlobalVar("Master").GetFloat());
+        audio->SetMasterGain(SOUND_EFFECT, engine_->GetGlobalVar("Effect").GetFloat());
+        audio->SetMasterGain(SOUND_AMBIENT, engine_->GetGlobalVar("Ambient").GetFloat());
+        audio->SetMasterGain(SOUND_VOICE, engine_->GetGlobalVar("Voice").GetFloat());
+        audio->SetMasterGain(SOUND_MUSIC, engine_->GetGlobalVar("Music").GetFloat());
+    }
 }
 
 void BaseApplication::ApplyGraphicsSettings()

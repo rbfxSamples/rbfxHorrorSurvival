@@ -21,7 +21,7 @@ Splash::Splash(Context* context)
     , logoIndex_(0)
 {
     // ea::list of different logos that multiple splash screens will show
-    logos_.Reserve(1);
+    logos_.reserve(1);
     logos_.push_back("Textures/UrhoIcon.png");
     //    logos_.push_back("Textures/Achievements/retro-controller.png");
 }
@@ -73,7 +73,7 @@ void Splash::CreateUI()
 
     // Avoid having too large logos
     // We assume here that the logo image is a regular rectangle
-    if (decalTex->GetWidth() <= 256 && decalTex->GetHeight() <= 256)
+    if (decalTex && decalTex->GetWidth() <= 256 && decalTex->GetHeight() <= 256)
     {
         // Set sprite size & hotspot in its center
         sprite->SetSize(IntVector2(decalTex->GetWidth(), decalTex->GetHeight()));
